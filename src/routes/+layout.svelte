@@ -4,7 +4,7 @@
 </script>
 
 <div class="app flex flex-col min-h-screen">
-	<main class='flex flex-col w-100 max-w-64 p-4'>
+	<main class='flex flex-col w-full'>
 		<slot />
 	</main>
 
@@ -15,7 +15,6 @@
 
 <style lang='postcss'>
 	main {
-		max-width: 64rem;
 		margin: 0 auto;
 		box-sizing: border-box;
 	}
