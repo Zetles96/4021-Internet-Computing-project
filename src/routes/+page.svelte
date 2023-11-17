@@ -1,5 +1,7 @@
 <script>
 	import Login from './Login.svelte';
+	import Menu from './Menu.svelte';
+	import Game from './Game.svelte';
 	import welcome from '$lib/images/svelte-welcome.webp';
 	import welcome_fallback from '$lib/images/svelte-welcome.png';
 
@@ -15,6 +17,7 @@
 <div>
 	{#if !playing}
 		<section>
+			<!-- Header showing title of the game on main menu -->
 			<h1>
 				<span class='title'>
 					<picture>
@@ -27,14 +30,11 @@
 			{#if !logged_in}
 				<Login on:login={(e) => logged_in = e.detail.success}/>
 			{:else}
-				<h1>Logged in</h1>
-				<button on:click={() => logged_in = false}>Logout</button>
-				<button on:click={() => playing = true}>Play</button>
+				<Menu on:play={() => playing = true} on:logout={() => logged_in = false}/>
 			{/if}
 		</section>
 	{:else}
-		<h1>Playing</h1>
-		<button on:click={() => playing = false}>Back</button>
+		<Game on:back={() => playing = false} />
 	{/if}
 </div>
 
