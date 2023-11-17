@@ -1,59 +1,43 @@
 <script>
-	import Counter from './Counter.svelte';
+	import Login from './Login.svelte';
 	import welcome from '$lib/images/svelte-welcome.webp';
 	import welcome_fallback from '$lib/images/svelte-welcome.png';
+
+	let logged_in = false;
+	let playing = false;
 </script>
 
 <svelte:head>
-	<title>Home</title>
-	<meta name="description" content="Svelte demo app" />
+	<title>Slasher</title>
+	<meta name='description' content='A Slashing game' />
 </svelte:head>
 
-<section>
-	<h1>
-		<span class="welcome">
-			<picture>
-				<source srcset={welcome} type="image/webp" />
-				<img src={welcome_fallback} alt="Welcome" />
-			</picture>
-		</span>
+<div>
+	{#if !playing}
+		<section>
+			<h1>
+				<span class='title'>
+					<picture>
+						<source srcset={welcome} type='image/webp' />
+						<img src={welcome_fallback} alt='Slasher' />
+					</picture>
+				</span>
+			</h1>
 
-		to your new<br />SvelteKit app
-	</h1>
+			{#if !logged_in}
+				<Login on:login={(e) => logged_in = e.detail.success}/>
+			{:else}
+				<h1>Logged in</h1>
+				<button on:click={() => logged_in = false}>Logout</button>
+				<button on:click={() => playing = true}>Play</button>
+			{/if}
+		</section>
+	{:else}
+		<h1>Playing</h1>
+		<button on:click={() => playing = false}>Back</button>
+	{/if}
+</div>
 
-	<h2>
-		try editing <strong>src/routes/+page.svelte</strong>
-	</h2>
+<style lang='postcss'>
 
-	<Counter />
-</section>
-
-<style>
-	section {
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		align-items: center;
-		flex: 0.6;
-	}
-
-	h1 {
-		width: 100%;
-	}
-
-	.welcome {
-		display: block;
-		position: relative;
-		width: 100%;
-		height: 0;
-		padding: 0 0 calc(100% * 495 / 2048) 0;
-	}
-
-	.welcome img {
-		position: absolute;
-		width: 100%;
-		height: 100%;
-		top: 0;
-		display: block;
-	}
 </style>
