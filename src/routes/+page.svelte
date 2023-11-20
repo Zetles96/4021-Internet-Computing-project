@@ -23,13 +23,15 @@
 				SLASHER
 			</h1>
 
-			<Modal>
-				{#if !logged_in}
-					<Login on:login={(e) => logged_in = e.detail.success}/>
-				{:else}
-					<Menu on:play={() => playing = true} on:logout={() => logged_in = false}/>
-				{/if}
-			</Modal>
+			<div class='flex flex-col h-full pb-2'>
+				<Modal>
+					{#if !logged_in}
+						<Login on:login={(e) => logged_in = e.detail.success}/>
+					{:else}
+						<Menu on:play={() => playing = true} on:logout={() => logged_in = false}/>
+					{/if}
+				</Modal>
+			</div>
 		</section>
 	{:else}
 		<Game on:back={() => playing = false} />
