@@ -4,7 +4,7 @@
 	const dispatch = createEventDispatcher();
 
 	function toMenu() {
-		dispatch('back', {});
+		dispatch('back');
 	}
 </script>
 
