@@ -3,8 +3,6 @@
 	import Menu from './Menu.svelte';
 	import Game from './Game.svelte';
 	import Modal from '$lib/components/Modal.svelte';
-	import welcome from '$lib/images/svelte-welcome.webp';
-	import welcome_fallback from '$lib/images/svelte-welcome.png';
 
 	let logged_in = false;
 	let playing = false;
