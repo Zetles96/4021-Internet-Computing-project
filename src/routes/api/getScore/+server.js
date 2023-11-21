@@ -22,7 +22,7 @@ export async function GET({ url }) {
 		throw error(400, 'Missing user argument');
 	}
 
-	if (!database.userExists(user)) {
+	if (!await database.userExists(user)) {
 		/**
 		 * @throws {Error} Throws an error with status code 404 and a message indicating user not found.
 		 */
@@ -32,7 +32,7 @@ export async function GET({ url }) {
 	/**
 	 * @type {number}
 	 */
-	const score = database.getScore(user);
+	const score = await database.getScore(user);
 
 	return json({ score });
 }

@@ -17,7 +17,7 @@ const userDataPath = './usersData.json';
 /**
  * Get all user scores.
  *
- * @returns {UsersData} Object containing user scores.
+ * @returns {Promise[UsersData]} A Promise resolving to an object containing all user scores.
  */
 export async function getScores() {
 	const users = userData;
@@ -35,10 +35,18 @@ export async function getScores() {
  * Get the score for a specific user.
  *
  * @param {string} name - The name of the user.
- * @returns {number} The user's score.
+ * @returns {Promise[number]} The score for the user.
  */
 export async function getScore(name) {
+	if (!(await userExists(name))) {
+		return -1;
+	}
+
 	const users = userData;
+
+	if (users[name] === undefined || users[name].score === undefined) {
+		return -1;
+	}
 	return users[name].score;
 }
 
@@ -46,7 +54,7 @@ export async function getScore(name) {
  * Check if a user exists.
  *
  * @param {string} name - The name of the user.
- * @returns {boolean} True if the user exists, false otherwise.
+ * @returns {Promise[boolean]} True if the user exists, false otherwise.
  */
 export async function userExists(name) {
 	const users = userData;
@@ -71,7 +79,7 @@ export async function createUser(username, password) {
  *
  * @param {string} username - The name of the user.
  * @param {string} password - The password to check.
- * @returns {boolean} True if the password is correct, false otherwise.
+ * @returns {Promise[boolean]} True if the password is correct, false otherwise.
  */
 export async function checkUserCredentials(username, password) {
 	const users = userData;
