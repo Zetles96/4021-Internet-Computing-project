@@ -174,8 +174,8 @@
 	</div>
 	<div class='overlay w-screen h-screen flex flex-col justify-between items-center p-3'>
 		<p class='status'>Playing...</p>
-		<button class='backbutton' on:click={toMenu}>Back to Menu</button>
-		<button class='gameOver' on:click={toGameOver}>Game Over</button> <!-- TEMP -->
+		<!-- <button class='backbutton' on:click={toMenu}>Back to Menu</button> -->
+		<button class='gameOver' on:click={toGameOver}>Game Over</button> 
 	</div>
 </div>
 

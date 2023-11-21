@@ -36,7 +36,7 @@
 	{:else if gameover}
 		<GameOver on:close={() => {gameover = false, playing = false}} on:playAgain={() => gameover = false}></GameOver>
 	{:else}
-		<Game on:back={() => playing = false} on:gameover={() => gameover = true}/> <!-- TEMP-->
+		<Game on:back={() => playing = false} on:gameover={() => gameover = true}/>
 	{/if}
 </div>
 
