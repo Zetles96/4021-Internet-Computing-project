@@ -3,9 +3,11 @@
 	import Menu from './Menu.svelte';
 	import Game from './Game.svelte';
 	import Modal from '$lib/components/Modal.svelte';
+	import GameOver from './GameOver.svelte'; 
 
 	let logged_in = false;
 	let playing = false;
+	let gameover = false; 
 </script>
 
 <svelte:head>
@@ -31,8 +33,10 @@
 				</Modal>
 			</div>
 		</section>
+	{:else if gameover}
+		<GameOver on:close={() => {gameover = false, playing = false}} on:playAgain={() => gameover = false}></GameOver>
 	{:else}
-		<Game on:back={() => playing = false} />
+		<Game on:back={() => playing = false} on:gameover={() => gameover = true}/> <!-- TEMP-->
 	{/if}
 </div>
 
