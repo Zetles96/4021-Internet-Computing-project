@@ -1,10 +1,10 @@
 <script>
 	import { createEventDispatcher, onMount } from 'svelte';
+	import { Player } from './sprites.js';
 
 	// import grass tile from lib
 	import GrassTile from '$lib/images/grasstile.png';
-	import Player from '$lib/images/Samurai/Walk.png';
-
+	import SamuraiSpritesheet from '$lib/images/Samurai/Spritesheet.png';
 
 	const dispatch = createEventDispatcher();
 
@@ -17,7 +17,29 @@
 	 */
 	let ctx;
 
+	/**
+	 * @type {Player | null}
+	 */
+	let player;
+
 	const player_pos = [0, 0];
+
+	let isPlaying = false;
+
+	// Make canvasimagesource from grass tile image string
+	const grassTile = new Image();
+	grassTile.src = GrassTile;
+
+	/**
+	 * For some reason JavaScript makes negative input negative output for modulo...
+	 * https://stackoverflow.com/a/17323608/12418245
+	 * @param {number} n
+	 * @param {number} m
+	 * @returns {number}
+	 */
+	function mod(n, m) {
+		return ((n % m) + m) % m;
+	}
 
 	function toMenu() {
 		dispatch('back');
@@ -31,38 +53,76 @@
 		if (ctx) {
 			canvas.width = window.innerWidth;
 			canvas.height = window.innerHeight;
-			draw();
+			requestAnimationFrame(draw);
 		}
 	};
 
 	/**
+	 * @type {{[key: string]: boolean}}
+	 */
+	const currentKeysMap = {};
+
+	/**
+	 * Keymap idea is taken from https://stackoverflow.com/a/12444641/12418245
 	 * @param {KeyboardEvent} e
 	 */
-	const handleKeydown = (e) => {
+	const handleKeys = (e) => {
+		console.log("Key pressed: ", e.key);
+		currentKeysMap[e.key] = e.type === 'keydown';
+		console.log("Keys pressed: ", currentKeysMap);
+
+		// TODO: replace these with calls to backend of current player action
 		if (e.key === 'Escape') {
+			isPlaying = false;
 			toMenu();
 		}
-		// TODO: this crashes the game, for some reason, gotta fix
-		// if (e.key === 'ArrowUp') {
-		// 	player_pos[1] -= 16;
-		// 	draw();
-		// }
-		// if (e.key === 'ArrowDown') {
-		// 	player_pos[1] += 16;
-		// 	draw();
-		// }
-		// if (e.key === 'ArrowLeft') {
-		// 	player_pos[0] -= 16;
-		// 	draw();
-		// }
-		// if (e.key === 'ArrowRight') {
-		// 	player_pos[0] += 16;
-		// 	draw();
-		// }
+
+		// Movement
+		const player_move_distance = 5;
+		if (currentKeysMap['ArrowUp'] || currentKeysMap['w'] || currentKeysMap['W']) {
+			player_pos[1] -= player_move_distance;
+			// If up and left
+			if (currentKeysMap['ArrowLeft'] || currentKeysMap['a'] || currentKeysMap['A']) {
+				if (player) player.move(1);
+				player_pos[0] -= player_move_distance;
+			}
+			// If up and right
+			else if (currentKeysMap['ArrowRight'] || currentKeysMap['d'] || currentKeysMap['D']) {
+				if (player) player.move(3);
+				player_pos[0] += player_move_distance;
+			}
+			else {
+				if (player) player.move(2);
+			}
+		}
+		else if (currentKeysMap['ArrowDown'] || currentKeysMap['s'] || currentKeysMap['S']) {
+			player_pos[1] += player_move_distance;
+			if (currentKeysMap['ArrowLeft'] || currentKeysMap['a'] || currentKeysMap['A']) {
+				if (player) player.move(1);
+				player_pos[0] -= player_move_distance;
+			}
+			else if (currentKeysMap['ArrowRight'] || currentKeysMap['d'] || currentKeysMap['D']) {
+				if (player) player.move(3);
+				player_pos[0] += player_move_distance;
+			}
+			else {
+				if (player) player.move(4);
+			}
+		}
+		else if (currentKeysMap['ArrowLeft'] || currentKeysMap['a'] || currentKeysMap['A']) {
+			if (player) player.move(1);
+			player_pos[0] -= player_move_distance;
+		}
+		else if (currentKeysMap['ArrowRight'] || currentKeysMap['d'] || currentKeysMap['D']) {
+			if (player) player.move(3);
+			player_pos[0] += player_move_distance;
+		}
+		else {
+			if (player) player.move(0);
+		}
 	};
 
-
-	// onmount set canvas size
+	// When the component is mounted, set the canvas width and height
 	onMount(() => {
 		canvas.width = window.innerWidth;
 		canvas.height = window.innerHeight;
@@ -72,98 +132,118 @@
 		// Add event listener for resize
 		window.addEventListener('resize', resizeCanvas);
 
+		// Keydown event listener is initialized in $: if(ctx) {}
+
 		return () => {
 			window.removeEventListener('resize', resizeCanvas);
 			// Remove event listener for keydown
-			window.removeEventListener('keydown', handleKeydown);
+			window.removeEventListener('keydown', handleKeys);
+			window.removeEventListener('keyup', handleKeys);
 		}
 	});
 
 	$ : if(ctx) {
 		ctx.imageSmoothingEnabled = false;
-		draw();
 
-		// Add event listener for keydown
-		window.addEventListener('keydown', handleKeydown);
+		player = Player(ctx, 0, 0, SamuraiSpritesheet);
+
+		// Only use the images after they are loaded
+		grassTile.onload = () => {
+			// Start game
+			isPlaying = true;
+			requestAnimationFrame(draw);
+
+			// Add event listener for keydown
+			window.addEventListener('keydown', handleKeys);
+			window.addEventListener('keyup', handleKeys);
+		};
 	}
 
-	function drawCharacter() {
-		if (ctx) {
-			const player = new Image();
-			player.src = Player;
+	/**
+	 * Draw the character
+	 * @param {number} now The current timestamp
+	 */
+	function drawCharacter(now) {
+		if (ctx && player) {
+			player.setPosition(canvas.width/2, canvas.height/2)
+			player.update(now);
+			player.draw();
+		}
+	}
 
-			player.onload = () => {
-				if (!ctx) return;
-				ctx.drawImage(player, 0, 0, 128, 128, canvas.width/2 - 128 / 2, canvas.height/2 - 128 / 2, 128, 128);
+	/**
+	 * Draw the background
+	 */
+	function drawBackground() {
+		if(ctx && grassTile.complete) {
+			// https://stackoverflow.com/a/17247032/12418245
+			let w = 32;
+			let h = 32;
+
+			const x_mod = mod(player_pos[0], canvas.width);
+			const y_mod = mod(player_pos[1], canvas.height);
+			let x = x_mod+w;
+			let y = y_mod+h;
+
+			while (true) {
+				y = y_mod+h;
+				while (true) {
+					// console.log("Drawing grass tile at: ", [x, y]);
+					ctx.drawImage(grassTile, x, y, w, h);
+
+					if (y === y_mod) {
+						// console.log("y === player_pos[1] % canvas.height", y, y_mod);
+						break;
+					}
+					else if (y+h > canvas.height) {
+						// We have to calculate the new y to draw from beginning of canvas (or before)
+						// and add height enough times to get to player_pos[1] % canvas.height
+						y = y_mod - h * Math.ceil(y_mod / h);
+					}
+					else {
+						y += h;
+						y = mod(y, canvas.height);
+					}
+				}
+
+				if (x === x_mod) {
+					break;
+				}
+				else if (x+w > canvas.width) {
+					// We have to calculate the new x to draw from beginning of canvas (or before)
+					// and add width enough times to get to player_pos[0] % canvas.width
+					x = x_mod - w * Math.ceil(x_mod / w);
+				}
+				else {
+					x += w;
+					x = mod(x, canvas.width);
+				}
 			}
 		}
 	}
 
+	/**
+	 * The main drawing of the game
+	 * @param {number} now The current timestamp
+	 */
+	function draw(now) {
+		if(ctx && canvas) {
+			// console.clear();
 
-	function draw() {
-		if(ctx) {
-			console.log("Drawing with player position: ", player_pos);
+			// console.log("Drawing with player position: ", player_pos);
 
-			// Make canvasimagesource from grass tile image string
-			const grassTile = new Image();
-			grassTile.src = GrassTile;
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-			// Only use the image after it's loaded
-			grassTile.onload = () => {
-				if (!ctx) return;
-				// https://stackoverflow.com/a/17247032/12418245
-				let w = 32;
-				let h = 32;
+			// Draw the background
+			drawBackground();
 
-				let x = player_pos[0] % canvas.width;
-				let y = player_pos[1] % canvas.height;
+			// Draw the character
+			drawCharacter(now);
 
-				// the following line needs to exist, otherwise the canvas will be blank until
-				// player position, for some reason..?
-				ctx.drawImage(grassTile, 0, 0, w, h);
-				// console.clear();
-				// console.log(x, y);
-				ctx.drawImage(grassTile, x, y, w, h);
-				x += w;
-				x = x % canvas.width;
-				y += h;
-				y = y % canvas.height;
-
-				while (x !== (player_pos[0] % canvas.width)) {
-					// console.log(x, y);
-					while (y !== (player_pos[1] % canvas.height)) {
-						ctx.drawImage(grassTile, x, y, w, h);
-						y += h;
-						y = y % canvas.height;
-					}
-					x += w;
-					x = x % canvas.width;
-				}
-
-				//draw once
-				ctx.drawImage(grassTile, player_pos[0], player_pos[1], w, h);
-
-				while (w < canvas.width) {
-					ctx.drawImage(canvas, w, 0);
-					w <<= 1;  // shift left 1 = *2 but slightly faster
-				}
-				while (h < canvas.height) {
-					ctx.drawImage(canvas, 0, h);
-					h <<= 1;
-				}
-
-				// // Fill background with grasstile
-				// const pattern = context.createPattern(grassTile, "repeat");
-				// if (!pattern) {
-				// 	console.log('pattern is null');
-				// 	return;
-				// }
-				// context.fillStyle = pattern;
-				// context.fillRect(0, 0, canvas.width, canvas.height);
-
-				// Draw the character
-				drawCharacter();
-			};
+			// If still playing, draw again
+			if (isPlaying) {
+				requestAnimationFrame(draw);
+			}
 		}
 	}
 </script>
