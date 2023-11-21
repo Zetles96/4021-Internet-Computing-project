@@ -13,16 +13,19 @@ import * as database from '$lib/server/database.js';
  * @throws {Error} Throws an error with status code 400 if username or password is missing.
  * @throws {Error} Throws an error with status code 409 if the user already exists.
  */
-export async function POST({ body }) {
-	/**
-	 * @type {string}
-	 */
-	const username = body.get('username');
+export async function POST(request) {
+	const { body } = request;
+	console.log('Request Body:', body);
 
 	/**
 	 * @type {string}
 	 */
-	const password = body.get('password');
+	const username = body['username'];
+
+	/**
+	 * @type {string}
+	 */
+	const password = body['password'];
 
 	if (!username || !password) {
 		/**
