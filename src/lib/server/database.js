@@ -1,6 +1,7 @@
 import { json } from '@sveltejs/kit';
 import userData from './usersData.json';
 import { writeFileSync, readFileSync } from 'fs';
+import bcrypt from 'bcrypt';
 
 const userDataPath = './usersData.json';
 /**
@@ -18,7 +19,7 @@ const userDataPath = './usersData.json';
  *
  * @returns {UsersData} Object containing user scores.
  */
-export function getScores() {
+export async function getScores() {
 	const users = userData;
 	const output = {};
 
@@ -36,7 +37,7 @@ export function getScores() {
  * @param {string} name - The name of the user.
  * @returns {number} The user's score.
  */
-export function getScore(name) {
+export async function getScore(name) {
 	const users = userData;
 	return users[name].score;
 }
@@ -47,7 +48,7 @@ export function getScore(name) {
  * @param {string} name - The name of the user.
  * @returns {boolean} True if the user exists, false otherwise.
  */
-export function userExists(name) {
+export async function userExists(name) {
 	const users = userData;
 	return name in users;
 }
@@ -55,13 +56,33 @@ export function userExists(name) {
 /**
  * Create a new user with the specified name and password.
  *
- * @param {string} name - The name of the new user.
+ * @param {string} username - The name for the new user.
  * @param {string} password - The password for the new user.
  */
-export function createUser(name, password) {
+export async function createUser(username, password) {
 	const users = userData;
-	users[name] = { password: password, score: 0 };
+	const hashedPassword = await bcrypt.hash(password, 12);
+	users[username] = { password: hashedPassword, score: 0 };
 	writeFileSync(userDataPath, JSON.stringify(users));
+}
+
+/**
+ * Check if a password is correct for a specific user.
+ *
+ * @param {string} username - The name of the user.
+ * @param {string} password - The password to check.
+ * @returns {boolean} True if the password is correct, false otherwise.
+ */
+export async function checkUserCredentials(username, password) {
+	const users = userData;
+	const user = users[username];
+	if (userExists(username)) {
+		return await bcrypt.compare(password, user.password);
+	} else {
+		// wastes some time to prevent timing attacks
+		await bcrypt.hash(password, 12);
+		return false;
+	}
 }
 
 /**
@@ -70,7 +91,7 @@ export function createUser(name, password) {
  * @param {string} name - The name of the user.
  * @param {number} score - The new score for the user.
  */
-export function setScore(name, score) {
+export async function setScore(name, score) {
 	const users = userData;
 	users[name].score = score;
 	writeFileSync(userDataPath, JSON.stringify(users));
