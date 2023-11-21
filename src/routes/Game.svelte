@@ -1,6 +1,7 @@
 <script>
 	import { createEventDispatcher, onMount } from 'svelte';
 	import { Player } from './sprites.js';
+	import Cheats from './Cheats.svelte';
 
 	// import grass tile from lib
 	import GrassTile from '$lib/images/grasstile.png';
@@ -25,6 +26,7 @@
 	const player_pos = [0, 0];
 
 	let isPlaying = false;
+	let showCheats = false; // TEMP
 
 	// Make canvasimagesource from grass tile image string
 	const grassTile = new Image();
@@ -252,10 +254,14 @@
 	<div class='gamecontainer w-screen h-screen'>
 		<canvas bind:this={canvas}></canvas>
 	</div>
-	<div class='overlay w-screen h-screen flex flex-col justify-between items-center p-3'>
+	<div class='overlay w-screen h-screen flex flex-col items-center p-3'>
 		<p class='status'>Playing...</p>
+		{#if showCheats}
+			<Cheats on:close={() => showCheats = false} />
+		{/if}
 		<!-- <button class='backbutton' on:click={toMenu}>Back to Menu</button> -->
-		<button class='gameOver' on:click={toGameOver}>Game Over</button> 
+		<button class='gameOver' on:click={toGameOver}>Game Over</button>
+		<button class='cheats' on:click={() => showCheats = true}>Cheats</button> <!-- TEMP -->
 	</div>
 </div>
 
