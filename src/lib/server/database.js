@@ -1,46 +1,77 @@
 import { json } from '@sveltejs/kit';
-import { userData, userDataPath } from '$lib/server/usersData.json';
-import { writeFileSync } from 'fs';
+import userData from './usersData.json';
+import { writeFileSync, readFileSync } from 'fs';
 
+const userDataPath = './usersData.json';
+/**
+ * @typedef {Object} UserData
+ * @property {number} score - The user's score.
+ * @property {string} password - The user's password.
+ */
+
+/**
+ * @typedef {Object.<string, UserData>} UsersData
+ */
+
+/**
+ * Get all user scores.
+ *
+ * @returns {UsersData} Object containing user scores.
+ */
 export function getScores() {
-	const users = userData();
-	// Convert the userData object into an array of objects with user and score properties
-	const scoresArray = Object.keys(users).map((user) => ({
-		user,
-		score: users[user].score
-	}));
+	const users = userData;
+	const output = {};
 
-	// Sort the array by score in descending order
-	scoresArray.sort((a, b) => b.score - a.score);
+	for (const user in users) {
+		const score = users[user].score;
+		output[user] = { score };
+	}
 
-	// Return the sorted scoresArray
-	return json(scoresArray);
+	return output;
 }
 
+/**
+ * Get the score for a specific user.
+ *
+ * @param {string} name - The name of the user.
+ * @returns {number} The user's score.
+ */
 export function getScore(name) {
-	const users = userData();
-	// get score
+	const users = userData;
 	return users[name].score;
 }
 
+/**
+ * Check if a user exists.
+ *
+ * @param {string} name - The name of the user.
+ * @returns {boolean} True if the user exists, false otherwise.
+ */
 export function userExists(name) {
-	const users = userData();
-	// check if user exists
+	const users = userData;
 	return name in users;
 }
 
+/**
+ * Create a new user with the specified name and password.
+ *
+ * @param {string} name - The name of the new user.
+ * @param {string} password - The password for the new user.
+ */
 export function createUser(name, password) {
-	const users = userData();
-	// create user
+	const users = userData;
 	users[name] = { password: password, score: 0 };
-	// write to the json file
 	writeFileSync(userDataPath, JSON.stringify(users));
 }
 
-export function updateScore(name, score) {
-	const users = userData();
-	// update score
+/**
+ * Set the score for a specific user.
+ *
+ * @param {string} name - The name of the user.
+ * @param {number} score - The new score for the user.
+ */
+export function setScore(name, score) {
+	const users = userData;
 	users[name].score = score;
-	// write to the json file
 	writeFileSync(userDataPath, JSON.stringify(users));
 }

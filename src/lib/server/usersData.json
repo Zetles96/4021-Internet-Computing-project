@@ -1,14 +1,14 @@
 {
-  "user1": {
-    "password": "password123",
-    "score": 100
-  },
-  "user2": {
-    "password": "securePass",
-    "score": 150
-  },
-  "user3": {
-    "password": "123456",
-    "score": 75
-  }
+    "user1": {
+        "password": "password123",
+        "score": 100
+    },
+    "user2": {
+        "password": "securePass",
+        "score": 150
+    },
+    "user3": {
+        "password": "123456",
+        "score": 75
+    }
 }
