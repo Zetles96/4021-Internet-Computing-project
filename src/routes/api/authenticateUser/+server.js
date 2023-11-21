@@ -1,13 +1,27 @@
 import { error, json } from '@sveltejs/kit';
 import * as database from '$lib/server/database.js';
+import { checkUserCredentials } from '$lib/server/database.js';
 
 const jwt = require('jsonwebtoken');
 
 const secret = process.env.JWT_SECRET || 'secret';
 
-export async function GET({ body }) {
-	const username = body.get('username');
-	const password = body.get('password');
+export async function GET({ requestEvent }) {
+	console.log('i have been called')
+	const { request } = requestEvent;
+	/**
+	 *
+	 * @type {Object}
+	 */
+	const data = await request.json();
+	/**
+	 * @type {string}
+	 */
+	const { username } = data;
+	/**
+	 * @type {string}
+	 */
+	const { password } = data;
 
 	if (!username) {
 		throw error(400, 'Missing username argument');
@@ -15,10 +29,10 @@ export async function GET({ body }) {
 	if (!password) {
 		throw error(400, 'Missing password argument');
 	}
-	if (!database.userExists(username)) {
+	if (!(await database.userExists(username))) {
 		throw error(404, 'User not found');
 	}
-	if (!database.checkPassword(username, password)) {
+	if (!(await database.checkUserCredentials(username, password))) {
 		throw error(401, 'Wrong password');
 	}
 
