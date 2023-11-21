@@ -176,8 +176,8 @@
 			let w = 32;
 			let h = 32;
 
-			const x_mod = mod(player_pos[0], canvas.width);
-			const y_mod = mod(player_pos[1], canvas.height);
+			const x_mod = mod(-player_pos[0], canvas.width);
+			const y_mod = mod(-player_pos[1], canvas.height);
 			let x = x_mod+w;
 			let y = y_mod+h;
 
