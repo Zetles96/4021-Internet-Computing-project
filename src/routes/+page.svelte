@@ -2,11 +2,12 @@
 	import Login from './Login.svelte';
 	import Menu from './Menu.svelte';
 	import Game from './Game.svelte';
-	import welcome from '$lib/images/svelte-welcome.webp';
-	import welcome_fallback from '$lib/images/svelte-welcome.png';
+	import Modal from '$lib/components/Modal.svelte';
+	import GameOver from './GameOver.svelte'; 
 
 	let logged_in = false;
 	let playing = false;
+	let gameover = false; 
 </script>
 
 <svelte:head>
@@ -14,30 +15,36 @@
 	<meta name='description' content='A Slashing game' />
 </svelte:head>
 
-<div>
+<div class='flex flex-col'>
 	{#if !playing}
-		<section>
+		<section class='flex flex-col h-screen'>
 			<!-- Header showing title of the game on main menu -->
-			<h1>
-				<span class='title'>
-					<picture>
-						<source srcset={welcome} type='image/webp' />
-						<img src={welcome_fallback} alt='Slasher' />
-					</picture>
-				</span>
+			<h1 class='title flex justify-center'>
+				SLASHER
 			</h1>
 
-			{#if !logged_in}
-				<Login on:login={(e) => logged_in = e.detail.success}/>
-			{:else}
-				<Menu on:play={() => playing = true} on:logout={() => logged_in = false}/>
-			{/if}
+			<div class='flex flex-col h-full pb-2'>
+				<Modal>
+					{#if !logged_in}
+						<Login on:login={(e) => logged_in = e.detail.success}/>
+					{:else}
+						<Menu on:play={() => playing = true} on:logout={() => logged_in = false}/>
+					{/if}
+				</Modal>
+			</div>
 		</section>
+	{:else if gameover}
+		<GameOver on:close={() => {gameover = false, playing = false}} on:playAgain={() => gameover = false}></GameOver>
 	{:else}
-		<Game on:back={() => playing = false} />
+		<Game on:back={() => playing = false} on:gameover={() => gameover = true}/>
 	{/if}
 </div>
 
 <style lang='postcss'>
-
+	.title {
+		font-size: 5rem;
+		text-align: center;
+		padding-top: 1rem;
+        padding-bottom: 1rem;
+	}
 </style>
