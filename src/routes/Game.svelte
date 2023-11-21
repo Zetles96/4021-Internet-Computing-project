@@ -1,10 +1,10 @@
 <script>
 	import { createEventDispatcher, onMount } from 'svelte';
+	import { Player } from './sprites.js';
 
 	// import grass tile from lib
 	import GrassTile from '$lib/images/grasstile.png';
-	import Player from '$lib/images/Samurai/Walk.png';
-
+	import SamuraiSpritesheet from '$lib/images/Samurai/Spritesheet.png';
 
 	const dispatch = createEventDispatcher();
 
@@ -17,17 +17,21 @@
 	 */
 	let ctx;
 
+	/**
+	 * @type {Player | null}
+	 */
+	let player;
+
 	const player_pos = [0, 0];
+
+	let isPlaying = false;
 
 	// Make canvasimagesource from grass tile image string
 	const grassTile = new Image();
 	grassTile.src = GrassTile;
 
-	// Player image
-	const player = new Image();
-	player.src = Player;
-
 	/**
+	 * For some reason JavaScript makes negative input negative output for modulo...
 	 * https://stackoverflow.com/a/17323608/12418245
 	 * @param {number} n
 	 * @param {number} m
@@ -45,38 +49,76 @@
 		if (ctx) {
 			canvas.width = window.innerWidth;
 			canvas.height = window.innerHeight;
-			draw();
+			requestAnimationFrame(draw);
 		}
 	};
 
 	/**
+	 * @type {{[key: string]: boolean}}
+	 */
+	const currentKeysMap = {};
+
+	/**
+	 * Keymap idea is taken from https://stackoverflow.com/a/12444641/12418245
 	 * @param {KeyboardEvent} e
 	 */
-	const handleKeydown = (e) => {
+	const handleKeys = (e) => {
 		console.log("Key pressed: ", e.key);
+		currentKeysMap[e.key] = e.type === 'keydown';
+		console.log("Keys pressed: ", currentKeysMap);
+
+		// TODO: replace these with calls to backend of current player action
 		if (e.key === 'Escape') {
+			isPlaying = false;
 			toMenu();
 		}
-		if (e.key === 'ArrowUp' || e.key.toLowerCase() === 'w') {
-			player_pos[1] -= 16;
-			draw();
+
+		// Movement
+		const player_move_distance = 5;
+		if (currentKeysMap['ArrowUp'] || currentKeysMap['w'] || currentKeysMap['W']) {
+			player_pos[1] -= player_move_distance;
+			// If up and left
+			if (currentKeysMap['ArrowLeft'] || currentKeysMap['a'] || currentKeysMap['A']) {
+				if (player) player.move(1);
+				player_pos[0] -= player_move_distance;
+			}
+			// If up and right
+			else if (currentKeysMap['ArrowRight'] || currentKeysMap['d'] || currentKeysMap['D']) {
+				if (player) player.move(3);
+				player_pos[0] += player_move_distance;
+			}
+			else {
+				if (player) player.move(2);
+			}
 		}
-		if (e.key === 'ArrowDown' || e.key.toLowerCase() === 's') {
-			player_pos[1] += 16;
-			draw();
+		else if (currentKeysMap['ArrowDown'] || currentKeysMap['s'] || currentKeysMap['S']) {
+			player_pos[1] += player_move_distance;
+			if (currentKeysMap['ArrowLeft'] || currentKeysMap['a'] || currentKeysMap['A']) {
+				if (player) player.move(1);
+				player_pos[0] -= player_move_distance;
+			}
+			else if (currentKeysMap['ArrowRight'] || currentKeysMap['d'] || currentKeysMap['D']) {
+				if (player) player.move(3);
+				player_pos[0] += player_move_distance;
+			}
+			else {
+				if (player) player.move(4);
+			}
 		}
-		if (e.key === 'ArrowLeft' || e.key.toLowerCase() === 'a') {
-			player_pos[0] -= 16;
-			draw();
+		else if (currentKeysMap['ArrowLeft'] || currentKeysMap['a'] || currentKeysMap['A']) {
+			if (player) player.move(1);
+			player_pos[0] -= player_move_distance;
 		}
-		if (e.key === 'ArrowRight' || e.key.toLowerCase() === 'd') {
-			player_pos[0] += 16;
-			draw();
+		else if (currentKeysMap['ArrowRight'] || currentKeysMap['d'] || currentKeysMap['D']) {
+			if (player) player.move(3);
+			player_pos[0] += player_move_distance;
+		}
+		else {
+			if (player) player.move(0);
 		}
 	};
 
-
-	// onmount set canvas size
+	// When the component is mounted, set the canvas width and height
 	onMount(() => {
 		canvas.width = window.innerWidth;
 		canvas.height = window.innerHeight;
@@ -86,47 +128,50 @@
 		// Add event listener for resize
 		window.addEventListener('resize', resizeCanvas);
 
+		// Keydown event listener is initialized in $: if(ctx) {}
+
 		return () => {
 			window.removeEventListener('resize', resizeCanvas);
 			// Remove event listener for keydown
-			window.removeEventListener('keydown', handleKeydown);
+			window.removeEventListener('keydown', handleKeys);
+			window.removeEventListener('keyup', handleKeys);
 		}
 	});
 
 	$ : if(ctx) {
 		ctx.imageSmoothingEnabled = false;
 
+		player = Player(ctx, 0, 0, SamuraiSpritesheet);
+
 		// Only use the images after they are loaded
 		grassTile.onload = () => {
-			draw();
+			// Start game
+			isPlaying = true;
+			requestAnimationFrame(draw);
 
 			// Add event listener for keydown
-			window.addEventListener('keydown', handleKeydown);
+			window.addEventListener('keydown', handleKeys);
+			window.addEventListener('keyup', handleKeys);
 		};
 	}
 
-	function drawCharacter() {
-		if (ctx) {
-			if (player.complete) {
-				ctx.drawImage(player, 0, 0, 128, 128, canvas.width/2 - 128 / 2, canvas.height/2 - 128 / 2, 128, 128);
-			}
-			else {
-				player.onload = () => {
-					drawCharacter();
-				}
-			}
+	/**
+	 * Draw the character
+	 * @param {number} now The current timestamp
+	 */
+	function drawCharacter(now) {
+		if (ctx && player) {
+			player.setPosition(canvas.width/2, canvas.height/2)
+			player.update(now);
+			player.draw();
 		}
 	}
 
-
-	function draw() {
+	/**
+	 * Draw the background
+	 */
+	function drawBackground() {
 		if(ctx && grassTile.complete) {
-			// console.clear();
-
-			console.log("Drawing with player position: ", player_pos);
-
-			ctx.clearRect(0, 0, canvas.width, canvas.height);
-
 			// https://stackoverflow.com/a/17247032/12418245
 			let w = 32;
 			let h = 32;
@@ -135,7 +180,6 @@
 			const y_mod = mod(player_pos[1], canvas.height);
 			let x = x_mod+w;
 			let y = y_mod+h;
-
 
 			while (true) {
 				y = y_mod+h;
@@ -171,9 +215,31 @@
 					x = mod(x, canvas.width);
 				}
 			}
+		}
+	}
+
+	/**
+	 * The main drawing of the game
+	 * @param {number} now The current timestamp
+	 */
+	function draw(now) {
+		if(ctx && canvas) {
+			// console.clear();
+
+			// console.log("Drawing with player position: ", player_pos);
+
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+			// Draw the background
+			drawBackground();
 
 			// Draw the character
-			drawCharacter();
+			drawCharacter(now);
+
+			// If still playing, draw again
+			if (isPlaying) {
+				requestAnimationFrame(draw);
+			}
 		}
 	}
 </script>
