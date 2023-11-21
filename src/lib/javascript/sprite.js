@@ -3,8 +3,10 @@
  * @typedef {Object} Sprite
  * @property {function(string): Sprite} useSheet - Sets the sprite sheet image source.
  * @property {function(): {x: number, y: number}} getXY - Gets the current position of the sprite.
+ * @property {function(): {x: number, y: number}} getXYCanvas - Gets the current position of the sprite but on canvas.
  * @property {function(number, number): Sprite} setXY - Sets the position of the sprite.
  * @property {function({x: number, y: number, width: number, height: number, count: number, timing: number, loop: boolean}): Sprite} setSequence - Sets the sprite sequence information.
+ * @property {function(): {x: number, y: number, width: number, height: number, count: number, timing: number, loop: boolean}} getSequence - Gets the sprite sequence information.
  * @property {function(number): Sprite} setScale - Sets the scaling factor of the sprite.
  * @property {function({x: number, y: number}): Sprite} setShadowScale - Sets the scaling factor of the sprite shadow.
  * @property {function(): {width: number, height: number}} getDisplaySize - Gets the display size of the sprite.
@@ -12,6 +14,7 @@
  * @property {function(): boolean} isReady - Checks if the sprite sheet image is loaded and ready to use.
  * @property {function(): void} draw - Draws the sprite and its shadow.
  * @property {function(number): Sprite} update - Updates the sprite animation based on the timestamp.
+ * @property {function(boolean): Sprite} setFlipped - Sets the sprite flipped state.
  */
 
 /**
@@ -84,6 +87,16 @@ const Sprite = function (ctx, x, y) {
     };
 
     /**
+     * Gets the current position of the sprite.
+     * @returns {{x: number, y: number}} The current position of the sprite.
+     */
+    const getXYCanvas = function () {
+        console.log("Sprite position: ", getXY())
+
+        return {x: x+ctx.canvas.width/2, y: y+ctx.canvas.height/2};
+    };
+
+    /**
      * Sets the position of the sprite.
      * @param {number} xvalue - The new x position.
      * @param {number} yvalue - The new y position.
@@ -110,11 +123,22 @@ const Sprite = function (ctx, x, y) {
      * @returns {Sprite} The current Sprite object for method chaining.
      */
     const setSequence = function (newSequence) {
+        // Do nothing if the new sequence is the same as the current sequence.
+        if (newSequence === sequence) return this;
+
         sequence = newSequence;
         index = 0;
         lastUpdate = 0;
         return this;
     };
+
+    /**
+     * Gets the sprite sequence.
+     * @returns {{x: number, y: number, width: number, height: number, count: number, timing: number, loop: boolean}}
+     */
+    const getSequence = function () {
+        return sequence;
+    }
 
     /**
      * Sets the scaling factor of the sprite.
@@ -184,6 +208,7 @@ const Sprite = function (ctx, x, y) {
 
         /* Get the display size of the sprite */
         const size = getDisplaySize();
+        const pos = getXYCanvas();
 
         /* Find the scaled width and height of the shadow */
         const shadowWidth  = size.width * shadowScale.x;
@@ -193,7 +218,7 @@ const Sprite = function (ctx, x, y) {
         ctx.fillStyle = "black";
         ctx.globalAlpha = 0.6;
         ctx.beginPath();
-        ctx.ellipse(x, y + size.height / 2,
+        ctx.ellipse(pos.x, pos.y + size.height / 2,
             shadowWidth / 2, shadowHeight / 2, 0, 0, 2 * Math.PI);
         ctx.fill();
 
@@ -211,17 +236,18 @@ const Sprite = function (ctx, x, y) {
 
         /* Get the display size of the sprite */
         const size = getDisplaySize();
+        const pos = getXYCanvas();
 
         if (flipped) {
             // Flip the sprite horizontally
-            ctx.translate(x, y);
+            ctx.translate(pos.x, pos.y);
             ctx.scale(-1, 1);
-            ctx.translate(-x, -y);
+            ctx.translate(-pos.x, -pos.y);
         }
 
         /* Draw the sprite */
         ctx.imageSmoothingEnabled = false;
-        ctx.drawImage(sheet, sequence.x + index * sequence.width, sequence.y, sequence.width, sequence.height, x - size.width / 2, y - size.height / 2, size.width, size.height);
+        ctx.drawImage(sheet, sequence.x + index * sequence.width, sequence.y, sequence.width, sequence.height, pos.x - size.width / 2, pos.y - size.height / 2, size.width, size.height);
 
         /* Restore saved settings */
         ctx.restore();
@@ -263,8 +289,10 @@ const Sprite = function (ctx, x, y) {
     return {
         useSheet: useSheet,
         getXY: getXY,
+        getXYCanvas: getXYCanvas,
         setXY: setXY,
         setSequence: setSequence,
+        getSequence: getSequence,
         setScale: setScale,
         setShadowScale: setShadowScale,
         getDisplaySize: getDisplaySize,

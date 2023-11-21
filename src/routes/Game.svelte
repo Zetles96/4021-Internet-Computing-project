@@ -18,11 +18,22 @@
 	let ctx;
 
 	/**
-	 * @type {Player | null}
+	 * The player's current position - this is used to decide where to draw the canvas and other elements
 	 */
-	let player;
-
 	const player_pos = [0, 0];
+
+	/**
+	 * @typedef {Player} GameObject
+	 */
+
+	/**
+	 * Dictionary of all game objects with key being ID and value being the object
+	 * @type {{[key: string]: GameObject}}
+	 */
+	let gameState = {};
+
+	// TODO: fetch this from server
+	let playerID = "player1";
 
 	let isPlaying = false;
 
@@ -54,6 +65,74 @@
 	};
 
 	/**
+	 * Send the player action to the backend
+	 * @param {string} action
+	 */
+	function sendPlayerAction(action) {
+		// TODO: replace these with calls to backend of current player action
+		console.log("Sending player action: ", action);
+	}
+
+	// TODO: fetch this from server
+	function getServerGameState() {
+		return {
+			"player1": {
+				"position": player_pos,
+				"sprite": "samurai",
+				"health": 100,
+				"animation": "walk_left"
+			},
+			"player2": {
+				"position": [100, 100],
+				"sprite": "samurai",
+				"health": 100,
+				"animation": "idle"
+			},
+			"player3": {
+				"position": [200, 0],
+				"sprite": "samurai",
+				"health": 100,
+				"animation": "idle"
+			}
+		}
+	}
+
+	/**
+	 * Update the game state from the server
+	 * @param {CanvasRenderingContext2D} ctx
+	 */
+	function updateGameState(ctx) {
+		if (ctx) {
+			// if gamestate has no players, get from server (first time only)
+			if (Object.keys(gameState).length === 0) {
+				const serverGameState = getServerGameState();
+				for (const [id, player] of Object.entries(serverGameState)) {
+					gameState[id] = Player(ctx, player.position[0], player.position[1], SamuraiSpritesheet, id);
+				}
+			}
+
+			// Update game state from server
+			const serverGameState = getServerGameState();
+			for (const [id, player] of Object.entries(serverGameState)) {
+				if (id === playerID) {
+					player_pos[0] = player.position[0];
+					player_pos[1] = player.position[1];
+				}
+				gameState[id].setPosition(player.position[0], player.position[1]);
+				gameState[id].setAnimation(player.animation);
+			}
+
+			// Adjust all game state objects' locations to be fixed around the player
+			for (const [id, gameObject] of Object.entries(gameState)) {
+				const obj_pos = gameObject.getSprite().getXY();
+				if (obj_pos && player_pos) {
+					gameObject.getSprite().setXY(obj_pos.x - player_pos[0], obj_pos.y - player_pos[1]);
+				}
+			}
+		}
+	}
+
+	/**
 	 * @type {{[key: string]: boolean}}
 	 */
 	const currentKeysMap = {};
@@ -67,9 +146,9 @@
 		currentKeysMap[e.key] = e.type === 'keydown';
 		console.log("Keys pressed: ", currentKeysMap);
 
-		// TODO: replace these with calls to backend of current player action
 		if (e.key === 'Escape') {
 			isPlaying = false;
+			sendPlayerAction("stop")
 			toMenu();
 		}
 
@@ -79,42 +158,39 @@
 			player_pos[1] -= player_move_distance;
 			// If up and left
 			if (currentKeysMap['ArrowLeft'] || currentKeysMap['a'] || currentKeysMap['A']) {
-				if (player) player.move(1);
+				sendPlayerAction("move_up_left");
 				player_pos[0] -= player_move_distance;
 			}
 			// If up and right
 			else if (currentKeysMap['ArrowRight'] || currentKeysMap['d'] || currentKeysMap['D']) {
-				if (player) player.move(3);
+				sendPlayerAction("move_up_right")
 				player_pos[0] += player_move_distance;
 			}
 			else {
-				if (player) player.move(2);
+				sendPlayerAction("move_up")
 			}
 		}
 		else if (currentKeysMap['ArrowDown'] || currentKeysMap['s'] || currentKeysMap['S']) {
 			player_pos[1] += player_move_distance;
 			if (currentKeysMap['ArrowLeft'] || currentKeysMap['a'] || currentKeysMap['A']) {
-				if (player) player.move(1);
+				sendPlayerAction("move_down_left")
 				player_pos[0] -= player_move_distance;
 			}
 			else if (currentKeysMap['ArrowRight'] || currentKeysMap['d'] || currentKeysMap['D']) {
-				if (player) player.move(3);
+				sendPlayerAction("move_down_right")
 				player_pos[0] += player_move_distance;
 			}
 			else {
-				if (player) player.move(4);
+				sendPlayerAction("move_down")
 			}
 		}
 		else if (currentKeysMap['ArrowLeft'] || currentKeysMap['a'] || currentKeysMap['A']) {
-			if (player) player.move(1);
+			sendPlayerAction("move_left")
 			player_pos[0] -= player_move_distance;
 		}
 		else if (currentKeysMap['ArrowRight'] || currentKeysMap['d'] || currentKeysMap['D']) {
-			if (player) player.move(3);
+			sendPlayerAction("move_right")
 			player_pos[0] += player_move_distance;
-		}
-		else {
-			if (player) player.move(0);
 		}
 	};
 
@@ -141,7 +217,8 @@
 	$ : if(ctx) {
 		ctx.imageSmoothingEnabled = false;
 
-		player = Player(ctx, 0, 0, SamuraiSpritesheet);
+		// Update game state
+		updateGameState(ctx);
 
 		// Only use the images after they are loaded
 		grassTile.onload = () => {
@@ -159,11 +236,12 @@
 	 * Draw the character
 	 * @param {number} now The current timestamp
 	 */
-	function drawCharacter(now) {
-		if (ctx && player) {
-			player.setPosition(canvas.width/2, canvas.height/2)
-			player.update(now);
-			player.draw();
+	function drawGameState(now) {
+		if (ctx) {
+			for (const [id, gameObject] of Object.entries(gameState)) {
+				gameObject.update(now);
+				gameObject.draw();
+			}
 		}
 	}
 
@@ -226,6 +304,11 @@
 		if(ctx && canvas) {
 			// console.clear();
 
+			// Update game state
+			updateGameState(ctx);
+
+			console.log("GameState: ", gameState);
+
 			// console.log("Drawing with player position: ", player_pos);
 
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -233,8 +316,8 @@
 			// Draw the background
 			drawBackground();
 
-			// Draw the character
-			drawCharacter(now);
+			// Draw the game state
+			drawGameState(now);
 
 			// If still playing, draw again
 			if (isPlaying) {
