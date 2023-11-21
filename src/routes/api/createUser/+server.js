@@ -4,7 +4,6 @@ import * as database from '$lib/server/database.js';
 /**
  * Handle POST requests for creating a new user.
  *
- * @param {Object} request - The HTTP request object.
  * @param {import('@sveltejs/kit').Request.locals} request.locals - Locals object containing session data.
  * @param {FormData} request.body - The parsed body of the request containing user data.
  *
@@ -12,21 +11,23 @@ import * as database from '$lib/server/database.js';
  *
  * @throws {Error} Throws an error with status code 400 if username or password is missing.
  * @throws {Error} Throws an error with status code 409 if the user already exists.
+ * @param requestEvent
  */
-export async function POST(request) {
-	const { body } = request;
-	console.log('Request Body:', body);
-
+export async function POST(requestEvent) {
+	const { request } = requestEvent;
+	/**
+	 *
+	 * @type {Object}
+	 */
+	const data = await request.json();
 	/**
 	 * @type {string}
 	 */
-	const username = body['username'];
-
+	const { username } = data;
 	/**
 	 * @type {string}
 	 */
-	const password = body['password'];
-
+	const { password } = data;
 	if (!username || !password) {
 		/**
 		 * @throws {Error} Throws an error with status code 400 and a message indicating missing username or password.
@@ -34,7 +35,7 @@ export async function POST(request) {
 		throw error(400, 'Missing username or password');
 	}
 
-	if (database.userExists(username)) {
+	if (await database.userExists(username)) {
 		/**
 		 * @throws {Error} Throws an error with status code 409 and a message indicating user already exists.
 		 */

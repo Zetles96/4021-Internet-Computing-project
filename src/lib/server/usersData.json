@@ -10,5 +10,9 @@
     "user3": {
         "password": "123456",
         "score": 75
+    },
+    "testuser123421": {
+        "password": "$2b$12$UN9dT5bDjNNTYVnIn9BeC.bNvdKsqhzObHI68N/aJlYklhcVi9lYm",
+        "score": 0
     }
 }

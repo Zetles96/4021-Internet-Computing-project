@@ -7,6 +7,6 @@ export async function GET({ url }) {
 	if (!user) {
 		throw error(400, 'Missing user argument');
 	}
-	const userExists = database.userExists(user);
+	const userExists = await database.userExists(user);
 	return json({ userExists });
 }

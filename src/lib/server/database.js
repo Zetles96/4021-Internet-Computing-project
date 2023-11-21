@@ -1,9 +1,9 @@
 import { json } from '@sveltejs/kit';
-import userData from './usersData.json';
+import userData from '/src/lib/server/usersData.json';
 import { writeFileSync, readFileSync } from 'fs';
 import bcrypt from 'bcrypt';
 
-const userDataPath = './usersData.json';
+const userDataPath = './src/lib/server/usersData.json';
 /**
  * @typedef {Object} UserData
  * @property {number} score - The user's score.
@@ -71,7 +71,13 @@ export async function createUser(username, password) {
 	const users = userData;
 	const hashedPassword = await bcrypt.hash(password, 12);
 	users[username] = { password: hashedPassword, score: 0 };
-	writeFileSync(userDataPath, JSON.stringify(users));
+	console.log(users[username]);
+	try {
+		await writeFileSync(userDataPath, JSON.stringify(users));
+		console.log('User created');
+	} catch (error) {
+		console.error('Error writing to file:', error);
+	}
 }
 
 /**

@@ -7,5 +7,5 @@ import * as database from '$lib/server/database.js';
  * @returns {Promise<{ status: number, body: import('$lib/server/database').UsersData }>} A Promise resolving to an object containing the response status and body with user scores.
  */
 export async function GET() {
-	return json(database.getScores());
+	return json(await database.getScores());
 }
