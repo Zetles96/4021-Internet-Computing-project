@@ -54,6 +54,6 @@ export async function POST(requestEvent) {
 		throw error(401, 'Wrong password');
 	}
 
-	const token = jwt.sign({ username }, secret, { expiresIn: '1h' });
+	const token = jwt.sign({ username }, secret, { expiresIn: '48h' });
 	return json({ token });
 }
