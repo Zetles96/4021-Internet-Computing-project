@@ -74,7 +74,7 @@
 	 */
 	function sendPlayerAction(action) {
 		// TODO: replace these with calls to backend of current player action
-		console.log('Sending player action: ', action);
+		console.debug('Sending player action: ', action);
 	}
 
 	// TODO: fetch this from server
@@ -119,10 +119,11 @@
 	 */
 	function updateGameState(ctx) {
 		if (ctx) {
-			// if gamestate has no players, get from server (first time only)
-			if (Object.keys(gameState).length === 0) {
-				const serverGameState = getServerGameState();
-				for (const [id, player] of Object.entries(serverGameState)) {
+			// Update game state from server
+			const serverGameState = getServerGameState();
+			for (const [id, player] of Object.entries(serverGameState)) {
+				if (!gameState[id]) {
+					console.debug('No game state object for id: ', id + ' - trying to create it...');
 					switch (player.sprite) {
 						case 'samurai':
 							gameState[id] = new Samurai(ctx, player.position[0], player.position[1], id);
@@ -145,12 +146,14 @@
 						default:
 							console.error('Unknown sprite type: ', player.sprite);
 					}
-				}
-			}
 
-			// Update game state from server
-			const serverGameState = getServerGameState();
-			for (const [id, player] of Object.entries(serverGameState)) {
+					// Check again if the game state object was created
+					if (!gameState[id]) {
+						console.error('Failed to create game state object for id: ', id);
+						continue;
+					}
+				}
+
 				if (id === playerID) {
 					player_pos[0] = player.position[0];
 					player_pos[1] = player.position[1];
@@ -162,10 +165,6 @@
 					gameState[id] = playerGameObject;
 				}
 
-				if (!gameState[id]) {
-					console.error('No game state object for id: ', id);
-					continue;
-				}
 				gameState[id].setPosition(player.position[0], player.position[1]);
 				// animations are given as strings like 'animation_direction', so we have to split them
 				const animation = player.animation.split('_');
@@ -192,9 +191,9 @@
 	 * @param {KeyboardEvent} e
 	 */
 	const handleKeys = (e) => {
-		// console.log("Key pressed: ", e.key);
+		console.debug("Key pressed: ", e.key);
 		currentKeysMap[e.key] = e.type === 'keydown';
-		// console.log("Keys pressed: ", currentKeysMap);
+		console.debug("Keys pressed: ", currentKeysMap);
 
 		if (e.key === 'Escape') {
 			isPlaying = false;
@@ -347,9 +346,9 @@
 			// Update game state
 			updateGameState(ctx);
 
-			// console.log("GameState: ", gameState);
+			console.debug("GameState: ", gameState);
 
-			// console.log("Drawing with player position: ", player_pos);
+			console.debug("Drawing with player position: ", player_pos);
 
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
 
