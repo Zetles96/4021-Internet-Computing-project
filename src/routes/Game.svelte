@@ -154,6 +154,12 @@
 				if (id === playerID) {
 					player_pos[0] = player.position[0];
 					player_pos[1] = player.position[1];
+
+					// Ensure the player game object is at the last index of the game state array
+					// such that it is drawn on top of all other game objects
+					const playerGameObject = gameState[id];
+					delete gameState[id];
+					gameState[id] = playerGameObject;
 				}
 
 				if (!gameState[id]) {
