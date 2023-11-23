@@ -43,5 +43,8 @@ export async function POST(requestEvent) {
 	}
 
 	await database.createUser(username, password);
-	return json({ success: true });
+	return new Response(JSON.stringify({ success: true }), {
+		headers: { 'content-type': 'application/json' },
+		status: 201
+	});
 }

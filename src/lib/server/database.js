@@ -71,10 +71,8 @@ export async function createUser(username, password) {
 	const users = userData;
 	const hashedPassword = await bcrypt.hash(password, 12);
 	users[username] = { password: hashedPassword, score: 0 };
-	console.log(users[username]);
 	try {
 		await writeFileSync(userDataPath, JSON.stringify(users));
-		console.log('User created');
 	} catch (error) {
 		console.error('Error writing to file:', error);
 	}
