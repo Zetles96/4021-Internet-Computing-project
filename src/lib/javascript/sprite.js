@@ -1,6 +1,8 @@
 /**
- * Represents a Sprite object.
- * @typedef {Object} Sprite
+ * Creates a new Sprite object.
+ * @param {CanvasRenderingContext2D} ctx - A canvas context for drawing.
+ * @param {number} x - The initial x position of the sprite.
+ * @param {number} y - The initial y position of the sprite.
  * @property {function(string): Sprite} useSheet - Sets the sprite sheet image source.
  * @property {function(): {x: number, y: number}} getXY - Gets the current position of the sprite.
  * @property {function(): {x: number, y: number}} getXYCanvas - Gets the current position of the sprite but on canvas.
@@ -15,13 +17,6 @@
  * @property {function(): void} draw - Draws the sprite and its shadow.
  * @property {function(number): Sprite} update - Updates the sprite animation based on the timestamp.
  * @property {function(boolean): Sprite} setFlipped - Sets the sprite flipped state.
- */
-
-/**
- * Creates a new Sprite object.
- * @param {CanvasRenderingContext2D} ctx - A canvas context for drawing.
- * @param {number} x - The initial x position of the sprite.
- * @param {number} y - The initial y position of the sprite.
  * @returns {Sprite} Returns a Sprite object.
  */
 const Sprite = function (ctx, x, y) {

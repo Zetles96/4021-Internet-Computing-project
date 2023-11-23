@@ -1,6 +1,6 @@
 <script>
 	import { createEventDispatcher, onMount } from 'svelte';
-	import { Entity, Samurai, SamuraiArcher, SamuraiCommander } from './sprites.js';
+	import { Entity, Samurai, SamuraiArcher, SamuraiCommander, RedWerewolf, BlackWerewolf, WhiteWerewolf } from './sprites.js';
 
 	import GrassTile from '$lib/images/grasstile.png';
 
@@ -89,6 +89,18 @@
 				"sprite": "samuraicommander",
 				"health": 100,
 				"animation": "idle"
+			},
+			"enemy1": {
+				"position": [300, 150],
+				"sprite": "whitewerewolf",
+				"health": 50,
+				"animation": "idle"
+			},
+			"enemy2": {
+				"position": [-200, -250],
+				"sprite": "redwerewolf",
+				"health": 80,
+				"animation": "run_right"
 			}
 		}
 	}
@@ -113,6 +125,15 @@
 						case "samuraicommander":
 							gameState[id] = new SamuraiCommander(ctx, player.position[0], player.position[1], id);
 							break;
+						case "redwerewolf":
+							gameState[id] = new RedWerewolf(ctx, player.position[0], player.position[1], id);
+							break;
+						case "blackwerewolf":
+							gameState[id] = new BlackWerewolf(ctx, player.position[0], player.position[1], id);
+							break;
+						case "whitewerewolf":
+							gameState[id] = new WhiteWerewolf(ctx, player.position[0], player.position[1], id);
+							break;
 						default:
 							console.error("Unknown sprite type: ", player.sprite);
 					}
@@ -126,8 +147,15 @@
 					player_pos[0] = player.position[0];
 					player_pos[1] = player.position[1];
 				}
+
+				if (!gameState[id]) {
+					console.error("No game state object for id: ", id);
+					continue;
+				}
 				gameState[id].setPosition(player.position[0], player.position[1]);
-				gameState[id].setAnimation(player.animation);
+				// animations are given as strings like 'animation_direction', so we have to split them
+				const animation = player.animation.split('_');
+				gameState[id].setAnimation(animation[0], animation[1]);
 			}
 
 			// Adjust all game state objects' locations to be fixed around the player
