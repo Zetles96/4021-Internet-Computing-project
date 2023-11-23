@@ -1,10 +1,8 @@
 <script>
 	import { createEventDispatcher, onMount } from 'svelte';
-	import { Player } from './sprites.js';
+	import { Entity, Samurai, SamuraiArcher, SamuraiCommander } from './sprites.js';
 
-	// import grass tile from lib
 	import GrassTile from '$lib/images/grasstile.png';
-	import SamuraiSpritesheet from '$lib/images/Samurai/Spritesheet.png';
 
 	const dispatch = createEventDispatcher();
 
@@ -12,6 +10,7 @@
 	 * @type {HTMLCanvasElement}
 	 */
 	let canvas;
+
 	/**
 	 * @type {CanvasRenderingContext2D | null}
 	 */
@@ -22,13 +21,10 @@
 	 */
 	const player_pos = [0, 0];
 
-	/**
-	 * @typedef {Player} GameObject
-	 */
 
 	/**
 	 * Dictionary of all game objects with key being ID and value being the object
-	 * @type {{[key: string]: GameObject}}
+	 * @type {{[key: string]: Entity}}
 	 */
 	let gameState = {};
 
@@ -84,13 +80,13 @@
 			},
 			"player2": {
 				"position": [100, 100],
-				"sprite": "samurai",
+				"sprite": "samuraiarcher",
 				"health": 100,
 				"animation": "idle"
 			},
 			"player3": {
 				"position": [200, 0],
-				"sprite": "samurai",
+				"sprite": "samuraicommander",
 				"health": 100,
 				"animation": "idle"
 			}
@@ -107,7 +103,19 @@
 			if (Object.keys(gameState).length === 0) {
 				const serverGameState = getServerGameState();
 				for (const [id, player] of Object.entries(serverGameState)) {
-					gameState[id] = Player(ctx, player.position[0], player.position[1], SamuraiSpritesheet, id);
+					switch (player.sprite) {
+						case "samurai":
+							gameState[id] = new Samurai(ctx, player.position[0], player.position[1], id);
+							break;
+						case "samuraiarcher":
+							gameState[id] = new SamuraiArcher(ctx, player.position[0], player.position[1], id);
+							break;
+						case "samuraicommander":
+							gameState[id] = new SamuraiCommander(ctx, player.position[0], player.position[1], id);
+							break;
+						default:
+							console.error("Unknown sprite type: ", player.sprite);
+					}
 				}
 			}
 
@@ -124,9 +132,9 @@
 
 			// Adjust all game state objects' locations to be fixed around the player
 			for (const [id, gameObject] of Object.entries(gameState)) {
-				const obj_pos = gameObject.getSprite().getXY();
+				const obj_pos = gameObject.sprite.getXY();
 				if (obj_pos && player_pos) {
-					gameObject.getSprite().setXY(obj_pos.x - player_pos[0], obj_pos.y - player_pos[1]);
+					gameObject.sprite.setXY(obj_pos.x - player_pos[0], obj_pos.y - player_pos[1]);
 				}
 			}
 		}
@@ -142,9 +150,9 @@
 	 * @param {KeyboardEvent} e
 	 */
 	const handleKeys = (e) => {
-		console.log("Key pressed: ", e.key);
+		// console.log("Key pressed: ", e.key);
 		currentKeysMap[e.key] = e.type === 'keydown';
-		console.log("Keys pressed: ", currentKeysMap);
+		// console.log("Keys pressed: ", currentKeysMap);
 
 		if (e.key === 'Escape') {
 			isPlaying = false;
@@ -307,7 +315,7 @@
 			// Update game state
 			updateGameState(ctx);
 
-			console.log("GameState: ", gameState);
+			// console.log("GameState: ", gameState);
 
 			// console.log("Drawing with player position: ", player_pos);
 

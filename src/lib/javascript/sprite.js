@@ -91,8 +91,6 @@ const Sprite = function (ctx, x, y) {
      * @returns {{x: number, y: number}} The current position of the sprite.
      */
     const getXYCanvas = function () {
-        console.log("Sprite position: ", getXY())
-
         return {x: x+ctx.canvas.width/2, y: y+ctx.canvas.height/2};
     };
 
