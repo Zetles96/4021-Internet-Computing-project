@@ -1,6 +1,14 @@
 <script>
 	import { createEventDispatcher, onMount } from 'svelte';
-	import { Entity, Samurai, SamuraiArcher, SamuraiCommander, RedWerewolf, BlackWerewolf, WhiteWerewolf } from './sprites.js';
+	import {
+		Entity,
+		Samurai,
+		SamuraiArcher,
+		SamuraiCommander,
+		RedWerewolf,
+		BlackWerewolf,
+		WhiteWerewolf
+	} from './sprites.js';
 
 	import GrassTile from '$lib/images/grasstile.png';
 
@@ -29,7 +37,7 @@
 	let gameState = {};
 
 	// TODO: fetch this from server
-	let playerID = "player1";
+	let playerID = 'player1';
 
 	let isPlaying = false;
 
@@ -66,43 +74,43 @@
 	 */
 	function sendPlayerAction(action) {
 		// TODO: replace these with calls to backend of current player action
-		console.log("Sending player action: ", action);
+		console.log('Sending player action: ', action);
 	}
 
 	// TODO: fetch this from server
 	function getServerGameState() {
 		return {
-			"player1": {
-				"position": player_pos,
-				"sprite": "samurai",
-				"health": 100,
-				"animation": "walk_left"
+			'player1': {
+				'position': player_pos,
+				'sprite': 'samurai',
+				'health': 100,
+				'animation': 'walk_left'
 			},
-			"player2": {
-				"position": [100, 100],
-				"sprite": "samuraiarcher",
-				"health": 100,
-				"animation": "idle"
+			'player2': {
+				'position': [100, 100],
+				'sprite': 'samuraiarcher',
+				'health': 100,
+				'animation': 'idle'
 			},
-			"player3": {
-				"position": [200, 0],
-				"sprite": "samuraicommander",
-				"health": 100,
-				"animation": "idle"
+			'player3': {
+				'position': [200, 0],
+				'sprite': 'samuraicommander',
+				'health': 100,
+				'animation': 'idle'
 			},
-			"enemy1": {
-				"position": [300, 150],
-				"sprite": "whitewerewolf",
-				"health": 50,
-				"animation": "idle"
+			'enemy1': {
+				'position': [300, 150],
+				'sprite': 'whitewerewolf',
+				'health': 50,
+				'animation': 'idle'
 			},
-			"enemy2": {
-				"position": [-200, -250],
-				"sprite": "redwerewolf",
-				"health": 80,
-				"animation": "run_right"
+			'enemy2': {
+				'position': [-200, -250],
+				'sprite': 'redwerewolf',
+				'health': 80,
+				'animation': 'run_right'
 			}
-		}
+		};
 	}
 
 	/**
@@ -116,26 +124,26 @@
 				const serverGameState = getServerGameState();
 				for (const [id, player] of Object.entries(serverGameState)) {
 					switch (player.sprite) {
-						case "samurai":
+						case 'samurai':
 							gameState[id] = new Samurai(ctx, player.position[0], player.position[1], id);
 							break;
-						case "samuraiarcher":
+						case 'samuraiarcher':
 							gameState[id] = new SamuraiArcher(ctx, player.position[0], player.position[1], id);
 							break;
-						case "samuraicommander":
+						case 'samuraicommander':
 							gameState[id] = new SamuraiCommander(ctx, player.position[0], player.position[1], id);
 							break;
-						case "redwerewolf":
+						case 'redwerewolf':
 							gameState[id] = new RedWerewolf(ctx, player.position[0], player.position[1], id);
 							break;
-						case "blackwerewolf":
+						case 'blackwerewolf':
 							gameState[id] = new BlackWerewolf(ctx, player.position[0], player.position[1], id);
 							break;
-						case "whitewerewolf":
+						case 'whitewerewolf':
 							gameState[id] = new WhiteWerewolf(ctx, player.position[0], player.position[1], id);
 							break;
 						default:
-							console.error("Unknown sprite type: ", player.sprite);
+							console.error('Unknown sprite type: ', player.sprite);
 					}
 				}
 			}
@@ -149,7 +157,7 @@
 				}
 
 				if (!gameState[id]) {
-					console.error("No game state object for id: ", id);
+					console.error('No game state object for id: ', id);
 					continue;
 				}
 				gameState[id].setPosition(player.position[0], player.position[1]);
@@ -184,7 +192,7 @@
 
 		if (e.key === 'Escape') {
 			isPlaying = false;
-			sendPlayerAction("stop")
+			sendPlayerAction('stop');
 			toMenu();
 		}
 
@@ -194,38 +202,32 @@
 			player_pos[1] -= player_move_distance;
 			// If up and left
 			if (currentKeysMap['ArrowLeft'] || currentKeysMap['a'] || currentKeysMap['A']) {
-				sendPlayerAction("move_up_left");
+				sendPlayerAction('move_up_left');
 				player_pos[0] -= player_move_distance;
 			}
 			// If up and right
 			else if (currentKeysMap['ArrowRight'] || currentKeysMap['d'] || currentKeysMap['D']) {
-				sendPlayerAction("move_up_right")
+				sendPlayerAction('move_up_right');
 				player_pos[0] += player_move_distance;
+			} else {
+				sendPlayerAction('move_up');
 			}
-			else {
-				sendPlayerAction("move_up")
-			}
-		}
-		else if (currentKeysMap['ArrowDown'] || currentKeysMap['s'] || currentKeysMap['S']) {
+		} else if (currentKeysMap['ArrowDown'] || currentKeysMap['s'] || currentKeysMap['S']) {
 			player_pos[1] += player_move_distance;
 			if (currentKeysMap['ArrowLeft'] || currentKeysMap['a'] || currentKeysMap['A']) {
-				sendPlayerAction("move_down_left")
+				sendPlayerAction('move_down_left');
 				player_pos[0] -= player_move_distance;
-			}
-			else if (currentKeysMap['ArrowRight'] || currentKeysMap['d'] || currentKeysMap['D']) {
-				sendPlayerAction("move_down_right")
+			} else if (currentKeysMap['ArrowRight'] || currentKeysMap['d'] || currentKeysMap['D']) {
+				sendPlayerAction('move_down_right');
 				player_pos[0] += player_move_distance;
+			} else {
+				sendPlayerAction('move_down');
 			}
-			else {
-				sendPlayerAction("move_down")
-			}
-		}
-		else if (currentKeysMap['ArrowLeft'] || currentKeysMap['a'] || currentKeysMap['A']) {
-			sendPlayerAction("move_left")
+		} else if (currentKeysMap['ArrowLeft'] || currentKeysMap['a'] || currentKeysMap['A']) {
+			sendPlayerAction('move_left');
 			player_pos[0] -= player_move_distance;
-		}
-		else if (currentKeysMap['ArrowRight'] || currentKeysMap['d'] || currentKeysMap['D']) {
-			sendPlayerAction("move_right")
+		} else if (currentKeysMap['ArrowRight'] || currentKeysMap['d'] || currentKeysMap['D']) {
+			sendPlayerAction('move_right');
 			player_pos[0] += player_move_distance;
 		}
 	};
@@ -235,7 +237,7 @@
 		canvas.width = window.innerWidth;
 		canvas.height = window.innerHeight;
 
-		ctx = canvas.getContext("2d");
+		ctx = canvas.getContext('2d');
 
 		// Add event listener for resize
 		window.addEventListener('resize', resizeCanvas);
@@ -247,10 +249,10 @@
 			// Remove event listener for keydown
 			window.removeEventListener('keydown', handleKeys);
 			window.removeEventListener('keyup', handleKeys);
-		}
+		};
 	});
 
-	$ : if(ctx) {
+	$ : if (ctx) {
 		ctx.imageSmoothingEnabled = false;
 
 		// Update game state
@@ -285,18 +287,18 @@
 	 * Draw the background
 	 */
 	function drawBackground() {
-		if(ctx && grassTile.complete) {
+		if (ctx && grassTile.complete) {
 			// https://stackoverflow.com/a/17247032/12418245
 			let w = 32;
 			let h = 32;
 
 			const x_mod = mod(-player_pos[0], canvas.width);
 			const y_mod = mod(-player_pos[1], canvas.height);
-			let x = x_mod+w;
-			let y = y_mod+h;
+			let x = x_mod + w;
+			let y = y_mod + h;
 
 			while (true) {
-				y = y_mod+h;
+				y = y_mod + h;
 				while (true) {
 					// console.log("Drawing grass tile at: ", [x, y]);
 					ctx.drawImage(grassTile, x, y, w, h);
@@ -304,13 +306,11 @@
 					if (y === y_mod) {
 						// console.log("y === player_pos[1] % canvas.height", y, y_mod);
 						break;
-					}
-					else if (y+h > canvas.height) {
+					} else if (y + h > canvas.height) {
 						// We have to calculate the new y to draw from beginning of canvas (or before)
 						// and add height enough times to get to player_pos[1] % canvas.height
 						y = y_mod - h * Math.ceil(y_mod / h);
-					}
-					else {
+					} else {
 						y += h;
 						y = mod(y, canvas.height);
 					}
@@ -318,13 +318,11 @@
 
 				if (x === x_mod) {
 					break;
-				}
-				else if (x+w > canvas.width) {
+				} else if (x + w > canvas.width) {
 					// We have to calculate the new x to draw from beginning of canvas (or before)
 					// and add width enough times to get to player_pos[0] % canvas.width
 					x = x_mod - w * Math.ceil(x_mod / w);
-				}
-				else {
+				} else {
 					x += w;
 					x = mod(x, canvas.width);
 				}
@@ -337,7 +335,7 @@
 	 * @param {number} now The current timestamp
 	 */
 	function draw(now) {
-		if(ctx && canvas) {
+		if (ctx && canvas) {
 			// console.clear();
 
 			// Update game state
@@ -374,9 +372,9 @@
 </div>
 
 <style lang='postcss'>
-	.overlay {
-		position: absolute;
-		right: 0;
-		top: 0;
-	}
+    .overlay {
+        position: absolute;
+        right: 0;
+        top: 0;
+    }
 </style>

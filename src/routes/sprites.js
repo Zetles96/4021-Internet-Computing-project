@@ -37,13 +37,45 @@ class Entity {
 		 * */
 		this.sequences = {
 			idle: { x: 0, y: 128 * 0, width: 128, height: 128, count: 6, timing: 200, loop: true },
-			attack_1: { x: 0, y: 128 * 1, width: 128, height: 128, count: 4, timing: 50, loop: true },
-			attack_2: { x: 0, y: 128 * 2, width: 128, height: 128, count: 5, timing: 50, loop: true },
-			attack_3: { x: 0, y: 128 * 3, width: 128, height: 128, count: 4, timing: 50, loop: true },
+			attack_1: {
+				x: 0,
+				y: 128 * 1,
+				width: 128,
+				height: 128,
+				count: 4,
+				timing: 50,
+				loop: true
+			},
+			attack_2: {
+				x: 0,
+				y: 128 * 2,
+				width: 128,
+				height: 128,
+				count: 5,
+				timing: 50,
+				loop: true
+			},
+			attack_3: {
+				x: 0,
+				y: 128 * 3,
+				width: 128,
+				height: 128,
+				count: 4,
+				timing: 50,
+				loop: true
+			},
 			dead: { x: 0, y: 128 * 4, width: 128, height: 128, count: 6, timing: 50, loop: true },
 			hurt: { x: 0, y: 128 * 5, width: 128, height: 128, count: 3, timing: 50, loop: true },
 			jump: { x: 0, y: 128 * 6, width: 128, height: 128, count: 9, timing: 50, loop: true },
-			protection: { x: 128 * 7, y: 0, width: 128, height: 128, count: 2, timing: 50, loop: true },
+			protection: {
+				x: 128 * 7,
+				y: 0,
+				width: 128,
+				height: 128,
+				count: 2,
+				timing: 50,
+				loop: true
+			},
 			run: { x: 0, y: 128 * 8, width: 128, height: 128, count: 8, timing: 50, loop: true },
 			walk: { x: 0, y: 128 * 9, width: 128, height: 128, count: 9, timing: 100, loop: true }
 		};
@@ -98,14 +130,13 @@ class Entity {
 			}
 			this.direction = dir;
 		}
-	};
+	}
 
-	setAnimation(animation, direction='none') {
+	setAnimation(animation, direction = 'none') {
 		// Set direction
 		if (direction === 'left') {
 			this.sprite.setFlipped(true);
-		}
-		else {
+		} else {
 			this.sprite.setFlipped(false);
 		}
 
@@ -115,7 +146,11 @@ class Entity {
 				this.sprite.setSequence(this.sequences.idle);
 				break;
 			case 'attack':
-				if (this.sprite.getSequence() === this.sequences.attack_1 || this.sprite.getSequence() === this.sequences.attack_2 || this.sprite.getSequence() === this.sequences.attack_3) {
+				if (
+					this.sprite.getSequence() === this.sequences.attack_1 ||
+					this.sprite.getSequence() === this.sequences.attack_2 ||
+					this.sprite.getSequence() === this.sequences.attack_3
+				) {
 					break;
 				}
 				// Pick a random attack animation
@@ -153,7 +188,7 @@ class Entity {
 	 */
 	setPosition(x, y) {
 		this.sprite.setXY(x, y);
-	};
+	}
 
 	/**
 	 * This function stops the player from moving.
@@ -178,7 +213,7 @@ class Entity {
 		// 	}
 		// 	direction = 0;
 		// }
-	};
+	}
 
 	/**
 	 * This function updates the player depending on his movement.
@@ -187,7 +222,7 @@ class Entity {
 	update(time) {
 		/* Update the sprite object */
 		this.sprite.update(time);
-	};
+	}
 
 	/**
 	 * This function draws the player on the canvas.
@@ -206,7 +241,7 @@ class Entity {
 			this.sprite.getXYCanvas().y + this.sprite.getDisplaySize().height / 2 + 16
 		);
 		this.ctx.restore();
-	};
+	}
 }
 
 /**
@@ -253,13 +288,45 @@ class Samurai extends Player {
 
 		this.sequences = {
 			idle: { x: 0, y: 128 * 0, width: 128, height: 128, count: 6, timing: 200, loop: true },
-			attack_1: { x: 0, y: 128 * 1, width: 128, height: 128, count: 4, timing: 50, loop: true },
-			attack_2: { x: 0, y: 128 * 2, width: 128, height: 128, count: 5, timing: 50, loop: true },
-			attack_3: { x: 0, y: 128 * 3, width: 128, height: 128, count: 4, timing: 50, loop: true },
+			attack_1: {
+				x: 0,
+				y: 128 * 1,
+				width: 128,
+				height: 128,
+				count: 4,
+				timing: 50,
+				loop: true
+			},
+			attack_2: {
+				x: 0,
+				y: 128 * 2,
+				width: 128,
+				height: 128,
+				count: 5,
+				timing: 50,
+				loop: true
+			},
+			attack_3: {
+				x: 0,
+				y: 128 * 3,
+				width: 128,
+				height: 128,
+				count: 4,
+				timing: 50,
+				loop: true
+			},
 			dead: { x: 0, y: 128 * 4, width: 128, height: 128, count: 6, timing: 50, loop: true },
 			hurt: { x: 0, y: 128 * 5, width: 128, height: 128, count: 3, timing: 50, loop: true },
 			jump: { x: 0, y: 128 * 6, width: 128, height: 128, count: 9, timing: 50, loop: true },
-			protection: { x: 128 * 7, y: 0, width: 128, height: 128, count: 2, timing: 50, loop: true },
+			protection: {
+				x: 128 * 7,
+				y: 0,
+				width: 128,
+				height: 128,
+				count: 2,
+				timing: 50,
+				loop: true
+			},
 			run: { x: 0, y: 128 * 8, width: 128, height: 128, count: 8, timing: 50, loop: true },
 			walk: { x: 0, y: 128 * 9, width: 128, height: 128, count: 9, timing: 100, loop: true }
 		};
@@ -281,9 +348,33 @@ class SamuraiArcher extends Player {
 		this.sequences = {
 			/* Idling sprite sequences for facing different directions */
 			idle: { x: 0, y: 128 * 0, width: 128, height: 128, count: 9, timing: 200, loop: true },
-			attack_1: { x: 0, y: 128 * 1, width: 128, height: 128, count: 5, timing: 50, loop: true },
-			attack_2: { x: 0, y: 128 * 2, width: 128, height: 128, count: 5, timing: 50, loop: true },
-			attack_3: { x: 0, y: 128 * 3, width: 128, height: 128, count: 6, timing: 50, loop: true },
+			attack_1: {
+				x: 0,
+				y: 128 * 1,
+				width: 128,
+				height: 128,
+				count: 5,
+				timing: 50,
+				loop: true
+			},
+			attack_2: {
+				x: 0,
+				y: 128 * 2,
+				width: 128,
+				height: 128,
+				count: 5,
+				timing: 50,
+				loop: true
+			},
+			attack_3: {
+				x: 0,
+				y: 128 * 3,
+				width: 128,
+				height: 128,
+				count: 6,
+				timing: 50,
+				loop: true
+			},
 			dead: { x: 0, y: 128 * 4, width: 128, height: 128, count: 5, timing: 50, loop: true },
 			hurt: { x: 0, y: 128 * 5, width: 128, height: 128, count: 3, timing: 50, loop: true },
 			jump: { x: 0, y: 128 * 6, width: 128, height: 128, count: 9, timing: 50, loop: true },
@@ -308,13 +399,45 @@ class SamuraiCommander extends Player {
 
 		this.sequences = {
 			idle: { x: 0, y: 128 * 0, width: 128, height: 128, count: 5, timing: 200, loop: true },
-			attack_1: { x: 0, y: 128 * 1, width: 128, height: 128, count: 4, timing: 50, loop: true },
-			attack_2: { x: 0, y: 128 * 2, width: 128, height: 128, count: 5, timing: 50, loop: true },
-			attack_3: { x: 0, y: 128 * 3, width: 128, height: 128, count: 4, timing: 50, loop: true },
+			attack_1: {
+				x: 0,
+				y: 128 * 1,
+				width: 128,
+				height: 128,
+				count: 4,
+				timing: 50,
+				loop: true
+			},
+			attack_2: {
+				x: 0,
+				y: 128 * 2,
+				width: 128,
+				height: 128,
+				count: 5,
+				timing: 50,
+				loop: true
+			},
+			attack_3: {
+				x: 0,
+				y: 128 * 3,
+				width: 128,
+				height: 128,
+				count: 4,
+				timing: 50,
+				loop: true
+			},
 			dead: { x: 0, y: 128 * 4, width: 128, height: 128, count: 6, timing: 50, loop: true },
 			hurt: { x: 0, y: 128 * 5, width: 128, height: 128, count: 2, timing: 50, loop: true },
 			jump: { x: 0, y: 128 * 6, width: 128, height: 128, count: 7, timing: 50, loop: true },
-			protection: { x: 128 * 7, y: 0, width: 128, height: 128, count: 2, timing: 50, loop: true },
+			protection: {
+				x: 128 * 7,
+				y: 0,
+				width: 128,
+				height: 128,
+				count: 2,
+				timing: 50,
+				loop: true
+			},
 			run: { x: 0, y: 128 * 8, width: 128, height: 128, count: 8, timing: 50, loop: true },
 			walk: { x: 0, y: 128 * 9, width: 128, height: 128, count: 9, timing: 100, loop: true }
 		};
@@ -335,9 +458,33 @@ class WhiteWerewolf extends Enemy {
 
 		this.sequences = {
 			idle: { x: 0, y: 128 * 0, width: 128, height: 128, count: 8, timing: 200, loop: true },
-			attack_1: { x: 0, y: 128 * 1, width: 128, height: 128, count: 6, timing: 50, loop: true },
-			attack_2: { x: 0, y: 128 * 2, width: 128, height: 128, count: 4, timing: 50, loop: true },
-			attack_3: { x: 0, y: 128 * 3, width: 128, height: 128, count: 5, timing: 50, loop: true },
+			attack_1: {
+				x: 0,
+				y: 128 * 1,
+				width: 128,
+				height: 128,
+				count: 6,
+				timing: 50,
+				loop: true
+			},
+			attack_2: {
+				x: 0,
+				y: 128 * 2,
+				width: 128,
+				height: 128,
+				count: 4,
+				timing: 50,
+				loop: true
+			},
+			attack_3: {
+				x: 0,
+				y: 128 * 3,
+				width: 128,
+				height: 128,
+				count: 5,
+				timing: 50,
+				loop: true
+			},
 			dead: { x: 0, y: 128 * 4, width: 128, height: 128, count: 2, timing: 50, loop: true },
 			hurt: { x: 0, y: 128 * 5, width: 128, height: 128, count: 2, timing: 50, loop: true },
 			jump: { x: 0, y: 128 * 6, width: 128, height: 128, count: 11, timing: 50, loop: true },
@@ -362,9 +509,33 @@ class BlackWerewolf extends Enemy {
 
 		this.sequences = {
 			idle: { x: 0, y: 128 * 0, width: 128, height: 128, count: 8, timing: 200, loop: true },
-			attack_1: { x: 0, y: 128 * 1, width: 128, height: 128, count: 6, timing: 50, loop: true },
-			attack_2: { x: 0, y: 128 * 2, width: 128, height: 128, count: 4, timing: 50, loop: true },
-			attack_3: { x: 0, y: 128 * 3, width: 128, height: 128, count: 5, timing: 50, loop: true },
+			attack_1: {
+				x: 0,
+				y: 128 * 1,
+				width: 128,
+				height: 128,
+				count: 6,
+				timing: 50,
+				loop: true
+			},
+			attack_2: {
+				x: 0,
+				y: 128 * 2,
+				width: 128,
+				height: 128,
+				count: 4,
+				timing: 50,
+				loop: true
+			},
+			attack_3: {
+				x: 0,
+				y: 128 * 3,
+				width: 128,
+				height: 128,
+				count: 5,
+				timing: 50,
+				loop: true
+			},
 			dead: { x: 0, y: 128 * 4, width: 128, height: 128, count: 2, timing: 50, loop: true },
 			hurt: { x: 0, y: 128 * 5, width: 128, height: 128, count: 2, timing: 50, loop: true },
 			jump: { x: 0, y: 128 * 6, width: 128, height: 128, count: 11, timing: 50, loop: true },
@@ -389,9 +560,33 @@ class RedWerewolf extends Enemy {
 
 		this.sequences = {
 			idle: { x: 0, y: 128 * 0, width: 128, height: 128, count: 8, timing: 200, loop: true },
-			attack_1: { x: 0, y: 128 * 1, width: 128, height: 128, count: 6, timing: 50, loop: true },
-			attack_2: { x: 0, y: 128 * 2, width: 128, height: 128, count: 4, timing: 50, loop: true },
-			attack_3: { x: 0, y: 128 * 3, width: 128, height: 128, count: 5, timing: 50, loop: true },
+			attack_1: {
+				x: 0,
+				y: 128 * 1,
+				width: 128,
+				height: 128,
+				count: 6,
+				timing: 50,
+				loop: true
+			},
+			attack_2: {
+				x: 0,
+				y: 128 * 2,
+				width: 128,
+				height: 128,
+				count: 4,
+				timing: 50,
+				loop: true
+			},
+			attack_3: {
+				x: 0,
+				y: 128 * 3,
+				width: 128,
+				height: 128,
+				count: 5,
+				timing: 50,
+				loop: true
+			},
 			dead: { x: 0, y: 128 * 4, width: 128, height: 128, count: 2, timing: 50, loop: true },
 			hurt: { x: 0, y: 128 * 5, width: 128, height: 128, count: 2, timing: 50, loop: true },
 			jump: { x: 0, y: 128 * 6, width: 128, height: 128, count: 11, timing: 50, loop: true },
@@ -404,6 +599,10 @@ class RedWerewolf extends Enemy {
 
 export {
 	Entity,
-	Samurai, SamuraiArcher, SamuraiCommander,
-	WhiteWerewolf, BlackWerewolf, RedWerewolf
+	Samurai,
+	SamuraiArcher,
+	SamuraiCommander,
+	WhiteWerewolf,
+	BlackWerewolf,
+	RedWerewolf
 };
