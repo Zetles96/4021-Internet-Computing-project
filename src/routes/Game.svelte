@@ -97,8 +97,8 @@
 	 */
 	function getServerGameState() {
 		return {
-			status: 'game_over',
-			message: 'Game is still going',
+			status: 'playing',
+			message: '2:00 left!',
 			game_objects: {
 				player1: {
 					name: 'player1',
