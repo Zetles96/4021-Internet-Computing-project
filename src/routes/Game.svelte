@@ -12,6 +12,7 @@
 	} from '$lib/javascript/sprites.js';
 
 	import GrassTile from '$lib/images/grasstile.png';
+	import GameOver from './GameOver.svelte';
 
 	const dispatch = createEventDispatcher();
 
@@ -31,10 +32,21 @@
 	const player_pos = [0, 0];
 
 	/**
+	 * The game state
+	 * @typedef {{status: string, message: string, game_objects: {[key: string]: {name: string, position: number[], sprite: string, health: number, animation: string, direction: string}}}} GameState
+	 */
+
+	/**
+	 * The raw gamestate from the server
+	 * @type {GameState}
+	 */
+	let gameState = {status: 'loading', message: 'Loading game...', game_objects: {}};
+
+	/**
 	 * Dictionary of all game objects with key being ID and value being the object
 	 * @type {{[key: string]: Entity}}
 	 */
-	let gameState = {};
+	let gameStateEntities = {};
 
 	// TODO: fetch this from server
 	let playerID = 'player1';
@@ -61,10 +73,6 @@
 		dispatch('back');
 	}
 
-	function toGameOver() {
-		dispatch('gameover');
-	}
-
 	const resizeCanvas = () => {
 		if (ctx) {
 			canvas.width = window.innerWidth;
@@ -85,11 +93,11 @@
 	// TODO: fetch this from server
 	/**
 	 * Get the game state from the server
-	 * @returns {{status: string, message: string, game_objects: {[key: string]: {name: string, position: number[], sprite: string, health: number, animation: string, direction: string}}}}
+	 * @returns {GameState}
 	 */
 	function getServerGameState() {
 		return {
-			status: 'playing',
+			status: 'game_over',
 			message: 'Game is still going',
 			game_objects: {
 				player1: {
@@ -143,16 +151,16 @@
 	function updateGameState(ctx) {
 		if (ctx) {
 			// Update game state from server
-			const serverGameState = getServerGameState();
-			for (const [id, entity] of Object.entries(serverGameState.game_objects)) {
-				if (!gameState[id]) {
+			gameState = getServerGameState();
+			for (const [id, entity] of Object.entries(gameState.game_objects)) {
+				if (!gameStateEntities[id]) {
 					console.debug(
 						'No game state object for id: ',
 						id + ' - trying to create it...'
 					);
 					switch (entity.sprite) {
 						case 'samurai':
-							gameState[id] = new Samurai(
+							gameStateEntities[id] = new Samurai(
 								ctx,
 								entity.position[0],
 								entity.position[1],
@@ -160,7 +168,7 @@
 							);
 							break;
 						case 'samuraiarcher':
-							gameState[id] = new SamuraiArcher(
+							gameStateEntities[id] = new SamuraiArcher(
 								ctx,
 								entity.position[0],
 								entity.position[1],
@@ -168,7 +176,7 @@
 							);
 							break;
 						case 'samuraicommander':
-							gameState[id] = new SamuraiCommander(
+							gameStateEntities[id] = new SamuraiCommander(
 								ctx,
 								entity.position[0],
 								entity.position[1],
@@ -176,21 +184,21 @@
 							);
 							break;
 						case 'redwerewolf':
-							gameState[id] = new RedWerewolf(
+							gameStateEntities[id] = new RedWerewolf(
 								ctx,
 								entity.position[0],
 								entity.position[1]
 							);
 							break;
 						case 'blackwerewolf':
-							gameState[id] = new BlackWerewolf(
+							gameStateEntities[id] = new BlackWerewolf(
 								ctx,
 								entity.position[0],
 								entity.position[1]
 							);
 							break;
 						case 'whitewerewolf':
-							gameState[id] = new WhiteWerewolf(
+							gameStateEntities[id] = new WhiteWerewolf(
 								ctx,
 								entity.position[0],
 								entity.position[1]
@@ -201,7 +209,7 @@
 					}
 
 					// Check again if the game state object was created
-					if (!gameState[id]) {
+					if (!gameStateEntities[id]) {
 						console.error('Failed to create game state object for id: ', id);
 						continue;
 					}
@@ -213,19 +221,19 @@
 
 					// Ensure the player game object is at the last index of the game state array
 					// such that it is drawn on top of all other game objects
-					const playerGameObject = gameState[id];
-					delete gameState[id];
-					gameState[id] = playerGameObject;
+					const playerGameObject = gameStateEntities[id];
+					delete gameStateEntities[id];
+					gameStateEntities[id] = playerGameObject;
 				}
 
-				gameState[id].setPosition(entity.position[0], entity.position[1]);
+				gameStateEntities[id].setPosition(entity.position[0], entity.position[1]);
 				// animations might be given as strings like 'animation_direction', so we have to split them
 				const animation = entity.animation.split('_');
-				gameState[id].setAnimation(animation[0], entity.direction ? entity.direction : animation[1]);
+				gameStateEntities[id].setAnimation(animation[0], entity.direction ? entity.direction : animation[1]);
 			}
 
 			// Adjust all game state objects' locations to be fixed around the player
-			for (const [id, gameObject] of Object.entries(gameState)) {
+			for (const [id, gameObject] of Object.entries(gameStateEntities)) {
 				const obj_pos = gameObject.sprite.getXY();
 				if (obj_pos && player_pos) {
 					gameObject.sprite.setXY(obj_pos.x - player_pos[0], obj_pos.y - player_pos[1]);
@@ -342,7 +350,7 @@
 	 */
 	function drawGameState(now) {
 		if (ctx) {
-			for (const [id, gameObject] of Object.entries(gameState)) {
+			for (const [id, gameObject] of Object.entries(gameStateEntities)) {
 				gameObject.update(now);
 				gameObject.draw();
 			}
@@ -407,7 +415,7 @@
 			// Update game state
 			updateGameState(ctx);
 
-			console.debug('GameState: ', gameState);
+			console.debug('GameState: ', gameStateEntities);
 
 			console.debug('Drawing with player position: ', player_pos);
 
@@ -432,12 +440,17 @@
 		<canvas bind:this={canvas} />
 	</div>
 	<div class='overlay w-screen h-screen flex flex-col items-center p-3'>
-		<p class='status'>Playing...</p>
+		<p class='status'>{gameState.message}</p>
 		{#if showCheats}
 			<Cheats on:close={() => showCheats = false} />
+		{:else if gameState.status === 'game_over'}
+			<GameOver
+				on:close={toMenu}
+				on:playAgain={toMenu}
+			/>
 		{/if}
 		<!-- <button class='backbutton' on:click={toMenu}>Back to Menu</button> -->
-		<button class='gameOver' on:click={toGameOver}>Game Over</button>
+<!--		<button class='gameOver' on:click={toGameOver}>Game Over</button>-->
 		<!-- <button class='cheats' on:click={() => showCheats = true}>Cheats</button> -->
 	</div>
 </div>

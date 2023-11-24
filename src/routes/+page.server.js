@@ -1,5 +1,4 @@
 import jwt from 'jsonwebtoken';
-import { error } from '@sveltejs/kit';
 import * as database from '$lib/server/database.js';
 
 const secret = process.env.JWT_SECRET || 'secret';
