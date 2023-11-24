@@ -5,9 +5,30 @@
 	import Modal from '$lib/components/Modal.svelte';
 	import GameOver from './GameOver.svelte';
 
-	let logged_in = false;
 	let playing = false;
 	let gameover = false;
+
+	/** @type {import('./$types').PageData} */
+	export let data;
+
+	/** @type {import('./$types').ActionData} */
+	export let form;
+
+	let logged_in = !!data.user;
+
+	function doLogout() {
+		// Send a logout request to the server with dummy form-encoded data
+		fetch('?/logout', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded'
+			},
+			body: 'logout=1'
+		}).then(() => {
+			// Redirect to the homepage
+			window.location.href = '/';
+		});
+	}
 </script>
 
 <svelte:head>
@@ -24,11 +45,12 @@
 			<div class='flex flex-col h-full pb-2'>
 				<Modal>
 					{#if !logged_in}
-						<Login on:login={(e) => (logged_in = e.detail.success)} />
+						<Login form={form} />
 					{:else}
 						<Menu
+							user={data.user}
 							on:play={() => (playing = true)}
-							on:logout={() => (logged_in = false)}
+							on:logout={doLogout}
 						/>
 					{/if}
 				</Modal>

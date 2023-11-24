@@ -1,15 +1,5 @@
-import { json } from '@sveltejs/kit';
-import { writeFileSync, readFileSync } from 'fs';
-
-// Create usersData.json if it doesn't exist
-try {
-	readFileSync('./src/lib/server/usersData.json');
-}
-catch (error) {
-	writeFileSync('./src/lib/server/usersData.json', '{}');
-}
-
-import userData from '/src/lib/server/usersData.json';
+import { writeFileSync } from 'fs';
+import userData from '$lib/server/usersData.json';
 import bcrypt from 'bcrypt';
 
 const userDataPath = './src/lib/server/usersData.json';
