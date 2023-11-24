@@ -70,24 +70,21 @@
 	 */
 	const handleKeys = (e) => {
 	
-		// if cheats page is not open
-		if (!showCheats) { // TEMP
-			// e.stopImmediatePropagation(); // TEMP
+		if (!showCheats) { // if cheats page is not open
+			e.stopPropagation();
 
-			console.log("game.svelete: Key pressed: ", e.key);
+			console.log("Key pressed: ", e.key);
 			currentKeysMap[e.key] = e.type === 'keydown';
 			// console.log("Keys pressed: ", currentKeysMap);
 
 			// TODO: replace these with calls to backend of current player action
-			if (e.key === 'Escape') {
+			if (currentKeysMap['Escape']) {
 				isPlaying = false;
 				toMenu();
-			}
-
-			// TEMP
-			// key to open cheats page
-			if (currentKeysMap['c']) {
+			} else if (currentKeysMap['c']) { // open cheats page
 				showCheats = true;
+				// clear the key presses (keyup doesn't trigger when cheat page opens?)
+				Object.keys(currentKeysMap).forEach(key => delete currentKeysMap[key]);
 			}
 
 			// Movement
