@@ -1,9 +1,10 @@
 # COMP 4021: Internet Computing Final Project
+
 This is the final project for course COMP 4021 Internet Computing, at the Hong Kong University of Science and Technology.
 
 ## Project Details
 
-The title of the game is *Slasher*, which is a competitive Hack and Slash 2D game, about who can slash the most entities within the time limit.
+The title of the game is _Slasher_, which is a competitive Hack and Slash 2D game, about who can slash the most entities within the time limit.
 
 ### Game Front Page
 
@@ -18,8 +19,9 @@ Once you log in, you get to the logged in front page.
 #### Logged In
 
 When a user is logged in they will be met with a new modal where they are able to choose between the following options:
-- Join a Game (join a new session with other players)
-- Leaderboards (view the leaderboards)
+
+-   Join a Game (join a new session with other players)
+-   Leaderboards (view the leaderboards)
 
 ### Game Play Page
 
@@ -28,10 +30,11 @@ The game is a Hack and Slash 2D game where players has to move around the "map" 
 Different points may be given for different types of enemies slashed.
 
 A game can have the following states:
-- Searching (waiting for players to join)
-- Waiting (gives a few seconds before the game starts and lets players move)
-- Playing (players can now slash enemies)
-- GameOver (see Game Over Page section)
+
+-   Searching (waiting for players to join)
+-   Waiting (gives a few seconds before the game starts and lets players move)
+-   Playing (players can now slash enemies)
+-   GameOver (see Game Over Page section)
 
 A game starts in the searching stage, where it will create a lobby (or join one) with other players, until said lobby fills up.
 
@@ -48,12 +51,13 @@ The game over page is simply a modal which slides into the view on top of the ga
 ### Cheats
 
 The following cheats are supported in the game:
-- Speed modification (increase or decrease movement speed)
-- Health modification (increase or decrease max and current health)
-- Damage modification (increase or decrease damage)
-- KillCount modificaiton (set kill count)
-- Kill (kill other players instantly)
-- Time modification (set amount of time left)
-- Range (modify attack range)
+
+-   Speed modification (increase or decrease movement speed)
+-   Health modification (increase or decrease max and current health)
+-   Damage modification (increase or decrease damage)
+-   KillCount modificaiton (set kill count)
+-   Kill (kill other players instantly)
+-   Time modification (set amount of time left)
+-   Range (modify attack range)
 
 Cheats can be enabled in the Cheat Menu Modal which can be toggled using the 'å' key (yes you need a Danish keyboard layout to type that, it is part of the fun!).

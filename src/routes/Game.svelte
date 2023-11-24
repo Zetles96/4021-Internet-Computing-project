@@ -29,7 +29,6 @@
 	 */
 	const player_pos = [0, 0];
 
-
 	/**
 	 * Dictionary of all game objects with key being ID and value being the object
 	 * @type {{[key: string]: Entity}}
@@ -60,7 +59,7 @@
 		dispatch('back');
 	}
 
-	function toGameOver() { 
+	function toGameOver() {
 		dispatch('gameover');
 	}
 
@@ -84,35 +83,35 @@
 	// TODO: fetch this from server
 	function getServerGameState() {
 		return {
-			'player1': {
-				'position': player_pos,
-				'sprite': 'samurai',
-				'health': 100,
-				'animation': 'walk_left'
+			player1: {
+				position: player_pos,
+				sprite: 'samurai',
+				health: 100,
+				animation: 'walk_left'
 			},
-			'player2': {
-				'position': [100, 100],
-				'sprite': 'samuraiarcher',
-				'health': 100,
-				'animation': 'idle'
+			player2: {
+				position: [100, 100],
+				sprite: 'samuraiarcher',
+				health: 100,
+				animation: 'idle'
 			},
-			'player3': {
-				'position': [200, 0],
-				'sprite': 'samuraicommander',
-				'health': 100,
-				'animation': 'idle'
+			player3: {
+				position: [200, 0],
+				sprite: 'samuraicommander',
+				health: 100,
+				animation: 'idle'
 			},
-			'enemy1': {
-				'position': [300, 150],
-				'sprite': 'whitewerewolf',
-				'health': 50,
-				'animation': 'idle'
+			enemy1: {
+				position: [300, 150],
+				sprite: 'whitewerewolf',
+				health: 50,
+				animation: 'idle'
 			},
-			'enemy2': {
-				'position': [-200, -250],
-				'sprite': 'redwerewolf',
-				'health': 80,
-				'animation': 'run_right'
+			enemy2: {
+				position: [-200, -250],
+				sprite: 'redwerewolf',
+				health: 80,
+				animation: 'run_right'
 			}
 		};
 	}
@@ -127,25 +126,58 @@
 			const serverGameState = getServerGameState();
 			for (const [id, player] of Object.entries(serverGameState)) {
 				if (!gameState[id]) {
-					console.debug('No game state object for id: ', id + ' - trying to create it...');
+					console.debug(
+						'No game state object for id: ',
+						id + ' - trying to create it...'
+					);
 					switch (player.sprite) {
 						case 'samurai':
-							gameState[id] = new Samurai(ctx, player.position[0], player.position[1], id);
+							gameState[id] = new Samurai(
+								ctx,
+								player.position[0],
+								player.position[1],
+								id
+							);
 							break;
 						case 'samuraiarcher':
-							gameState[id] = new SamuraiArcher(ctx, player.position[0], player.position[1], id);
+							gameState[id] = new SamuraiArcher(
+								ctx,
+								player.position[0],
+								player.position[1],
+								id
+							);
 							break;
 						case 'samuraicommander':
-							gameState[id] = new SamuraiCommander(ctx, player.position[0], player.position[1], id);
+							gameState[id] = new SamuraiCommander(
+								ctx,
+								player.position[0],
+								player.position[1],
+								id
+							);
 							break;
 						case 'redwerewolf':
-							gameState[id] = new RedWerewolf(ctx, player.position[0], player.position[1], id);
+							gameState[id] = new RedWerewolf(
+								ctx,
+								player.position[0],
+								player.position[1],
+								id
+							);
 							break;
 						case 'blackwerewolf':
-							gameState[id] = new BlackWerewolf(ctx, player.position[0], player.position[1], id);
+							gameState[id] = new BlackWerewolf(
+								ctx,
+								player.position[0],
+								player.position[1],
+								id
+							);
 							break;
 						case 'whitewerewolf':
-							gameState[id] = new WhiteWerewolf(ctx, player.position[0], player.position[1], id);
+							gameState[id] = new WhiteWerewolf(
+								ctx,
+								player.position[0],
+								player.position[1],
+								id
+							);
 							break;
 						default:
 							console.error('Unknown sprite type: ', player.sprite);
@@ -195,9 +227,9 @@
 	 * @param {KeyboardEvent} e
 	 */
 	const handleKeys = (e) => {
-		console.debug("Key pressed: ", e.key);
+		console.debug('Key pressed: ', e.key);
 		currentKeysMap[e.key] = e.type === 'keydown';
-		console.debug("Keys pressed: ", currentKeysMap);
+		console.debug('Keys pressed: ', currentKeysMap);
 
 		if (e.key === 'Escape') {
 			isPlaying = false;
@@ -261,7 +293,7 @@
 		};
 	});
 
-	$ : if (ctx) {
+	$: if (ctx) {
 		ctx.imageSmoothingEnabled = false;
 
 		// Update game state
@@ -350,9 +382,9 @@
 			// Update game state
 			updateGameState(ctx);
 
-			console.debug("GameState: ", gameState);
+			console.debug('GameState: ', gameState);
 
-			console.debug("Drawing with player position: ", player_pos);
+			console.debug('Drawing with player position: ', player_pos);
 
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -372,12 +404,12 @@
 
 <div>
 	<div class='gamecontainer w-screen h-screen'>
-		<canvas bind:this={canvas}></canvas>
+		<canvas bind:this={canvas} />
 	</div>
 	<div class='overlay w-screen h-screen flex flex-col justify-between items-center p-3'>
 		<p class='status'>Playing...</p>
 		<!-- <button class='backbutton' on:click={toMenu}>Back to Menu</button> -->
-		<button class='gameOver' on:click={toGameOver}>Game Over</button> 
+		<button class='gameOver' on:click={toGameOver}>Game Over</button>
 	</div>
 </div>
 
