@@ -1,7 +1,7 @@
 <script>
 	import { createEventDispatcher, onMount } from 'svelte';
 	import { Player } from './sprites.js';
-	import Cheats from './Cheats.svelte';
+	import Cheats from './Cheats.svelte'; // TEMP
 
 	// import grass tile from lib
 	import GrassTile from '$lib/images/grasstile.png';
@@ -69,58 +69,70 @@
 	 * @param {KeyboardEvent} e
 	 */
 	const handleKeys = (e) => {
-		console.log("Key pressed: ", e.key);
-		currentKeysMap[e.key] = e.type === 'keydown';
-		console.log("Keys pressed: ", currentKeysMap);
+	
+		// if cheats page is not open
+		if (!showCheats) { // TEMP
+			// e.stopImmediatePropagation(); // TEMP
 
-		// TODO: replace these with calls to backend of current player action
-		if (e.key === 'Escape') {
-			isPlaying = false;
-			toMenu();
-		}
+			console.log("game.svelete: Key pressed: ", e.key);
+			currentKeysMap[e.key] = e.type === 'keydown';
+			// console.log("Keys pressed: ", currentKeysMap);
 
-		// Movement
-		const player_move_distance = 5;
-		if (currentKeysMap['ArrowUp'] || currentKeysMap['w'] || currentKeysMap['W']) {
-			player_pos[1] -= player_move_distance;
-			// If up and left
-			if (currentKeysMap['ArrowLeft'] || currentKeysMap['a'] || currentKeysMap['A']) {
+			// TODO: replace these with calls to backend of current player action
+			if (e.key === 'Escape') {
+				isPlaying = false;
+				toMenu();
+			}
+
+			// TEMP
+			// key to open cheats page
+			if (currentKeysMap['c']) {
+				showCheats = true;
+			}
+
+			// Movement
+			const player_move_distance = 5;
+			if (currentKeysMap['ArrowUp'] || currentKeysMap['w'] || currentKeysMap['W']) {
+				player_pos[1] -= player_move_distance;
+				// If up and left
+				if (currentKeysMap['ArrowLeft'] || currentKeysMap['a'] || currentKeysMap['A']) {
+					if (player) player.move(1);
+					player_pos[0] -= player_move_distance;
+				}
+				// If up and right
+				else if (currentKeysMap['ArrowRight'] || currentKeysMap['d'] || currentKeysMap['D']) {
+					if (player) player.move(3);
+					player_pos[0] += player_move_distance;
+				}
+				else {
+					if (player) player.move(2);
+				}
+			}
+			else if (currentKeysMap['ArrowDown'] || currentKeysMap['s'] || currentKeysMap['S']) {
+				player_pos[1] += player_move_distance;
+				if (currentKeysMap['ArrowLeft'] || currentKeysMap['a'] || currentKeysMap['A']) {
+					if (player) player.move(1);
+					player_pos[0] -= player_move_distance;
+				}
+				else if (currentKeysMap['ArrowRight'] || currentKeysMap['d'] || currentKeysMap['D']) {
+					if (player) player.move(3);
+					player_pos[0] += player_move_distance;
+				}
+				else {
+					if (player) player.move(4);
+				}
+			}
+			else if (currentKeysMap['ArrowLeft'] || currentKeysMap['a'] || currentKeysMap['A']) {
 				if (player) player.move(1);
 				player_pos[0] -= player_move_distance;
 			}
-			// If up and right
 			else if (currentKeysMap['ArrowRight'] || currentKeysMap['d'] || currentKeysMap['D']) {
 				if (player) player.move(3);
 				player_pos[0] += player_move_distance;
 			}
 			else {
-				if (player) player.move(2);
+				if (player) player.move(0);
 			}
-		}
-		else if (currentKeysMap['ArrowDown'] || currentKeysMap['s'] || currentKeysMap['S']) {
-			player_pos[1] += player_move_distance;
-			if (currentKeysMap['ArrowLeft'] || currentKeysMap['a'] || currentKeysMap['A']) {
-				if (player) player.move(1);
-				player_pos[0] -= player_move_distance;
-			}
-			else if (currentKeysMap['ArrowRight'] || currentKeysMap['d'] || currentKeysMap['D']) {
-				if (player) player.move(3);
-				player_pos[0] += player_move_distance;
-			}
-			else {
-				if (player) player.move(4);
-			}
-		}
-		else if (currentKeysMap['ArrowLeft'] || currentKeysMap['a'] || currentKeysMap['A']) {
-			if (player) player.move(1);
-			player_pos[0] -= player_move_distance;
-		}
-		else if (currentKeysMap['ArrowRight'] || currentKeysMap['d'] || currentKeysMap['D']) {
-			if (player) player.move(3);
-			player_pos[0] += player_move_distance;
-		}
-		else {
-			if (player) player.move(0);
 		}
 	};
 
@@ -261,7 +273,7 @@
 		{/if}
 		<!-- <button class='backbutton' on:click={toMenu}>Back to Menu</button> -->
 		<button class='gameOver' on:click={toGameOver}>Game Over</button>
-		<button class='cheats' on:click={() => showCheats = true}>Cheats</button> <!-- TEMP -->
+		<!-- <button class='cheats' on:click={() => showCheats = true}>Cheats</button> -->
 	</div>
 </div>
 

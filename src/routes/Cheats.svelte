@@ -8,34 +8,36 @@
 		dispatch('close');
 	}
 
+    // IDEA
+    // conditional events + stop prop in game
     /**
 	 * @param {KeyboardEvent} e
 	 */
 	function onKeyDown(e) {
+        console.log("cheats.svelte: ", e.key);
+        
         switch (e.key) {
-            case "Escape": // FIX: closes cheats page + game page
+            case "Escape":
+                console.log("cheats.svelte: CLOSING");
+                closeModal();
+                break;                
+            case "c": // FIX: closes cheats page + game page
+                console.log("cheats.svelte: CLOSING");
                 closeModal();
                 break;
             case "1":
-                console.log("cheats.svelete: cheat 1");
                 break;
             case "2":
-                console.log("cheats.svelete: cheat 2");
                 break;
             case "3":
-                console.log("cheats.svelete: cheat 3");
                 break;
             case "4":
-                console.log("cheats.svelete: cheat 4");
                 break;
             case "5":
-                console.log("cheats.svelete: cheat 5");
                 break;
             case "6":
-                console.log("cheats.svelete: cheat 6");
                 break;
             case "7":
-                console.log("cheats.svelete: cheat 7");
                 break;
             default:
                 break;
@@ -46,9 +48,9 @@
 <svelte:window on:keydown|preventDefault|stopPropagation={onKeyDown} />
 
 
-<div class='background h-screen w-screen' on:click={closeModal} on:keydown|stopPropagation={closeModal} aria-hidden='true'>
+<div class='background h-screen w-screen' on:click={closeModal} aria-hidden='true'>
 	<Modal>
-		<div class="flex flex-col h-full w-full" on:click|stopPropagation={() => {}} on:keydown|stopPropagation={closeModal} aria-hidden='true'>
+		<div class="flex flex-col h-full w-full" on:click|stopPropagation={() => {}} aria-hidden='true'>
             <h1 class='text-center pt-10 p-5'>CHEATS</h1>
             <div class="text-center px-10">
                 <table class="border-collapse border border-slate-500 table-auto mx-auto w-full">
