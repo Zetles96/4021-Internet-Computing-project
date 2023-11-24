@@ -19,8 +19,7 @@
  * @property {function(boolean): Sprite} setFlipped - Sets the sprite flipped state.
  * @returns {Sprite} Returns a Sprite object.
  */
-const Sprite = function(ctx, x, y) {
-
+const Sprite = function (ctx, x, y) {
 	/**
 	 * The image object for the sprite sheet.
 	 * @type {HTMLImageElement}
@@ -68,7 +67,7 @@ const Sprite = function(ctx, x, y) {
 	 * @param {string} spriteSheet - The source of the sprite sheet (URL).
 	 * @returns {Sprite} The current Sprite object for method chaining.
 	 */
-	const useSheet = function(spriteSheet) {
+	const useSheet = function (spriteSheet) {
 		sheet.src = spriteSheet;
 		return this;
 	};
@@ -77,7 +76,7 @@ const Sprite = function(ctx, x, y) {
 	 * Gets the current position of the sprite.
 	 * @returns {{x: number, y: number}} The current position of the sprite.
 	 */
-	const getXY = function() {
+	const getXY = function () {
 		return { x, y };
 	};
 
@@ -85,7 +84,7 @@ const Sprite = function(ctx, x, y) {
 	 * Gets the current position of the sprite.
 	 * @returns {{x: number, y: number}} The current position of the sprite.
 	 */
-	const getXYCanvas = function() {
+	const getXYCanvas = function () {
 		return { x: x + ctx.canvas.width / 2, y: y + ctx.canvas.height / 2 };
 	};
 
@@ -95,7 +94,7 @@ const Sprite = function(ctx, x, y) {
 	 * @param {number} yvalue - The new y position.
 	 * @returns {Sprite} The current Sprite object for method chaining.
 	 */
-	const setXY = function(xvalue, yvalue) {
+	const setXY = function (xvalue, yvalue) {
 		[x, y] = [xvalue, yvalue];
 		return this;
 	};
@@ -105,7 +104,7 @@ const Sprite = function(ctx, x, y) {
 	 * @param {boolean} value - The new flipped state.
 	 * @returns {Sprite}
 	 */
-	const setFlipped = function(value) {
+	const setFlipped = function (value) {
 		flipped = value;
 		return this;
 	};
@@ -115,7 +114,7 @@ const Sprite = function(ctx, x, y) {
 	 * @param {{x: number, y: number, width: number, height: number, count: number, timing: number, loop: boolean}} newSequence - The new sprite sequence to be used by the sprite.
 	 * @returns {Sprite} The current Sprite object for method chaining.
 	 */
-	const setSequence = function(newSequence) {
+	const setSequence = function (newSequence) {
 		// Do nothing if the new sequence is the same as the current sequence.
 		if (newSequence === sequence) return this;
 
@@ -129,7 +128,7 @@ const Sprite = function(ctx, x, y) {
 	 * Gets the sprite sequence.
 	 * @returns {{x: number, y: number, width: number, height: number, count: number, timing: number, loop: boolean}}
 	 */
-	const getSequence = function() {
+	const getSequence = function () {
 		return sequence;
 	};
 
@@ -138,7 +137,7 @@ const Sprite = function(ctx, x, y) {
 	 * @param {number} value - The new scaling factor.
 	 * @returns {Sprite} The current Sprite object for method chaining.
 	 */
-	const setScale = function(value) {
+	const setScale = function (value) {
 		scale = value;
 		return this;
 	};
@@ -150,7 +149,7 @@ const Sprite = function(ctx, x, y) {
 	 * @param {number} value.y - The y scaling factor.
 	 * @returns {Sprite} The current Sprite object for method chaining.
 	 */
-	const setShadowScale = function(value) {
+	const setShadowScale = function (value) {
 		shadowScale = value;
 		return this;
 	};
@@ -159,7 +158,7 @@ const Sprite = function(ctx, x, y) {
 	 * Gets the display size of the sprite.
 	 * @returns {{width: number, height: number}} The display size of the sprite.
 	 */
-	const getDisplaySize = function() {
+	const getDisplaySize = function () {
 		/* Find the scaled width and height of the sprite */
 		const scaledWidth = sequence.width * scale;
 		const scaledHeight = sequence.height * scale;
@@ -170,7 +169,7 @@ const Sprite = function(ctx, x, y) {
 	 * Gets the bounding box of the sprite.
 	 * @returns {BoundingBox} The bounding box of the sprite.
 	 */
-	const getBoundingBox = function() {
+	const getBoundingBox = function () {
 		/* Get the display size of the sprite */
 		const size = getDisplaySize();
 
@@ -187,7 +186,7 @@ const Sprite = function(ctx, x, y) {
 	 * Checks if the sprite sheet image is loaded and ready to use.
 	 * @returns {boolean} True if the sprite sheet image is ready, false otherwise.
 	 */
-	const isReady = function() {
+	const isReady = function () {
 		return sheet.complete && sheet.naturalHeight !== 0;
 	};
 
@@ -195,7 +194,7 @@ const Sprite = function(ctx, x, y) {
 	 * Draws shadow underneath the sprite.
 	 * @returns {void}
 	 */
-	const drawShadow = function() {
+	const drawShadow = function () {
 		/* Save the settings */
 		ctx.save();
 
@@ -211,8 +210,15 @@ const Sprite = function(ctx, x, y) {
 		ctx.fillStyle = 'black';
 		ctx.globalAlpha = 0.6;
 		ctx.beginPath();
-		ctx.ellipse(pos.x, pos.y + size.height / 2,
-			shadowWidth / 2, shadowHeight / 2, 0, 0, 2 * Math.PI);
+		ctx.ellipse(
+			pos.x,
+			pos.y + size.height / 2,
+			shadowWidth / 2,
+			shadowHeight / 2,
+			0,
+			0,
+			2 * Math.PI
+		);
 		ctx.fill();
 
 		/* Restore saved settings */
@@ -223,7 +229,7 @@ const Sprite = function(ctx, x, y) {
 	 * Draws the sprite.
 	 * @returns {void}
 	 */
-	const drawSprite = function() {
+	const drawSprite = function () {
 		/* Save the settings */
 		ctx.save();
 
@@ -240,7 +246,17 @@ const Sprite = function(ctx, x, y) {
 
 		/* Draw the sprite */
 		ctx.imageSmoothingEnabled = false;
-		ctx.drawImage(sheet, sequence.x + index * sequence.width, sequence.y, sequence.width, sequence.height, pos.x - size.width / 2, pos.y - size.height / 2, size.width, size.height);
+		ctx.drawImage(
+			sheet,
+			sequence.x + index * sequence.width,
+			sequence.y,
+			sequence.width,
+			sequence.height,
+			pos.x - size.width / 2,
+			pos.y - size.height / 2,
+			size.width,
+			size.height
+		);
 
 		/* Restore saved settings */
 		ctx.restore();
@@ -250,7 +266,7 @@ const Sprite = function(ctx, x, y) {
 	 * Draws the shadow and the sprite.
 	 * @returns {Sprite} The current Sprite object for method chaining.
 	 */
-	const draw = function() {
+	const draw = function () {
 		if (isReady()) {
 			// drawShadow();
 			drawSprite();
@@ -263,7 +279,7 @@ const Sprite = function(ctx, x, y) {
 	 * @param {number} time - The timestamp when this function is called.
 	 * @returns {Sprite} The current Sprite object for method chaining.
 	 */
-	const update = function(time) {
+	const update = function (time) {
 		if (lastUpdate === 0) lastUpdate = time;
 
 		// Move to the next sprite when the timing is right.

@@ -64,7 +64,7 @@ class Entity {
 				timing: 50,
 				loop: true
 			},
-			dead: { x: 0, y: 128 * 4, width: 128, height: 128, count: 6, timing: 50, loop: true },
+			dead: { x: 0, y: 128 * 4, width: 128, height: 128, count: 6, timing: 50, loop: false },
 			hurt: { x: 0, y: 128 * 5, width: 128, height: 128, count: 3, timing: 50, loop: true },
 			jump: { x: 0, y: 128 * 6, width: 128, height: 128, count: 9, timing: 50, loop: true },
 			protection: {
@@ -315,7 +315,7 @@ class Samurai extends Player {
 				timing: 50,
 				loop: true
 			},
-			dead: { x: 0, y: 128 * 4, width: 128, height: 128, count: 6, timing: 50, loop: true },
+			dead: { x: 0, y: 128 * 4, width: 128, height: 128, count: 6, timing: 50, loop: false },
 			hurt: { x: 0, y: 128 * 5, width: 128, height: 128, count: 3, timing: 50, loop: true },
 			jump: { x: 0, y: 128 * 6, width: 128, height: 128, count: 9, timing: 50, loop: true },
 			protection: {
@@ -375,7 +375,7 @@ class SamuraiArcher extends Player {
 				timing: 50,
 				loop: true
 			},
-			dead: { x: 0, y: 128 * 4, width: 128, height: 128, count: 5, timing: 50, loop: true },
+			dead: { x: 0, y: 128 * 4, width: 128, height: 128, count: 5, timing: 50, loop: false },
 			hurt: { x: 0, y: 128 * 5, width: 128, height: 128, count: 3, timing: 50, loop: true },
 			jump: { x: 0, y: 128 * 6, width: 128, height: 128, count: 9, timing: 50, loop: true },
 			protection: { x: 0, y: 0, width: 0, height: 0, count: 0, timing: 0, loop: false },
@@ -426,7 +426,7 @@ class SamuraiCommander extends Player {
 				timing: 50,
 				loop: true
 			},
-			dead: { x: 0, y: 128 * 4, width: 128, height: 128, count: 6, timing: 50, loop: true },
+			dead: { x: 0, y: 128 * 4, width: 128, height: 128, count: 6, timing: 50, loop: false },
 			hurt: { x: 0, y: 128 * 5, width: 128, height: 128, count: 2, timing: 50, loop: true },
 			jump: { x: 0, y: 128 * 6, width: 128, height: 128, count: 7, timing: 50, loop: true },
 			protection: {
@@ -485,7 +485,7 @@ class WhiteWerewolf extends Enemy {
 				timing: 50,
 				loop: true
 			},
-			dead: { x: 0, y: 128 * 4, width: 128, height: 128, count: 2, timing: 50, loop: true },
+			dead: { x: 0, y: 128 * 4, width: 128, height: 128, count: 2, timing: 50, loop: false },
 			hurt: { x: 0, y: 128 * 5, width: 128, height: 128, count: 2, timing: 50, loop: true },
 			jump: { x: 0, y: 128 * 6, width: 128, height: 128, count: 11, timing: 50, loop: true },
 			protection: { x: 0, y: 0, width: 0, height: 0, count: 0, timing: 0, loop: false },
@@ -536,7 +536,7 @@ class BlackWerewolf extends Enemy {
 				timing: 50,
 				loop: true
 			},
-			dead: { x: 0, y: 128 * 4, width: 128, height: 128, count: 2, timing: 50, loop: true },
+			dead: { x: 0, y: 128 * 4, width: 128, height: 128, count: 2, timing: 50, loop: false },
 			hurt: { x: 0, y: 128 * 5, width: 128, height: 128, count: 2, timing: 50, loop: true },
 			jump: { x: 0, y: 128 * 6, width: 128, height: 128, count: 11, timing: 50, loop: true },
 			protection: { x: 0, y: 0, width: 0, height: 0, count: 0, timing: 0, loop: false },
@@ -587,7 +587,7 @@ class RedWerewolf extends Enemy {
 				timing: 50,
 				loop: true
 			},
-			dead: { x: 0, y: 128 * 4, width: 128, height: 128, count: 2, timing: 50, loop: true },
+			dead: { x: 0, y: 128 * 4, width: 128, height: 128, count: 2, timing: 50, loop: false },
 			hurt: { x: 0, y: 128 * 5, width: 128, height: 128, count: 2, timing: 50, loop: true },
 			jump: { x: 0, y: 128 * 6, width: 128, height: 128, count: 11, timing: 50, loop: true },
 			protection: { x: 0, y: 0, width: 0, height: 0, count: 0, timing: 0, loop: false },

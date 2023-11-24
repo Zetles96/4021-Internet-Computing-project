@@ -1,6 +1,5 @@
-import { json } from '@sveltejs/kit';
-import userData from '/src/lib/server/usersData.json';
-import { writeFileSync, readFileSync } from 'fs';
+import { writeFileSync } from 'fs';
+import userData from '$lib/server/usersData.json';
 import bcrypt from 'bcrypt';
 
 const userDataPath = './src/lib/server/usersData.json';

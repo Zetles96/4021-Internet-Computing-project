@@ -1,5 +1,6 @@
 <script>
 	import { createEventDispatcher, onMount } from 'svelte';
+	import Cheats from './Cheats.svelte'; // TEMP
 	import {
 		Entity,
 		Samurai,
@@ -8,7 +9,7 @@
 		RedWerewolf,
 		BlackWerewolf,
 		WhiteWerewolf
-	} from './sprites.js';
+	} from '$lib/javascript/sprites.js';
 
 	import GrassTile from '$lib/images/grasstile.png';
 
@@ -29,7 +30,6 @@
 	 */
 	const player_pos = [0, 0];
 
-
 	/**
 	 * Dictionary of all game objects with key being ID and value being the object
 	 * @type {{[key: string]: Entity}}
@@ -40,6 +40,7 @@
 	let playerID = 'player1';
 
 	let isPlaying = false;
+	let showCheats = false; // TEMP
 
 	// Make canvasimagesource from grass tile image string
 	const grassTile = new Image();
@@ -60,7 +61,7 @@
 		dispatch('back');
 	}
 
-	function toGameOver() { 
+	function toGameOver() {
 		dispatch('gameover');
 	}
 
@@ -84,35 +85,35 @@
 	// TODO: fetch this from server
 	function getServerGameState() {
 		return {
-			'player1': {
-				'position': player_pos,
-				'sprite': 'samurai',
-				'health': 100,
-				'animation': 'walk_left'
+			player1: {
+				position: player_pos,
+				sprite: 'samurai',
+				health: 100,
+				animation: 'walk_left'
 			},
-			'player2': {
-				'position': [100, 100],
-				'sprite': 'samuraiarcher',
-				'health': 100,
-				'animation': 'idle'
+			player2: {
+				position: [100, 100],
+				sprite: 'samuraiarcher',
+				health: 100,
+				animation: 'idle'
 			},
-			'player3': {
-				'position': [200, 0],
-				'sprite': 'samuraicommander',
-				'health': 100,
-				'animation': 'idle'
+			player3: {
+				position: [200, 0],
+				sprite: 'samuraicommander',
+				health: 100,
+				animation: 'idle'
 			},
-			'enemy1': {
-				'position': [300, 150],
-				'sprite': 'whitewerewolf',
-				'health': 50,
-				'animation': 'idle'
+			enemy1: {
+				position: [300, 150],
+				sprite: 'whitewerewolf',
+				health: 50,
+				animation: 'idle'
 			},
-			'enemy2': {
-				'position': [-200, -250],
-				'sprite': 'redwerewolf',
-				'health': 80,
-				'animation': 'run_right'
+			enemy2: {
+				position: [-200, -250],
+				sprite: 'redwerewolf',
+				health: 80,
+				animation: 'run_right'
 			}
 		};
 	}
@@ -127,25 +128,58 @@
 			const serverGameState = getServerGameState();
 			for (const [id, player] of Object.entries(serverGameState)) {
 				if (!gameState[id]) {
-					console.debug('No game state object for id: ', id + ' - trying to create it...');
+					console.debug(
+						'No game state object for id: ',
+						id + ' - trying to create it...'
+					);
 					switch (player.sprite) {
 						case 'samurai':
-							gameState[id] = new Samurai(ctx, player.position[0], player.position[1], id);
+							gameState[id] = new Samurai(
+								ctx,
+								player.position[0],
+								player.position[1],
+								id
+							);
 							break;
 						case 'samuraiarcher':
-							gameState[id] = new SamuraiArcher(ctx, player.position[0], player.position[1], id);
+							gameState[id] = new SamuraiArcher(
+								ctx,
+								player.position[0],
+								player.position[1],
+								id
+							);
 							break;
 						case 'samuraicommander':
-							gameState[id] = new SamuraiCommander(ctx, player.position[0], player.position[1], id);
+							gameState[id] = new SamuraiCommander(
+								ctx,
+								player.position[0],
+								player.position[1],
+								id
+							);
 							break;
 						case 'redwerewolf':
-							gameState[id] = new RedWerewolf(ctx, player.position[0], player.position[1], id);
+							gameState[id] = new RedWerewolf(
+								ctx,
+								player.position[0],
+								player.position[1],
+								id
+							);
 							break;
 						case 'blackwerewolf':
-							gameState[id] = new BlackWerewolf(ctx, player.position[0], player.position[1], id);
+							gameState[id] = new BlackWerewolf(
+								ctx,
+								player.position[0],
+								player.position[1],
+								id
+							);
 							break;
 						case 'whitewerewolf':
-							gameState[id] = new WhiteWerewolf(ctx, player.position[0], player.position[1], id);
+							gameState[id] = new WhiteWerewolf(
+								ctx,
+								player.position[0],
+								player.position[1],
+								id
+							);
 							break;
 						default:
 							console.error('Unknown sprite type: ', player.sprite);
@@ -195,36 +229,57 @@
 	 * @param {KeyboardEvent} e
 	 */
 	const handleKeys = (e) => {
-		console.debug("Key pressed: ", e.key);
-		currentKeysMap[e.key] = e.type === 'keydown';
-		console.debug("Keys pressed: ", currentKeysMap);
+		if (!showCheats) { // if cheats page is not open
+			e.stopPropagation();
 
-		if (e.key === 'Escape') {
-			isPlaying = false;
-			sendPlayerAction('stop');
-			toMenu();
-		}
+			console.debug("Key pressed: ", e.key);
+			currentKeysMap[e.key] = e.type === 'keydown';
+			// console.debug("Keys pressed: ", currentKeysMap);
 
-		// Movement
-		const player_move_distance = 5;
-		if (currentKeysMap['ArrowUp'] || currentKeysMap['w'] || currentKeysMap['W']) {
-			player_pos[1] -= player_move_distance;
-			// If up and left
-			if (currentKeysMap['ArrowLeft'] || currentKeysMap['a'] || currentKeysMap['A']) {
-				sendPlayerAction('move_up_left');
-				player_pos[0] -= player_move_distance;
+			// TODO: replace these with calls to backend of current player action
+			if (currentKeysMap['Escape']) {
+				isPlaying = false;
+				toMenu();
+			} else if (currentKeysMap['c']) { // open cheats page
+				showCheats = true;
+				// clear the key presses (keyup doesn't trigger when cheat page opens?)
+				Object.keys(currentKeysMap).forEach(key => delete currentKeysMap[key]);
 			}
-			// If up and right
-			else if (currentKeysMap['ArrowRight'] || currentKeysMap['d'] || currentKeysMap['D']) {
-				sendPlayerAction('move_up_right');
-				player_pos[0] += player_move_distance;
-			} else {
-				sendPlayerAction('move_up');
+
+			// Movement
+			const player_move_distance = 5;
+			if (currentKeysMap['ArrowUp'] || currentKeysMap['w'] || currentKeysMap['W']) {
+				player_pos[1] -= player_move_distance;
+				// If up and left
+				if (currentKeysMap['ArrowLeft'] || currentKeysMap['a'] || currentKeysMap['A']) {
+					if (player) player.move(1);
+					player_pos[0] -= player_move_distance;
+				}
+				// If up and right
+				else if (currentKeysMap['ArrowRight'] || currentKeysMap['d'] || currentKeysMap['D']) {
+					if (player) player.move(3);
+					player_pos[0] += player_move_distance;
+				}
+				else {
+					if (player) player.move(2);
+				}
 			}
-		} else if (currentKeysMap['ArrowDown'] || currentKeysMap['s'] || currentKeysMap['S']) {
-			player_pos[1] += player_move_distance;
-			if (currentKeysMap['ArrowLeft'] || currentKeysMap['a'] || currentKeysMap['A']) {
-				sendPlayerAction('move_down_left');
+			else if (currentKeysMap['ArrowDown'] || currentKeysMap['s'] || currentKeysMap['S']) {
+				player_pos[1] += player_move_distance;
+				if (currentKeysMap['ArrowLeft'] || currentKeysMap['a'] || currentKeysMap['A']) {
+					if (player) player.move(1);
+					player_pos[0] -= player_move_distance;
+				}
+				else if (currentKeysMap['ArrowRight'] || currentKeysMap['d'] || currentKeysMap['D']) {
+					if (player) player.move(3);
+					player_pos[0] += player_move_distance;
+				}
+				else {
+					if (player) player.move(4);
+				}
+			}
+			else if (currentKeysMap['ArrowLeft'] || currentKeysMap['a'] || currentKeysMap['A']) {
+				if (player) player.move(1);
 				player_pos[0] -= player_move_distance;
 			} else if (currentKeysMap['ArrowRight'] || currentKeysMap['d'] || currentKeysMap['D']) {
 				sendPlayerAction('move_down_right');
@@ -232,12 +287,9 @@
 			} else {
 				sendPlayerAction('move_down');
 			}
-		} else if (currentKeysMap['ArrowLeft'] || currentKeysMap['a'] || currentKeysMap['A']) {
-			sendPlayerAction('move_left');
-			player_pos[0] -= player_move_distance;
-		} else if (currentKeysMap['ArrowRight'] || currentKeysMap['d'] || currentKeysMap['D']) {
-			sendPlayerAction('move_right');
-			player_pos[0] += player_move_distance;
+			else {
+				if (player) player.move(0);
+			}
 		}
 	};
 
@@ -261,7 +313,7 @@
 		};
 	});
 
-	$ : if (ctx) {
+	$: if (ctx) {
 		ctx.imageSmoothingEnabled = false;
 
 		// Update game state
@@ -350,9 +402,9 @@
 			// Update game state
 			updateGameState(ctx);
 
-			console.debug("GameState: ", gameState);
+			console.debug('GameState: ', gameState);
 
-			console.debug("Drawing with player position: ", player_pos);
+			console.debug('Drawing with player position: ', player_pos);
 
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -372,12 +424,16 @@
 
 <div>
 	<div class='gamecontainer w-screen h-screen'>
-		<canvas bind:this={canvas}></canvas>
+		<canvas bind:this={canvas} />
 	</div>
-	<div class='overlay w-screen h-screen flex flex-col justify-between items-center p-3'>
+	<div class='overlay w-screen h-screen flex flex-col items-center p-3'>
 		<p class='status'>Playing...</p>
+		{#if showCheats}
+			<Cheats on:close={() => showCheats = false} />
+		{/if}
 		<!-- <button class='backbutton' on:click={toMenu}>Back to Menu</button> -->
-		<button class='gameOver' on:click={toGameOver}>Game Over</button> 
+		<button class='gameOver' on:click={toGameOver}>Game Over</button>
+		<!-- <button class='cheats' on:click={() => showCheats = true}>Cheats</button> -->
 	</div>
 </div>
 

@@ -10,7 +10,7 @@ const config = {
 		adapter: adapter(),
 		csrf: false
 	},
-	preprocess: vitePreprocess(),
+	preprocess: vitePreprocess()
 };
 
 export default config;
