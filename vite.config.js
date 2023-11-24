@@ -1,16 +1,16 @@
 import { sveltekit } from '@sveltejs/kit/vite';
-import { ViteDevServer, defineConfig } from 'vite';
+import { defineConfig } from 'vite';
 import { Server } from 'socket.io';
 
 const webSocketServer = {
 	name: 'webSocketServer',
 	configureServer(server) {
-		if (!server.httpServer) return;
+		server.listen().then(({ server: httpServer }) => {
+			const io = new Server(httpServer);
 
-		const io = new Server(server.httpServer);
-
-		io.on('connection', (socket) => {
-			socket.emit('eventFromServer', 'Hello, World 👋');
+			io.on('connection', (socket) => {
+				socket.emit('eventFromServer', 'Hello from the server!');
+			});
 		});
 	}
 };

@@ -1,7 +1,13 @@
 import jwt from 'jsonwebtoken';
 import * as database from '$lib/server/database.js';
+import { io } from 'socket.io-client';
 
 const secret = process.env.JWT_SECRET || 'secret';
+
+const socket = io('http://localhost:8000');
+socket.on('eventFromServer', (data) => {
+	console.log(data);
+});
 
 /** @type {import('./$types').PageServerLoad} */
 export async function load({ cookies }) {
