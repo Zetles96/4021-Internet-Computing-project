@@ -2,14 +2,17 @@
 	import { createEventDispatcher, onMount } from 'svelte';
 	import Cheats from './Cheats.svelte'; // TEMP
 	import {
-		Entity,
 		Samurai,
 		SamuraiArcher,
 		SamuraiCommander,
+	} from '$lib/javascript/players.js';
+	import {
 		RedWerewolf,
 		BlackWerewolf,
 		WhiteWerewolf
-	} from '$lib/javascript/sprites.js';
+	} from '$lib/javascript/enemies.js';
+	// Ignore this error
+	import { Entity } from '$lib/javascript/sprites.js';
 
 	import GrassTile from '$lib/images/grasstile.png';
 	import GameOver from './GameOver.svelte';
