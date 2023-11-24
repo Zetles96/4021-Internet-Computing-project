@@ -14,15 +14,15 @@
 	 * @param {KeyboardEvent} e
 	 */
 	function onKeyDown(e) {
-        console.log("cheats.svelte: ", e.key);
+        console.debug("cheats.svelte: ", e.key);
 
         switch (e.key) {
             case "Escape":
-                console.log("cheats.svelte: CLOSING esc");
+                console.debug("cheats.svelte: CLOSING esc");
                 closeModal();
                 break;                
             case "c": // FIX: closes cheats page + game page
-                console.log("cheats.svelte: CLOSING c");
+                console.debug("cheats.svelte: CLOSING c");
                 closeModal();
                 break;
             case "1":

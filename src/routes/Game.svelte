@@ -83,37 +83,55 @@
 	}
 
 	// TODO: fetch this from server
+	/**
+	 * Get the game state from the server
+	 * @returns {{status: string, message: string, game_objects: {[key: string]: {name: string, position: number[], sprite: string, health: number, animation: string, direction: string}}}}
+	 */
 	function getServerGameState() {
 		return {
-			player1: {
-				position: player_pos,
-				sprite: 'samurai',
-				health: 100,
-				animation: 'walk_left'
-			},
-			player2: {
-				position: [100, 100],
-				sprite: 'samuraiarcher',
-				health: 100,
-				animation: 'idle'
-			},
-			player3: {
-				position: [200, 0],
-				sprite: 'samuraicommander',
-				health: 100,
-				animation: 'idle'
-			},
-			enemy1: {
-				position: [300, 150],
-				sprite: 'whitewerewolf',
-				health: 50,
-				animation: 'idle'
-			},
-			enemy2: {
-				position: [-200, -250],
-				sprite: 'redwerewolf',
-				health: 80,
-				animation: 'run_right'
+			status: 'playing',
+			message: 'Game is still going',
+			game_objects: {
+				player1: {
+					name: 'player1',
+					position: player_pos,
+					sprite: 'samurai',
+					health: 100,
+					animation: 'walk',
+					direction: 'left'
+				},
+				player2: {
+					name: 'player2',
+					position: [100, 100],
+					sprite: 'samuraiarcher',
+					health: 100,
+					animation: 'idle',
+					direction: 'right'
+				},
+				player3: {
+					name: 'player3',
+					position: [200, 0],
+					sprite: 'samuraicommander',
+					health: 100,
+					animation: 'idle',
+					direction: 'left'
+				},
+				enemy1: {
+					name: 'enemy1',
+					position: [300, 150],
+					sprite: 'whitewerewolf',
+					health: 50,
+					animation: 'idle',
+					direction: 'right'
+				},
+				enemy2: {
+					name: 'enemy2',
+					position: [-200, -250],
+					sprite: 'redwerewolf',
+					health: 80,
+					animation: 'run',
+					direction: 'right'
+				}
 			}
 		};
 	}
@@ -126,63 +144,60 @@
 		if (ctx) {
 			// Update game state from server
 			const serverGameState = getServerGameState();
-			for (const [id, player] of Object.entries(serverGameState)) {
+			for (const [id, entity] of Object.entries(serverGameState.game_objects)) {
 				if (!gameState[id]) {
 					console.debug(
 						'No game state object for id: ',
 						id + ' - trying to create it...'
 					);
-					switch (player.sprite) {
+					switch (entity.sprite) {
 						case 'samurai':
 							gameState[id] = new Samurai(
 								ctx,
-								player.position[0],
-								player.position[1],
-								id
+								entity.position[0],
+								entity.position[1],
+								entity.name
 							);
 							break;
 						case 'samuraiarcher':
 							gameState[id] = new SamuraiArcher(
 								ctx,
-								player.position[0],
-								player.position[1],
-								id
+								entity.position[0],
+								entity.position[1],
+								entity.name
 							);
 							break;
 						case 'samuraicommander':
 							gameState[id] = new SamuraiCommander(
 								ctx,
-								player.position[0],
-								player.position[1],
-								id
+								entity.position[0],
+								entity.position[1],
+								entity.name
 							);
 							break;
 						case 'redwerewolf':
 							gameState[id] = new RedWerewolf(
 								ctx,
-								player.position[0],
-								player.position[1],
-								id
+								entity.position[0],
+								entity.position[1]
 							);
 							break;
 						case 'blackwerewolf':
 							gameState[id] = new BlackWerewolf(
 								ctx,
-								player.position[0],
-								player.position[1],
-								id
+								entity.position[0],
+								entity.position[1]
 							);
 							break;
 						case 'whitewerewolf':
 							gameState[id] = new WhiteWerewolf(
 								ctx,
-								player.position[0],
-								player.position[1],
-								id
+								entity.position[0],
+								entity.position[1]
 							);
 							break;
 						default:
-							console.error('Unknown sprite type: ', player.sprite);
+							console.error('Unknown sprite type: ', entity.sprite);
 					}
 
 					// Check again if the game state object was created
@@ -193,8 +208,8 @@
 				}
 
 				if (id === playerID) {
-					player_pos[0] = player.position[0];
-					player_pos[1] = player.position[1];
+					player_pos[0] = entity.position[0];
+					player_pos[1] = entity.position[1];
 
 					// Ensure the player game object is at the last index of the game state array
 					// such that it is drawn on top of all other game objects
@@ -203,10 +218,10 @@
 					gameState[id] = playerGameObject;
 				}
 
-				gameState[id].setPosition(player.position[0], player.position[1]);
-				// animations are given as strings like 'animation_direction', so we have to split them
-				const animation = player.animation.split('_');
-				gameState[id].setAnimation(animation[0], animation[1]);
+				gameState[id].setPosition(entity.position[0], entity.position[1]);
+				// animations might be given as strings like 'animation_direction', so we have to split them
+				const animation = entity.animation.split('_');
+				gameState[id].setAnimation(animation[0], entity.direction ? entity.direction : animation[1]);
 			}
 
 			// Adjust all game state objects' locations to be fixed around the player
@@ -232,7 +247,7 @@
 		if (!showCheats) { // if cheats page is not open
 			e.stopPropagation();
 
-			console.debug("Key pressed: ", e.key);
+			console.debug('Key pressed: ', e.key);
 			currentKeysMap[e.key] = e.type === 'keydown';
 			// console.debug("Keys pressed: ", currentKeysMap);
 
@@ -252,43 +267,33 @@
 				player_pos[1] -= player_move_distance;
 				// If up and left
 				if (currentKeysMap['ArrowLeft'] || currentKeysMap['a'] || currentKeysMap['A']) {
-					if (player) player.move(1);
+					sendPlayerAction('move_up_left');
 					player_pos[0] -= player_move_distance;
 				}
 				// If up and right
 				else if (currentKeysMap['ArrowRight'] || currentKeysMap['d'] || currentKeysMap['D']) {
-					if (player) player.move(3);
+					sendPlayerAction('move_up_right');
 					player_pos[0] += player_move_distance;
+				} else {
+					sendPlayerAction('move_up');
 				}
-				else {
-					if (player) player.move(2);
-				}
-			}
-			else if (currentKeysMap['ArrowDown'] || currentKeysMap['s'] || currentKeysMap['S']) {
+			} else if (currentKeysMap['ArrowDown'] || currentKeysMap['s'] || currentKeysMap['S']) {
 				player_pos[1] += player_move_distance;
 				if (currentKeysMap['ArrowLeft'] || currentKeysMap['a'] || currentKeysMap['A']) {
-					if (player) player.move(1);
+					sendPlayerAction('move_down_left');
 					player_pos[0] -= player_move_distance;
-				}
-				else if (currentKeysMap['ArrowRight'] || currentKeysMap['d'] || currentKeysMap['D']) {
-					if (player) player.move(3);
+				} else if (currentKeysMap['ArrowRight'] || currentKeysMap['d'] || currentKeysMap['D']) {
+					sendPlayerAction('move_down_right');
 					player_pos[0] += player_move_distance;
+				} else {
+					sendPlayerAction('move_down');
 				}
-				else {
-					if (player) player.move(4);
-				}
-			}
-			else if (currentKeysMap['ArrowLeft'] || currentKeysMap['a'] || currentKeysMap['A']) {
-				if (player) player.move(1);
+			} else if (currentKeysMap['ArrowLeft'] || currentKeysMap['a'] || currentKeysMap['A']) {
+				sendPlayerAction('move_left');
 				player_pos[0] -= player_move_distance;
 			} else if (currentKeysMap['ArrowRight'] || currentKeysMap['d'] || currentKeysMap['D']) {
 				sendPlayerAction('move_down_right');
 				player_pos[0] += player_move_distance;
-			} else {
-				sendPlayerAction('move_down');
-			}
-			else {
-				if (player) player.move(0);
 			}
 		}
 	};
