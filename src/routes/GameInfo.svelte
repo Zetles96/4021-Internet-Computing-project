@@ -7,7 +7,19 @@
 	function closeModal() {
 		dispatch('close');
 	}
+
+	/**
+	 * @param {KeyboardEvent} e
+	 */
+	function onKeyDown(e) {
+		if(e.key === "Escape") {
+			closeModal();
+		}
+	}
+
 </script>
+
+<svelte:window on:keydown|preventDefault={onKeyDown} />
 
 <div
 	class='background h-screen w-screen'
