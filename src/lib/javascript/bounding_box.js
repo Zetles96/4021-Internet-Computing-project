@@ -1,6 +1,10 @@
 /**
- * Represents a BoundingBox object.
- * @typedef {Object} BoundingBox
+ * Creates a new BoundingBox object.
+ * @param {CanvasRenderingContext2D} ctx - A canvas context for using isPointInPath().
+ * @param {number} top - The top side of the box.
+ * @param {number} left - The left side of the box.
+ * @param {number} bottom - The bottom side of the box.
+ * @param {number} right - The right side of the box.
  * @property {function(): number} getTop - Gets the top side of the bounding box.
  * @property {function(): number} getLeft - Gets the left side of the bounding box.
  * @property {function(): number} getBottom - Gets the bottom side of the bounding box.
@@ -9,15 +13,6 @@
  * @property {function(x: number, y: number): boolean} isPointInBox - Tests whether a point is inside the bounding box.
  * @property {function(box: BoundingBox): boolean} intersect - Checks whether the bounding box intersects with another bounding box.
  * @property {function(): {x: number, y: number}} randomPoint - Generates a random point inside the bounding box.
- */
-
-/**
- * Creates a new BoundingBox object.
- * @param {CanvasRenderingContext2D} ctx - A canvas context for using isPointInPath().
- * @param {number} top - The top side of the box.
- * @param {number} left - The left side of the box.
- * @param {number} bottom - The bottom side of the box.
- * @param {number} right - The right side of the box.
  * @returns {BoundingBox} Returns a BoundingBox object.
  */
 const BoundingBox = function (ctx, top, left, bottom, right) {
