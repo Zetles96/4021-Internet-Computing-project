@@ -8,7 +8,7 @@
 		RedWerewolf,
 		BlackWerewolf,
 		WhiteWerewolf
-	} from './sprites.js';
+	} from '$lib/javascript/sprites.js';
 
 	import GrassTile from '$lib/images/grasstile.png';
 
