@@ -1,6 +1,6 @@
+import { Server } from 'socket.io';
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vite';
-import { Server } from 'socket.io';
 
 const webSocketServer = {
 	name: 'webSocketServer',
