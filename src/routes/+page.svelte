@@ -18,6 +18,7 @@
 
 	function doLogout() {
 		// Send a logout request to the server with dummy form-encoded data
+		// We do this to remove the cookie with the token properly using actions - document.cookie doesn't work
 		fetch('?/logout', {
 			method: 'POST',
 			headers: {

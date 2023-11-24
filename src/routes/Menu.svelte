@@ -2,7 +2,10 @@
 	import { createEventDispatcher } from 'svelte';
 	import GameInfo from './GameInfo.svelte';
 
-	// user object has type
+	// user object is a decoded jwt token
+	/**
+	 * @type {{username: string, iat: number, exp: number}}
+	 */
 	export let user;
 
 	const dispatch = createEventDispatcher();
