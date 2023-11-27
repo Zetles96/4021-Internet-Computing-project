@@ -66,7 +66,7 @@
 	let gameState = { status: 'loading', message: 'Loading game...', game_objects: {} };
 
 	socket.on('gameState', (data) => {
-		// console.log('Received gamestate from ws: ', data);
+		console.log('Received gamestate from ws: ', data);
 		gameState = data;
 	});
 
@@ -223,6 +223,7 @@
 					gameStateEntities[id] = playerGameObject;
 				}
 
+				gameStateEntities[id].setHealth(entity.health);
 				gameStateEntities[id].setPosition(entity.position[0], entity.position[1]);
 				// animations might be given as strings like 'animation_direction', so we have to split them
 				const animation = entity.animation.split('_');

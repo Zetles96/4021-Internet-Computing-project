@@ -201,7 +201,7 @@ class Gotoku extends Enemy {
 				timing: 50,
 				loop: true
 			},
-			dead: { x: 0, y: 128 * 4, width: 128, height: 128, count: 5, timing: 50, loop: false },
+			dead: { x: 0, y: 128 * 4, width: 128, height: 128, count: 6, timing: 50, loop: false },
 			hurt: { x: 0, y: 128 * 5, width: 128, height: 128, count: 3, timing: 50, loop: true },
 			jump: { x: 0, y: 128 * 6, width: 128, height: 128, count: 8, timing: 50, loop: true },
 			misc: { x: 0, y: 128 * 7, width: 128, height: 128, count: 4, timing: 50, loop: false },
@@ -252,7 +252,7 @@ class Onre extends Enemy {
 				timing: 50,
 				loop: true
 			},
-			dead: { x: 0, y: 128 * 4, width: 128, height: 128, count: 6, timing: 50, loop: false },
+			dead: { x: 0, y: 128 * 4, width: 128, height: 128, count: 7, timing: 50, loop: false },
 			hurt: { x: 0, y: 128 * 5, width: 128, height: 128, count: 3, timing: 50, loop: true },
 			jump: { x: 0, y: 128 * 6, width: 128, height: 128, count: 6, timing: 50, loop: true },
 			misc: { x: 0, y: 128 * 7, width: 128, height: 128, count: 7, timing: 50, loop: false },
@@ -303,7 +303,7 @@ class Yurei extends Enemy {
 				timing: 50,
 				loop: true
 			},
-			dead: { x: 0, y: 128 * 4, width: 128, height: 128, count: 4, timing: 50, loop: false },
+			dead: { x: 0, y: 128 * 4, width: 128, height: 128, count: 5, timing: 50, loop: false },
 			hurt: { x: 0, y: 128 * 5, width: 128, height: 128, count: 3, timing: 50, loop: true },
 			jump: { x: 0, y: 0, width: 128, height: 128, count: 0, timing: 50, loop: true },
 			misc: { x: 0, y: 128 * 7, width: 128, height: 128, count: 4, timing: 50, loop: false },

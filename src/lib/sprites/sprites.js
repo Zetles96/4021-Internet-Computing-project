@@ -335,6 +335,7 @@ class Entity {
 		this.ctx = ctx;
 		this.spritesheet = spritesheet;
 		this.name = name;
+		this.health = 100;
 
 		/**
 		 * This is the sprite sequences of the player facing different directions.
@@ -411,6 +412,10 @@ class Entity {
 		 * @type {number} The moving direction.
 		 */
 		this.direction = 0;
+	}
+
+	setHealth(health) {
+		this.health = health;
 	}
 
 	/**
@@ -532,6 +537,10 @@ class Entity {
 		this.sprite.update(time);
 	}
 
+	getText() {
+		return this.name + (this.health > 0 ? " [" + Math.floor(this.health) + "]" : "");
+	}
+
 	/**
 	 * This function draws the player on the canvas.
 	 */
@@ -544,7 +553,7 @@ class Entity {
 		this.ctx.fillStyle = 'black';
 		this.ctx.textAlign = 'center';
 		this.ctx.fillText(
-			this.name,
+			this.getText(),
 			this.sprite.getXYCanvas().x,
 			this.sprite.getXYCanvas().y + this.sprite.getDisplaySize().height / 2 + 16
 		);
@@ -580,6 +589,10 @@ class Player extends Entity {
 class Enemy extends Entity {
 	constructor(ctx, x, y, spritesheet, name = 'Enemy') {
 		super(ctx, x, y, spritesheet, name);
+	}
+
+	getText() {
+		return this.health > 0 ? "[" + Math.floor(this.health) + "]" : "";
 	}
 }
 

@@ -13,10 +13,12 @@ class ServerEntity {
 		this.y = y;
 		this.type = type;
 		this.health = 100;
+		this.damage = 10;
 		this.animation = 'idle';
 		this.direction = { x: 0, y: 0 };
 		this.lastAttack = Date.now();
 		this.attackCooldown = 1000;
+		this.range = 16;
 	}
 }
 
@@ -31,8 +33,14 @@ class ServerPlayer extends ServerEntity {
 		);
 		this.socket = socket;
 
+		this.score = 0;
+
 		this.doAttack = false;
 		this.doMove = false;
+		this.lastAction = Date.now();
+		this.damage = 100/3;
+		this.range = 32;
+		this.attackCooldown = 300;
 
 		this.socket.emit('joined', {
 			id: this.socket.id,
@@ -40,20 +48,37 @@ class ServerPlayer extends ServerEntity {
 		});
 	}
 
-	update() {
+	update(enemies) {
 		if (this.health <= 0) {
 			this.animation = "dead";
+			return
 		}
-		else if (this.doMove) {
+
+		if (this.doMove) {
+			this.doMove = false;
 			this.animation = "walk";
 			this.x += this.direction.x * 16;
 			this.y += this.direction.y * 16;
-			this.doMove = false;
+			this.lastAction = Date.now();
 		}
+
 		if (this.doAttack) {
-			this.animation = 'attack';
 			this.doAttack = false;
-		} else {
+			this.animation = 'attack';
+			this.lastAction = Date.now();
+
+			// Attack every enemy in range
+			enemies.forEach((e) => {
+				e.health -= this.damage;
+				if (e.health <= 0) {
+					e.health = 0;
+					e.animation = "dead";
+					this.score += e.worth;
+				}
+			});
+		}
+
+		if ((Date.now() - this.lastAction) > this.attackCooldown) {
 			this.animation = 'idle';
 		}
 	}
@@ -68,14 +93,17 @@ class ServerEnemy extends ServerEntity {
 			y,
 			ENEMY_TYPES[Math.floor(Math.random() * ENEMY_TYPES.length)]
 		);
+
 		switch (this.type) {
 			case 'yurei':
 			case 'onre':
 			case 'gotoku':
-				this.damage = 20;
+				this.damage = 10;
+				this.worth = 15;
 				break;
 			default:
-				this.damage = 10;
+				this.damage = 5;
+				this.worth = 10;
 				break;
 		}
 		this.simulation_distance = 300;
@@ -94,7 +122,10 @@ class ServerEnemy extends ServerEntity {
 			return;
 		}
 
-		if (!player) return;
+		if (!player) {
+			this.animation = 'idle';
+			return;
+		}
 
 		const distance = Math.sqrt((this.x - player.x) ** 2 + (this.y - player.y) ** 2);
 
@@ -117,7 +148,7 @@ class ServerEnemy extends ServerEntity {
 		}
 
 		// if we are within range, we attack
-		if (distance < 16) {
+		if (distance < this.range) {
 			this.animation = "attack";
 			const now = Date.now();
 
@@ -157,7 +188,7 @@ export class Game {
 		this.spawnEnemies(10, 1000);
 		this.spawnEnemies(100, 5000);
 		// this.spawnEnemies(100, 10000);
-		setInterval(this.update.bind(this), 1000 / 60);
+		setInterval(this.update.bind(this), 10);
 	}
 
 	spawnEnemies(amount, range) {
@@ -263,6 +294,7 @@ export class Game {
 					player.doMove = true;
 					break;
 				case 'attack':
+					if (player.animation === 'attack') return;
 					player.doAttack = true;
 					break;
 				default:
@@ -280,7 +312,6 @@ export class Game {
 
 	update() {
 		const now = Date.now();
-		const playerRange = 16;
 
 		// Don't update game state if we are within the same tick
 		if (now - this.lastUpdateTime < 1000 / TPS) {
@@ -302,61 +333,46 @@ export class Game {
 		} else if (seconds > GAME_TIME + WAIT_TIME) {
 			this.status = 'ended';
 			this.message = 'Game ended';
-			this.sendUpdate();
-			return;
 		} else {
+			// Update players
 			for (const id in this.players) {
 				const player = this.players[id];
+				let enemiesToAttack = [];
 				if (player.doAttack) {
+					// Find the closest enemy
 					this.enemies.forEach((e) => {
-						switch (player.direction) {
-							case player.x < 0:
-								if (e.x < player.x && e.x > player.x - playerRange) {
-									e.health -= 10;
-								}
-								break;
-							case player.x > 0:
-								if (e.x > player.x && e.x < player.x + playerRange) {
-									e.health -= 10;
-								}
-								break;
-							case player.direction.y < 0:
-								if (e.y < player.y && e.y > player.y - playerRange) {
-									e.health -= 10;
-								}
-								break;
-							case player.direction.y > 0:
-								if (e.y > player.y && e.y < player.y + playerRange) {
-									e.health -= 10;
-								}
-								break;
-							default:
-								break;
+						// If enemy is dead, do not target
+						if (e.health <= 0) return;
+
+						const distance = Math.sqrt((e.x - player.x) ** 2 + (e.y - player.y) ** 2);
+						if (distance < player.range) {
+							enemiesToAttack.push(e);
 						}
 					});
 				}
-				player.update();
-			}
-			this.enemies.forEach((e) => {
-				// Find the closest player
-				let closestPlayer = null;
-				let closestDistance = Infinity;
-				for (const id in this.players) {
-					const player = this.players[id];
+				player.update(enemiesToAttack);
 
-					// If player is dead, do not target
-					if (player.health <= 0) continue;
+				// Update enemies
+				this.enemies.forEach((e) => {
+					// Find the closest player
+					let closestPlayer = null;
+					let closestDistance = Infinity;
+					for (const id in this.players) {
+						const player = this.players[id];
 
-					const distance = Math.sqrt((e.x - player.x) ** 2 + (e.y - player.y) ** 2);
-					if (distance < closestDistance) {
-						closestDistance = distance;
-						closestPlayer = player;
+						// If player is dead, do not target
+						if (player.health <= 0) continue;
+
+						const distance = Math.sqrt((e.x - player.x) ** 2 + (e.y - player.y) ** 2);
+						if (distance < closestDistance) {
+							closestDistance = distance;
+							closestPlayer = player;
+						}
 					}
-				}
-				e.update(closestPlayer);
-			});
+					e.update(closestPlayer);
+				});
+			}
 		}
-
 		this.sendUpdate();
 	}
 }
