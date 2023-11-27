@@ -47,7 +47,7 @@ class Samurai extends Player {
 			dead: { x: 0, y: 128 * 4, width: 128, height: 128, count: 6, timing: 50, loop: false },
 			hurt: { x: 0, y: 128 * 5, width: 128, height: 128, count: 3, timing: 50, loop: true },
 			jump: { x: 0, y: 128 * 6, width: 128, height: 128, count: 9, timing: 50, loop: true },
-			protection: {
+			misc: {
 				x: 128 * 7,
 				y: 0,
 				width: 128,
@@ -107,7 +107,7 @@ class SamuraiArcher extends Player {
 			dead: { x: 0, y: 128 * 4, width: 128, height: 128, count: 5, timing: 50, loop: false },
 			hurt: { x: 0, y: 128 * 5, width: 128, height: 128, count: 3, timing: 50, loop: true },
 			jump: { x: 0, y: 128 * 6, width: 128, height: 128, count: 9, timing: 50, loop: true },
-			protection: { x: 0, y: 0, width: 0, height: 0, count: 0, timing: 0, loop: false },
+			misc: { x: 0, y: 0, width: 0, height: 0, count: 0, timing: 0, loop: false },
 			run: { x: 0, y: 128 * 8, width: 128, height: 128, count: 8, timing: 50, loop: true },
 			walk: { x: 0, y: 128 * 9, width: 128, height: 128, count: 8, timing: 100, loop: true }
 		};
@@ -158,7 +158,7 @@ class SamuraiCommander extends Player {
 			dead: { x: 0, y: 128 * 4, width: 128, height: 128, count: 6, timing: 50, loop: false },
 			hurt: { x: 0, y: 128 * 5, width: 128, height: 128, count: 2, timing: 50, loop: true },
 			jump: { x: 0, y: 128 * 6, width: 128, height: 128, count: 7, timing: 50, loop: true },
-			protection: {
+			misc: {
 				x: 128 * 7,
 				y: 0,
 				width: 128,

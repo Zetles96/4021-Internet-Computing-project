@@ -9,7 +9,10 @@
 	import {
 		RedWerewolf,
 		BlackWerewolf,
-		WhiteWerewolf
+		WhiteWerewolf,
+		Yurei,
+		Gotoku,
+		Onre
 	} from '$lib/javascript/enemies.js';
 	// Ignore this error
 	import { Entity } from '$lib/javascript/sprites.js';
@@ -202,6 +205,27 @@
 							break;
 						case 'whitewerewolf':
 							gameStateEntities[id] = new WhiteWerewolf(
+								ctx,
+								entity.position[0],
+								entity.position[1]
+							);
+							break;
+						case 'yurei':
+							gameStateEntities[id] = new Yurei(
+								ctx,
+								entity.position[0],
+								entity.position[1]
+							);
+							break;
+						case 'gotoku':
+							gameStateEntities[id] = new Gotoku(
+								ctx,
+								entity.position[0],
+								entity.position[1]
+							);
+							break;
+						case 'onre':
+							gameStateEntities[id] = new Onre(
 								ctx,
 								entity.position[0],
 								entity.position[1]

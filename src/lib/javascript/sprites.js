@@ -375,7 +375,7 @@ class Entity {
 			dead: { x: 0, y: 128 * 4, width: 128, height: 128, count: 6, timing: 50, loop: false },
 			hurt: { x: 0, y: 128 * 5, width: 128, height: 128, count: 3, timing: 50, loop: true },
 			jump: { x: 0, y: 128 * 6, width: 128, height: 128, count: 9, timing: 50, loop: true },
-			protection: {
+			misc: {
 				x: 128 * 7,
 				y: 0,
 				width: 128,
@@ -474,8 +474,8 @@ class Entity {
 			case 'jump':
 				this.sprite.setSequence(this.sequences.jump);
 				break;
-			case 'protection':
-				this.sprite.setSequence(this.sequences.protection);
+			case 'misc':
+				this.sprite.setSequence(this.sequences.misc);
 				break;
 			case 'run':
 				this.sprite.setSequence(this.sequences.run);
