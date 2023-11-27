@@ -104,6 +104,25 @@ export async function checkUserCredentials(username, password) {
  */
 export async function setScore(name, score) {
 	const users = userData;
+	if (!userExists(name)) {
+		return;
+	}
 	users[name].score = score;
 	writeFileSync(userDataPath, JSON.stringify(users));
+}
+
+/**
+ * Set the high score for a specific user.
+ *
+ * @param {string} name - The name of the user.
+ * @param {number} score - The new score for the user.
+ */
+export async function setHighScore(name, score) {
+	const users = userData;
+	if (!userExists(name)) {
+		return;
+	}
+	if (users[name].score < score) {
+		await setScore(name, score);
+	}
 }
