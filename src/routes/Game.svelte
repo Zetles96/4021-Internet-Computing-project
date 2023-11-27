@@ -64,7 +64,6 @@
 		gameState = data;
 	});
 
-
 	// On initial load, join the game
 	socket.emit('joinGame');
 
@@ -114,11 +113,25 @@
 	const player_sounds = {
 		walk: new Audio('/src/lib/sounds/human/human-walking.mp3'),
 		hurt: new Audio('/src/lib/sounds/human/human-hurt.mp3'),
-		die: new Audio('/src/lib/sounds/human/human-scream1.mp3'),
+		dead: new Audio('/src/lib/sounds/human/human-scream1.mp3'),
 		attack: new Audio('/src/lib/sounds/effects/swoosh6.mp3')
 	};
 	player_sounds.walk.loop = true;
 	player_sounds.attack.volume = 0.5;
+
+    // player is attacking
+    socket.on('player_attack', () => {
+        console.log("PLAYER ATTACKING");
+        player_sounds.attack.play();
+    })
+    // player is attacked
+    socket.on('player_hurt', () => {
+        player_sounds.hurt.play();
+    })
+    // player died
+    socket.on('player_dead', () => {
+        player_sounds.dead.play();
+    })
 
 	/**
 	 * For some reason JavaScript makes negative input negative output for modulo...
@@ -312,7 +325,7 @@
 			}
 			if (currentKeysMap[' ']) {
 				sendPlayerAction('attack');
-				player_sounds.attack.play();
+				// player_sounds.attack.play();
 			}
 			// Movement
 			const player_move_distance = 5;
