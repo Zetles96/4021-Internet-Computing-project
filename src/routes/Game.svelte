@@ -1,6 +1,6 @@
 <script>
 	import { createEventDispatcher, onMount } from 'svelte';
-	import Cheats from './Cheats.svelte'; // TEMP
+	import Cheats from './Cheats.svelte';
 	import { io } from 'socket.io-client';
 	import {
 		Samurai,
@@ -36,6 +36,7 @@
 	socket.on('message', (data) => {
 		console.log('message: ', data);
 	});
+	
 
 	const dispatch = createEventDispatcher();
 
@@ -83,11 +84,24 @@
 	});
 
 	let isPlaying = false;
-	let showCheats = false; // TEMP
+	let showCheats = false;
 
 	// Make canvasimagesource from grass tile image string
 	const grassTile = new Image();
 	grassTile.src = GrassTile;
+
+	// Create background music
+	const background_music = new Audio('/src/lib/sounds/background_music.mp3');
+	// Create player sounds
+	const player_sounds = {
+		walk: new Audio('/src/lib/sounds/human/human-walking.mp3'),
+		hurt: new Audio('/src/lib/sounds/human/human-hurt.mp3'),
+		die: new Audio('/src/lib/sounds/human/human-scream1.mp3'),
+		attack: new Audio('/src/lib/sounds/effects/swoosh6.mp3'),
+	};
+	player_sounds.walk.loop = true;
+	player_sounds.attack.volume = 0.5; 
+
 
 	/**
 	 * For some reason JavaScript makes negative input negative output for modulo...
@@ -254,7 +268,7 @@
 
 			// console.debug('Key pressed: ', e.key);
 			currentKeysMap[e.key] = e.type === 'keydown';
-			// console.debug("Keys pressed: ", currentKeysMap);
+			console.log("Keys pressed: ", currentKeysMap, e.type);
 
 			// TODO: replace these with calls to backend of current player action
 			if (currentKeysMap['Escape']) {
@@ -267,6 +281,7 @@
 			}
 			if (currentKeysMap[' ']) {
 				sendPlayerAction('attack');
+        player_sounds.attack.play();
 			}
 			// Movement
 			const player_move_distance = 5;
@@ -274,26 +289,32 @@
 				// If up and left
 				if (currentKeysMap['ArrowLeft'] || currentKeysMap['a'] || currentKeysMap['A']) {
 					sendPlayerAction('move_up_left');
+          player_sounds.walk.play();
 				}
 				// If up and right
 				else if (currentKeysMap['ArrowRight'] || currentKeysMap['d'] || currentKeysMap['D']) {
 					sendPlayerAction('move_up_right');
 				} else {
 					sendPlayerAction('move_up');
+					player_sounds.walk.play();
 				}
 			} else if (currentKeysMap['ArrowDown'] || currentKeysMap['s'] || currentKeysMap['S']) {
 				if (currentKeysMap['ArrowLeft'] || currentKeysMap['a'] || currentKeysMap['A']) {
 					sendPlayerAction('move_down_left');
+          player_sounds.walk.play();
+
 				} else if (currentKeysMap['ArrowRight'] || currentKeysMap['d'] || currentKeysMap['D']) {
 					sendPlayerAction('move_down_right');
+				  player_sounds.walk.play();
 				} else {
 					sendPlayerAction('move_down');
 				}
 			} else if (currentKeysMap['ArrowLeft'] || currentKeysMap['a'] || currentKeysMap['A']) {
 				sendPlayerAction('move_left');
-			} else if (currentKeysMap['ArrowRight'] || currentKeysMap['d'] || currentKeysMap['D']) {
-				sendPlayerAction('move_right');
 			}
+      if (e.type === 'keyup') { // disable player walk noise when stop
+				player_sounds.walk.pause();	
+      }
 		}
 	};
 
@@ -309,7 +330,14 @@
 
 		// Keydown event listener is initialized in $: if(ctx) {}
 
+		// play background music
+		background_music.currentTime = 2.5; // start at 2.5s
+		background_music.loop = true; // loop endlessly
+		background_music.volume = 0.5; // lower volume
+		background_music.play();
+
 		return () => {
+			background_music.pause();
 			window.removeEventListener('resize', resizeCanvas);
 			// Remove event listener for keydown
 			window.removeEventListener('keydown', handleKeys);
