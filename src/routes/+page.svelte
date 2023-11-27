@@ -56,7 +56,7 @@
 			</div>
 		</section>
 	{:else}
-		<Game token={data.token} on:back={() => (playing = false)} />
+		<Game user={data.user} token={data.token} on:back={() => (playing = false)} />
 	{/if}
 </div>
 

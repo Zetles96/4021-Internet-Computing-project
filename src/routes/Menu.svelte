@@ -33,7 +33,7 @@
 	<div class='flex flex-col p-4'>
 		<button on:click={doPlay}>Play</button>
 		<button on:click={() => (show_how_to_play = true)}>How to Play</button>
-		<button on:click={goToScoreboard}>Scoreboard</button>
+<!--		<button on:click={goToScoreboard}>Scoreboard</button>-->
 		<button on:click={doLogout}>Logout</button>
 	</div>
 </div>

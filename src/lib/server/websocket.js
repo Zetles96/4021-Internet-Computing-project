@@ -39,26 +39,48 @@ export const webSocketServer = {
 
 			socket.on('joinGame', () => {
 				let game = null;
+				// Check if player is already in a game
+				let alreadyInGame = false;
 				for (const game_obj in games) {
-					console.log("Checking game " + game_obj + " with status: " + games[game_obj].status + " and player amount " + Object.keys(games[game_obj].players).length)
-					if (
-						games[game_obj].status === 'waiting' && Object.keys(games[game_obj].players).length < 4
-					) {
-						game = games[game_obj];
-						break;
-					}
-					else if (games[game_obj].status === 'ended') {
+					if (games[game_obj].status === 'ended') {
 						delete games[game_obj];
 					}
+					else {
+						for (const [id, player] of Object.entries(games[game_obj].players)) {
+							if (player.name === socket.username && player.health > 0) {
+								console.log(`Player '${socket.username}' is already in game ${game_obj}`)
+								alreadyInGame = true;
+								game = games[game_obj];
+
+								game.addExistingPlayerToSocket(socket, player);
+								break;
+							}
+						}
+					}
 				}
 
-				if (!game) {
-					game = new Game(io);
-					games[game.id] = game;
-				}
+				if (!alreadyInGame) {
+					for (const game_obj in games) {
+						console.log("Checking game " + game_obj + " with status: " + games[game_obj].status + " and player amount " + Object.keys(games[game_obj].players).length)
+						if (
+							games[game_obj].status === 'waiting' && Object.keys(games[game_obj].players).length < 4
+						) {
+							game = games[game_obj];
+							break;
+						}
+						else if (games[game_obj].status === 'ended') {
+							delete games[game_obj];
+						}
+					}
 
-				// Add player to game and room
-				game.addPlayer(socket);
+					if (!game) {
+						game = new Game(io);
+						games[game.id] = game;
+					}
+
+					// Add player to game and room
+					game.addPlayer(socket);
+				}
 				socket.join(game.id);
 
 				socket.emit('joinedGameId', game.id)

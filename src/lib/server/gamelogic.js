@@ -26,6 +26,7 @@ class ServerInteractable extends ServerEntity {
 		this.lastAttack = Date.now();
 		this.attackCooldown = 1000;
 		this.range = 16;
+		this.speed = 16;
 	}
 }
 
@@ -64,8 +65,8 @@ class ServerPlayer extends ServerInteractable {
 		if (this.doMove) {
 			this.doMove = false;
 			this.animation = 'walk';
-			this.x += this.direction.x * 16;
-			this.y += this.direction.y * 16;
+			this.x += this.direction.x * this.speed;
+			this.y += this.direction.y * this.speed;
 			this.lastAction = Date.now();
 		}
 
@@ -367,6 +368,16 @@ export class Game {
 		};
 	}
 
+	addExistingPlayerToSocket(socket, player) {
+		delete Object.assign(this.players, {[socket.id]: this.players[player.socket.id] })[player.socket.id];
+		player.socket = socket;
+		player.id = socket.id;
+
+		socket.on('input', (action) => {
+			this.handleInput(socket, action);
+		});
+	}
+
 	addPlayer(socket) {
 		this.players[socket.id] = new ServerPlayer(socket);
 
@@ -420,7 +431,28 @@ export class Game {
 					if (player.animation === 'attack') return;
 					player.doAttack = true;
 					break;
+				case 'cheat_inc_spd':
+					player.speed += 16;
+					break;
+				case 'cheat_inc_hp':
+					player.maxHealth += 10;
+					player.health = player.maxHealth;
+					break;
+				case 'cheat_inc_dmg':
+					player.damage += 10;
+					break;
+				case 'cheat_inc_range':
+					player.range += 16;
+					break;
+				case 'cheat_instakill':
+					player.damage = Infinity;
+					break;
+				case 'cheat_godmode':
+					player.maxHealth = 9999999999999;
+					player.health = 9999999999999;
+					break;
 				default:
+					console.log('Unknown action: ' + action);
 					break;
 			}
 		}

@@ -23,6 +23,10 @@
 	 * @type {string | null | undefined}
 	 */
 	export let token;
+	/**
+	 * @type {{username: string, iat: number, exp: number}}
+	 */
+	export let user;
 
 	const socket = io('http://localhost:8000', {
 		query: { token }
@@ -85,6 +89,7 @@
 		gameID = gameId;
 	});
 	let playerIsDead = false;
+	let pressEscape = false;
 	function playAgain() {
 		if (socket.disconnected) {
 			socket.connect();
@@ -97,6 +102,7 @@
 		gameState = { status: 'loading', message: 'Loading game...', game_objects: {} };
 		gameStateEntities = {};
 		playerIsDead = false;
+		pressEscape = false;
 
 		socket.emit('joinGame');
 	}
@@ -351,7 +357,7 @@
 					}
 				}
 
-				if (id === playerID) {
+				if (id === playerID || entity.name === user.username) {
 					player_pos[0] = entity.position[0];
 					player_pos[1] = entity.position[1];
 
@@ -419,8 +425,8 @@
 			// console.debug("Keys pressed: ", currentKeysMap, e.type);
 
 			if (currentKeysMap['Escape']) {
+				pressEscape = true;
 				isPlaying = false;
-				toMenu();
 			} else if (currentKeysMap['c']) {
 				// open cheats page
 				showCheats = true;
@@ -622,8 +628,8 @@
 	<div class="overlay w-screen h-screen flex flex-col items-center p-3">
 		<p class="status">{gameState.message}</p>
 		{#if showCheats}
-			<Cheats on:close={() => (showCheats = false)} />
-		{:else if gameState.status === 'ended' || playerIsDead}
+			<Cheats on:close={() => (showCheats = false)} on:useCheat={(e) => sendPlayerAction("cheat_"+e.detail.cheat)} />
+		{:else if gameState.status === 'ended' || playerIsDead || pressEscape}
 			<GameOver gameState={gameState} on:close={toMenu} on:playAgain={playAgain} />
 		{/if}
 		<!-- <button class='backbutton' on:click={toMenu}>Back to Menu</button> -->
