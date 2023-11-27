@@ -11,6 +11,11 @@ const webSocketServer = {
 
 		io.on('connection', (socket) => {
 			socket.emit('eventFromServer', 'Hello from the server');
+			socket.on('joinRoom', (room) => {
+				socket.join(room);
+				socket.emit('eventFromServer', `Joined room ${room}`);
+				console.log(`Joined room ${room}`);
+			});
 		});
 	}
 };

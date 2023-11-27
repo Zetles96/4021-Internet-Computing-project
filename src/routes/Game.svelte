@@ -16,6 +16,8 @@
 
 	const socket = io('http://localhost:8000');
 
+	socket.emit('joinRoom', 'room1');
+
 	socket.on('eventFromServer', (data) => {
 		console.log(data);
 	});
@@ -93,7 +95,7 @@
 	 */
 	function sendPlayerAction(action) {
 		// TODO: replace these with calls to backend of current player action
-		console.debug('Sending player action: ', action);
+		// console.debug('Sending player action: ', action);
 	}
 
 	// TODO: fetch this from server
@@ -261,7 +263,7 @@
 		if (!showCheats) { // if cheats page is not open
 			e.stopPropagation();
 
-			console.debug('Key pressed: ', e.key);
+			// console.debug('Key pressed: ', e.key);
 			currentKeysMap[e.key] = e.type === 'keydown';
 			// console.debug("Keys pressed: ", currentKeysMap);
 
@@ -421,9 +423,9 @@
 			// Update game state
 			updateGameState(ctx);
 
-			console.debug('GameState: ', gameStateEntities);
+			// console.debug('GameState: ', gameStateEntities);
 
-			console.debug('Drawing with player position: ', player_pos);
+			// console.debug('Drawing with player position: ', player_pos);
 
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
 
