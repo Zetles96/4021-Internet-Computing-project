@@ -234,6 +234,8 @@ class ServerCoin extends ServerCollectible {
 
 	doPickup(player) {
 		player.score += this.worth;
+		// send action to browser to play audio
+		player.socket.emit('collected', 'coin');
 	}
 }
 
@@ -244,6 +246,8 @@ class ServerPotion extends ServerCollectible {
 	}
 
 	doPickup(player) {
+		// send action to browser to play audio
+		player.socket.emit('collected', 'potion');
 		player.health += this.health;
 		if (player.health > player.maxHealth) {
 			player.health = player.maxHealth;

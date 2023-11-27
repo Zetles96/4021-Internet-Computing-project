@@ -172,29 +172,44 @@
                 break;
         }
     })
-        // monster died
-        socket.on('enemy_died', (monster) => {
-        switch (monster) {
-            case 'redwerewolf' || 'whitewerewolf' || 'blackwerewolf':
-                const werewolf_dead = new Audio('/src/lib/sounds/wolf/wolf-howl.mp3');
-                werewolf_dead.play();
+    // monster died
+    socket.on('enemy_died', (monster) => {
+    switch (monster) {
+        case 'redwerewolf' || 'whitewerewolf' || 'blackwerewolf':
+            const werewolf_dead = new Audio('/src/lib/sounds/wolf/wolf-howl.mp3');
+            werewolf_dead.play();
+            break;
+        case 'yurei':
+            const yurei_dead = new Audio('/src/lib/sounds/monsters/monster-screech4.mp3');
+            yurei_dead.play();
+            break;
+        case 'gotoku':
+            const gotoku_dead = new Audio('/src/lib/sounds/monsters/monster_screech6.mp3');
+            gotoku_dead.play();
+            break;
+        case 'onre':
+            const onre_dead = new Audio('/src/lib/sounds/monsters/monster-screech1.mp3');
+            onre_dead.play();
+            break;
+        default:
+            break;
+        }
+    })
+    // collected collectable (coin or potion)
+    socket.on('collected', (type) => {
+        switch (type) {
+            case 'coin':
+                const collect_coin = new Audio('/src/lib/sounds/items/coin.mp3');
+                collect_coin.play();
                 break;
-            case 'yurei':
-                const yurei_dead = new Audio('/src/lib/sounds/monsters/monster-screech4.mp3');
-                yurei_dead.play();
-                break;
-            case 'gotoku':
-                const gotoku_dead = new Audio('/src/lib/sounds/monsters/monster_screech6.mp3');
-                gotoku_dead.play();
-                break;
-            case 'onre':
-                const onre_dead = new Audio('/src/lib/sounds/monsters/monster-screech1.mp3');
-                onre_dead.play();
+            case 'potion':
+                const collect_potion = new Audio('/src/lib/sounds/items/potion.mp3');
+                collect_potion.play();
                 break;
             default:
                 break;
         }
-    })
+    });
 
 	/**
 	 * For some reason JavaScript makes negative input negative output for modulo...
