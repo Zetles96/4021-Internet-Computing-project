@@ -33,7 +33,7 @@ export const webSocketServer = {
 			socket.emit('message', `Hello from the server, ${socket.username}!`);
 
 			socket.on('leave', (gameId) => {
-				console.log(`Player '${socket.username}' left game ${gameId}`);
+				// console.log(`Player '${socket.username}' left game ${gameId}`);
 				socket.leave(gameId);
 			});
 
@@ -47,9 +47,9 @@ export const webSocketServer = {
 					} else {
 						for (const [id, player] of Object.entries(games[game_obj].players)) {
 							if (player.name === socket.username && player.health > 0) {
-								console.log(
-									`Player '${socket.username}' is already in game ${game_obj}`
-								);
+								// console.log(
+								// 	`Player '${socket.username}' is already in game ${game_obj}`
+								// );
 								alreadyInGame = true;
 								game = games[game_obj];
 
@@ -62,14 +62,14 @@ export const webSocketServer = {
 
 				if (!alreadyInGame) {
 					for (const game_obj in games) {
-						console.log(
-							'Checking game ' +
-								game_obj +
-								' with status: ' +
-								games[game_obj].status +
-								' and player amount ' +
-								Object.keys(games[game_obj].players).length
-						);
+						// console.log(
+						// 	'Checking game ' +
+						// 		game_obj +
+						// 		' with status: ' +
+						// 		games[game_obj].status +
+						// 		' and player amount ' +
+						// 		Object.keys(games[game_obj].players).length
+						// );
 						if (
 							games[game_obj].status === 'waiting' &&
 							Object.keys(games[game_obj].players).length < 4
@@ -93,7 +93,7 @@ export const webSocketServer = {
 
 				socket.emit('joinedGameId', game.id);
 				socket.emit('message', `Joined game ${game.id}`);
-				console.log(`Player '${socket.username}' joined game ${game.id}`);
+				// console.log(`Player '${socket.username}' joined game ${game.id}`);
 			});
 
 			socket.on('message', function (message) {
