@@ -63,11 +63,57 @@ class ServerEnemy extends ServerEntity {
 			y,
 			ENEMY_TYPES[Math.floor(Math.random() * ENEMY_TYPES.length)]
 		);
+		switch (this.type) {
+			case 'yurei':
+			case 'onre':
+			case 'gotoku':
+				this.damage = 20;
+				break;
+			default:
+				this.damage = 10;
+				break;
+		}
+		this.simulation_distance = 300;
+		// generate random speed between 2 and 8
+		this.speed = Math.random() * (8 - 2) + 2;
 	}
 
-	update() {
-		this.x += Math.random() * 16;
-		this.y += Math.random() * 16;
+	/**
+	 * Updates enemy, making it move and attack the player given.
+	 * @param {ServerPlayer} player - The player to attack.
+	 */
+	update(player) {
+		const distance = Math.sqrt((this.x - player.x) ** 2 + (this.y - player.y) ** 2);
+
+		// If we are outside of simulation distance, we don't do anything
+		if (distance > this.simulation_distance) {
+			this.animation = 'idle';
+			return;
+		}
+
+		this.direction = { x: 0, y: 0 };
+		if (this.x < player.x) {
+			this.direction.x = 1;
+		} else if (this.x > player.x) {
+			this.direction.x = -1;
+		}
+		if (this.y < player.y) {
+			this.direction.y = 1;
+		} else if (this.y > player.y) {
+			this.direction.y = -1;
+		}
+
+		// if we are within range, we attack
+		if (distance < 16) {
+			this.animation = 'attack';
+			player.health -= this.damage;
+			return;
+		}
+
+		// We move towards the player
+		this.animation = 'walk';
+		this.x += this.direction.x * this.speed;
+		this.y += this.direction.y * this.speed;
 	}
 }
 
@@ -81,7 +127,28 @@ export class Game {
 		this.enemies = [];
 		this.startTime = Date.now();
 		this.lastUpdateTime = this.startTime;
+
+		this.spawnEnemies(3, 500);
+		this.spawnEnemies(10, 1000);
+		this.spawnEnemies(100, 5000);
+		// this.spawnEnemies(100, 10000);
 		setInterval(this.update.bind(this), 1000 / 60);
+	}
+
+	spawnEnemies(amount, range) {
+		for (let i = 0; i < amount; i++) {
+			let x = 0;
+			let y = 0;
+
+			while (x < 50 && x > -50) {
+				x = Math.random() * (range - -range) + -range;
+			}
+			while (y < 50 && y > -50) {
+				y = Math.random() * (range - -range) + -range;
+			}
+
+			this.enemies.push(new ServerEnemy(x, y));
+		}
 	}
 
 	getGameObjects() {
@@ -245,7 +312,20 @@ export class Game {
 				}
 				player.update();
 			}
-			this.enemies.forEach((e) => e.update());
+			this.enemies.forEach((e) => {
+				// Find the closest player
+				let closestPlayer = null;
+				let closestDistance = Infinity;
+				for (const id in this.players) {
+					const player = this.players[id];
+					const distance = Math.sqrt((e.x - player.x) ** 2 + (e.y - player.y) ** 2);
+					if (distance < closestDistance) {
+						closestDistance = distance;
+						closestPlayer = player;
+					}
+				}
+				e.update(closestPlayer);
+			});
 		}
 
 		this.sendUpdate();
