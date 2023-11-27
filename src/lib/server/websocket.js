@@ -22,6 +22,7 @@ export const webSocketServer = {
 				jwt.verify(socket.handshake.query.token, secret, function (err, decoded) {
 					if (err) return next(new Error('Authentication error'));
 					socket.decoded = decoded;
+					socket.username = decoded.username;
 					next();
 				});
 			} else {
@@ -29,17 +30,28 @@ export const webSocketServer = {
 			}
 		}).on('connection', function (socket) {
 			// Connection now authenticated to receive further events
-			socket.emit('message', 'Hello from the server, authenticated!');
+			socket.emit('message', `Hello from the server, ${socket.username}!`);
 
-			socket.on('getRoom', () => {
-				socket.emit('message', `Joined room`);
-				console.log(`Joined room ?`);
-			});
+			socket.on('joinGame', () => {
+				let game = null;
+				for (const game_obj in games) {
+					if (games[game_obj].status === 'waiting' && games[game_obj].players.length < 4) {
+						game = games[game_obj];
+						break;
+					}
+				}
 
-			socket.on('joinRoom', (room) => {
-				socket.join(room);
-				socket.emit('eventFromServer', `Joined room ${room}`);
-				console.log(`Joined room ${room}`);
+				if (!game) {
+					game = new Game();
+					games[game.id] = game;
+				}
+
+				// Add player to game and room
+				game.addPlayer(socket);
+				socket.join(game.id);
+
+				socket.emit('message', `Joined game ${game.id}`);
+				console.log(`Player '${socket.username}' joined game ${game.id}`);
 			});
 
 			socket.on('message', function (message) {

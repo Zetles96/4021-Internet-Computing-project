@@ -31,10 +31,10 @@
 		query: {token}
 	});
 
-	socket.emit('joinRoom', 'room1');
+	socket.emit('joinGame');
 
 	socket.on('message', (data) => {
-		console.log(data);
+		console.log('message: ', data);
 	});
 
 	const dispatch = createEventDispatcher();
@@ -64,6 +64,11 @@
 	 * @type {GameState}
 	 */
 	let gameState = { status: 'loading', message: 'Loading game...', game_objects: {} };
+
+	socket.on('gameState', (data) => {
+		console.log('Received gamestate from ws: ', data);
+		gameState = data;
+	});
 
 	/**
 	 * Dictionary of all game objects with key being ID and value being the object
