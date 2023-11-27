@@ -1,20 +1,27 @@
 const TPS = 20;
-const GAME_TIME = 60 * 2; // 2 minutes
-const WAIT_TIME = 10;
+const GAME_TIME = 60*2; // 2 minutes
+const WAIT_TIME = 30;
 
 const PLAYER_TYPES = ['samurai', 'samuraiarcher', 'samuraicommander'];
 const ENEMY_TYPES = ['whitewerewolf', 'redwerewolf', 'blackwerewolf', 'gotoku', 'onre', 'yurei'];
 
 class ServerEntity {
-	constructor(id, name, x, y, type) {
+	constructor(id, x, y, type) {
 		this.id = id;
-		this.name = name;
 		this.x = x;
 		this.y = y;
 		this.type = type;
-		this.health = 100;
-		this.damage = 10;
 		this.animation = 'idle';
+	}
+}
+
+class ServerInteractable extends ServerEntity {
+	constructor(id, name, x, y, type) {
+		super(id, x, y, type);
+		this.name = name;
+		this.maxHealth = 100;
+		this.health = this.maxHealth;
+		this.damage = 10;
 		this.direction = { x: 0, y: 0 };
 		this.lastAttack = Date.now();
 		this.attackCooldown = 1000;
@@ -22,13 +29,13 @@ class ServerEntity {
 	}
 }
 
-class ServerPlayer extends ServerEntity {
+class ServerPlayer extends ServerInteractable {
 	constructor(socket) {
 		super(
 			socket.id,
 			socket.username,
-			0,
-			0,
+			Math.floor(Math.random() * (50 - -50) + -50),
+			Math.floor(Math.random() * (50 - -50) + -50),
 			PLAYER_TYPES[Math.floor(Math.random() * PLAYER_TYPES.length)]
 		);
 		this.socket = socket;
@@ -39,7 +46,7 @@ class ServerPlayer extends ServerEntity {
 		this.doMove = false;
 		this.lastAction = Date.now();
 		this.damage = 100 / 3;
-		this.range = 32;
+		this.range = 64;
 		this.attackCooldown = 300;
 
 		this.socket.emit('joined', {
@@ -67,10 +74,15 @@ class ServerPlayer extends ServerEntity {
 			this.animation = 'attack';
 			this.lastAction = Date.now();
 
+			// send action to browser to play audio
+			this.socket.emit('player_attack');	
+
 			// Attack every enemy in range
 			enemies.forEach((e) => {
 				e.health -= this.damage;
 				if (e.health <= 0) {
+					// send action to browser to play audio
+					this.socket.emit('enemy_died', e.type);
 					e.health = 0;
 					e.animation = 'dead';
 					this.score += e.worth;
@@ -84,7 +96,7 @@ class ServerPlayer extends ServerEntity {
 	}
 }
 
-class ServerEnemy extends ServerEntity {
+class ServerEnemy extends ServerInteractable {
 	constructor(x, y) {
 		super(
 			Math.random().toString(36).substring(7),
@@ -157,6 +169,9 @@ class ServerEnemy extends ServerEntity {
 				return;
 			}
 
+			// send action to browser to play audio
+			player.socket.emit('monster_attack', this.type);
+			
 			this.lastAttack = now;
 			player.health -= this.damage;
 			if (player.health <= 0) {
@@ -173,37 +188,125 @@ class ServerEnemy extends ServerEntity {
 	}
 }
 
+class ServerCollectible extends ServerEntity {
+	constructor(x, y, type) {
+		super(
+			Math.random().toString(36).substring(7),
+			x,
+			y,
+			type
+		);
+
+		this.animation = 'default';
+		this.pickupRange = 32;
+		this.used = false;
+	}
+
+	/**
+	 * Handles the pickup of the collectible.
+	 * @param {ServerPlayer} player - The player that picked up the collectible.
+	 */
+	doPickup(player) {}
+
+	/**
+	 * Updates the collectible based on closest player.
+	 * @param player
+	 */
+	update(player) {
+		if (this.used) return;
+		if (!player) return;
+		if (player.health <= 0) return;
+
+		// Check if player is within pickup range
+		const distance = Math.sqrt((this.x - player.x) ** 2 + (this.y - player.y) ** 2);
+		if (distance < this.pickupRange) {
+			this.used = true;
+			this.doPickup(player);
+		}
+	}
+}
+
+class ServerCoin extends ServerCollectible {
+	constructor(x, y) {
+		super(x, y, 'coin');
+		this.worth = 10;
+	}
+
+	doPickup(player) {
+		player.score += this.worth;
+	}
+}
+
+class ServerPotion extends ServerCollectible {
+	constructor(x, y) {
+		super(x, y, 'potion');
+		this.health = 20;
+	}
+
+	doPickup(player) {
+		player.health += this.health;
+		if (player.health > player.maxHealth) {
+			player.health = player.maxHealth;
+		}
+	}
+}
+
 export class Game {
 	constructor(io) {
 		this.id = Math.random().toString(36).substring(7);
 		this.io = io;
 		this.status = 'waiting';
 		this.message = `Waiting for players: ${WAIT_TIME} seconds remaining`;
+		/**
+		 * @type {{[id: string]: ServerPlayer}}
+		 */
 		this.players = {};
+		/**
+		 * @type {ServerEnemy[]}
+		 */
 		this.enemies = [];
+		/**
+		 * @type {ServerCollectible[]}
+		 */
+		this.collectibles = [];
 		this.startTime = Date.now();
 		this.lastUpdateTime = this.startTime;
 
-		this.spawnEnemies(3, 500);
-		this.spawnEnemies(10, 1000);
-		this.spawnEnemies(100, 5000);
+		this.spawn(3, 500, "enemy");
+		this.spawn(10, 1000, "enemy");
+		this.spawn(100, 5000, "enemy");
 		// this.spawnEnemies(100, 10000);
-		setInterval(this.update.bind(this), 10);
+
+		this.spawn(50, 2500, "coin");
+		this.spawn(50, 2500, "potion");
+
+		this.updateSchedule = setInterval(this.update.bind(this), 10);
 	}
 
-	spawnEnemies(amount, range) {
+	spawn(amount, range, type="enemy") {
 		for (let i = 0; i < amount; i++) {
 			let x = 0;
 			let y = 0;
 
 			while (x < 50 && x > -50) {
-				x = Math.random() * (range - -range) + -range;
+				x = Math.floor(Math.random() * (range - -range) + -range);
 			}
 			while (y < 50 && y > -50) {
-				y = Math.random() * (range - -range) + -range;
+				y = Math.floor(Math.random() * (range - -range) + -range);
 			}
 
-			this.enemies.push(new ServerEnemy(x, y));
+			if (type === "enemy") {
+				this.enemies.push(new ServerEnemy(x, y));
+			}
+			else if (type === "coin") {
+				this.collectibles.push(new ServerCoin(x, y));
+			}
+			else if (type === "potion") {
+				this.collectibles.push(new ServerPotion(x, y));
+			}
+			else {
+				console.error("Invalid type");
+			}
 		}
 	}
 
@@ -215,6 +318,7 @@ export class Game {
 			gameObjects[id] = {
 				name: player.name,
 				position: [player.x, player.y],
+				score: player.score,
 				sprite: player.type,
 				health: player.health,
 				animation: player.animation,
@@ -226,10 +330,25 @@ export class Game {
 			gameObjects[e.id] = {
 				name: e.name,
 				position: [e.x, e.y],
+				score: -1,
 				sprite: e.type,
 				health: e.health,
 				animation: e.animation,
 				direction: e.direction.x > 0 ? 'right' : 'left'
+			};
+		});
+
+		this.collectibles.forEach((c) => {
+			if (c.used) return;
+
+			gameObjects[c.id] = {
+				name: "",
+				position: [c.x, c.y],
+				score: -1,
+				sprite: c.type,
+				health: -1,
+				animation: c.animation,
+				direction: 'right'
 			};
 		});
 
@@ -324,7 +443,7 @@ export class Game {
 		if (this.status === 'waiting') {
 			if (seconds > WAIT_TIME) {
 				this.status = 'playing';
-				this.message = 'Game started';
+				this.message = `${Math.floor(GAME_TIME+WAIT_TIME-seconds)} seconds remaining...`;
 			} else {
 				this.message = `Waiting for players: ${Math.floor(
 					WAIT_TIME - seconds
@@ -333,7 +452,19 @@ export class Game {
 		} else if (seconds > GAME_TIME + WAIT_TIME) {
 			this.status = 'ended';
 			this.message = 'Game ended';
+			this.sendUpdate();
+
+			// Close game and websocket connection
+			for (const id in this.players) {
+				const player = this.players[id];
+				player.socket.leave(this.id);
+			}
+			// stop update schedule
+			clearInterval(this.updateSchedule);
+
+			return;
 		} else {
+			this.message = `${Math.floor(GAME_TIME+WAIT_TIME-seconds)} seconds remaining...`;
 			// Update players
 			for (const id in this.players) {
 				const player = this.players[id];
@@ -370,6 +501,26 @@ export class Game {
 						}
 					}
 					e.update(closestPlayer);
+				});
+
+				// Update collectibles
+				this.collectibles.forEach((c) => {
+					// Find the closest player
+					let closestPlayer = null;
+					let closestDistance = Infinity;
+					for (const id in this.players) {
+						const player = this.players[id];
+
+						// If player is dead, do not target
+						if (player.health <= 0) continue;
+
+						const distance = Math.sqrt((c.x - player.x) ** 2 + (c.y - player.y) ** 2);
+						if (distance < closestDistance) {
+							closestDistance = distance;
+							closestPlayer = player;
+						}
+					}
+					c.update(closestPlayer);
 				});
 			}
 		}

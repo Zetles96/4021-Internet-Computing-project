@@ -32,15 +32,23 @@ export const webSocketServer = {
 			// Connection now authenticated to receive further events
 			socket.emit('message', `Hello from the server, ${socket.username}!`);
 
+			socket.on('leave', (gameId) => {
+				console.log(`Player '${socket.username}' left game ${gameId}`);
+				socket.leave(gameId);
+			});
+
 			socket.on('joinGame', () => {
 				let game = null;
 				for (const game_obj in games) {
+					console.log("Checking game " + game_obj + " with status: " + games[game_obj].status + " and player amount " + Object.keys(games[game_obj].players).length)
 					if (
-						games[game_obj].status === 'waiting' &&
-						games[game_obj].players.length < 4
+						games[game_obj].status === 'waiting' && Object.keys(games[game_obj].players).length < 4
 					) {
 						game = games[game_obj];
 						break;
+					}
+					else if (games[game_obj].status === 'ended') {
+						delete games[game_obj];
 					}
 				}
 
@@ -53,6 +61,7 @@ export const webSocketServer = {
 				game.addPlayer(socket);
 				socket.join(game.id);
 
+				socket.emit('joinedGameId', game.id)
 				socket.emit('message', `Joined game ${game.id}`);
 				console.log(`Player '${socket.username}' joined game ${game.id}`);
 			});

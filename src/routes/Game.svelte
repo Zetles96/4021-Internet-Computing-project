@@ -11,23 +11,22 @@
 		Gotoku,
 		Onre
 	} from '$lib/sprites/enemies.js';
+	import { Coin, Potion } from '$lib/sprites/collectibles.js';
 	// Ignore this error
-	import { Entity } from '$lib/sprites/sprites.js';
+	import { Entity, Collectible } from '$lib/sprites/sprites.js';
 
 	import GrassTile from '$lib/images/grasstile.png';
 	import GameOver from './GameOver.svelte';
 
 	// jwt token from cookies
 	/**
-	 * @type {string}
+	 * @type {string | null | undefined}
 	 */
 	export let token;
 
 	const socket = io('http://localhost:8000', {
 		query: { token }
 	});
-
-	socket.emit('joinGame');
 
 	socket.on('message', (data) => {
 		console.log('message: ', data);
@@ -52,7 +51,7 @@
 
 	/**
 	 * The game state
-	 * @typedef {{status: string, message: string, game_objects: {[key: string]: {name: string, position: number[], sprite: string, health: number, animation: string, direction: string}}}} GameState
+	 * @typedef {{status: string, message: string, game_objects: {[key: string]: {name: string, position: number[], score: number, sprite: string, health: number, animation: string, direction: string}}}} GameState
 	 */
 
 	/**
@@ -62,21 +61,45 @@
 	let gameState = { status: 'loading', message: 'Loading game...', game_objects: {} };
 
 	socket.on('gameState', (data) => {
-		console.log('Received gamestate from ws: ', data);
+		// console.log('Received gamestate from ws: ', data);
 		gameState = data;
 	});
 
+	// On initial load, join the game
+	socket.emit('joinGame');
+
 	/**
 	 * Dictionary of all game objects with key being ID and value being the object
-	 * @type {{[key: string]: Entity}}
+	 * @type {{[key: string]: Entity | Collectible}}
 	 */
 	let gameStateEntities = {};
 
+	let gameID = 'game1';
 	let playerID = 'player1';
 	socket.on('joined', (data) => {
 		console.log('Joined game: ', data);
 		playerID = data.player_id;
 	});
+	socket.on('joinedGameId', (gameId) => {
+		console.log('Game id: ', gameId);
+		gameID = gameId;
+	});
+	let playerIsDead = false;
+	function playAgain() {
+		if (socket.disconnected) {
+			socket.connect();
+		}
+
+		if (gameID !== 'game1') {
+			socket.emit('leave', gameID);
+		}
+
+		gameState = { status: 'loading', message: 'Loading game...', game_objects: {} };
+		gameStateEntities = {};
+		playerIsDead = false;
+
+		socket.emit('joinGame');
+	}
 
 	let isPlaying = false;
 	let showCheats = false;
@@ -87,15 +110,91 @@
 
 	// Create background music
 	const background_music = new Audio('/src/lib/sounds/background_music.mp3');
-	// Create player sounds
-	const player_sounds = {
-		walk: new Audio('/src/lib/sounds/human/human-walking.mp3'),
-		hurt: new Audio('/src/lib/sounds/human/human-hurt.mp3'),
-		die: new Audio('/src/lib/sounds/human/human-scream1.mp3'),
-		attack: new Audio('/src/lib/sounds/effects/swoosh6.mp3')
-	};
-	player_sounds.walk.loop = true;
-	player_sounds.attack.volume = 0.5;
+	// Create player sound effects
+	const player_walk = new Audio('/src/lib/sounds/human/human-walking.mp3');
+    const player_hurt = new Audio('/src/lib/sounds/human/human-hurt.mp3');
+    const player_dead = new Audio('/src/lib/sounds/human/human-scream1.mp3');
+	player_walk.loop = true;
+    
+
+    // Create werewolf sounds
+    const werewolf_sounds = {
+		
+    }
+    // Create Yurei sounds
+    const yurei_sounds = {
+    }
+    // Create Gotoku sounds
+    const gotoku_sounds = {
+    }
+    // Create Onre sounds
+    const onre_sounds = {
+    }
+
+    // player is attacking
+    socket.on('player_attack', () => {
+        const player_attack = new Audio('/src/lib/sounds/effects/swoosh6.mp3');
+        player_attack.volume = 0.5;
+        player_attack.play();
+    })
+    // player died
+    socket.on('player_dead', () => {
+        player_dead.play();
+    })
+    // monster is attacking + player is attacked
+    socket.on('monster_attack', (monster) => {
+        player_hurt.play();
+        switch (monster) {
+            case 'redwerewolf':
+            case 'whitewerewolf':
+            case 'blackwerewolf':
+                const werewolf_attack = new Audio('/src/lib/sounds/effects/swoosh1.mp3');
+                werewolf_attack.playbackRate = 1.5;
+                werewolf_attack.play();
+                break;
+            case 'yurei':
+                const yurei_attack = new Audio('/src/lib/sounds/effects/woosh6.mp3');
+                yurei_attack.playbackRate = 1.5;
+                yurei_attack.play();
+                break;
+            case 'gotoku':
+                const gotoku_attack = new Audio('/src/lib/sounds/effects/woosh5.mp3');
+                gotoku_attack.playbackRate = 2;
+                gotoku_attack.play();
+                break;
+            case 'onre':
+
+                const onre_attack = new Audio('/src/lib/sounds/effects/woosh2.mp3');
+                onre_attack.playbackRate = 1.5;
+                onre_attack.play();
+                break;
+            default:
+                break;
+        }
+    })
+        // monster died
+        socket.on('enemy_died', (monster) => {
+        switch (monster) {
+            case 'redwerewolf' || 'whitewerewolf' || 'blackwerewolf':
+                const werewolf_dead = new Audio('/src/lib/sounds/wolf/wolf-howl.mp3');
+                werewolf_dead.play();
+                break;
+            case 'yurei':
+                const yurei_dead = new Audio('/src/lib/sounds/monsters/monster-screech4.mp3');
+                yurei_dead.play();
+                break;
+            case 'gotoku':
+                const gotoku_dead = new Audio('/src/lib/sounds/monsters/monster_screech6.mp3');
+                gotoku_dead.play();
+                break;
+            case 'onre':
+                const onre_dead = new Audio('/src/lib/sounds/monsters/monster-screech1.mp3');
+                onre_dead.play();
+                break;
+            default:
+                break;
+        }
+    })
 
 	/**
 	 * For some reason JavaScript makes negative input negative output for modulo...
@@ -109,6 +208,10 @@
 	}
 
 	function toMenu() {
+		if (gameID !== 'game1') {
+			socket.emit('leave', gameID);
+		}
+
 		dispatch('back');
 	}
 
@@ -208,6 +311,20 @@
 								entity.position[1]
 							);
 							break;
+						case 'coin':
+							gameStateEntities[id] = new Coin(
+								ctx,
+								entity.position[0],
+								entity.position[1]
+							);
+							break;
+						case 'potion':
+							gameStateEntities[id] = new Potion(
+								ctx,
+								entity.position[0],
+								entity.position[1]
+							);
+							break;
 						default:
 							console.error('Unknown sprite type: ', entity.sprite);
 					}
@@ -223,6 +340,11 @@
 					player_pos[0] = entity.position[0];
 					player_pos[1] = entity.position[1];
 
+					if (entity.health <= 0 && !playerIsDead) {
+						playerIsDead = true;
+						player_dead.play();
+					}
+
 					// Ensure the player game object is at the last index of the game state array
 					// such that it is drawn on top of all other game objects
 					const playerGameObject = gameStateEntities[id];
@@ -230,18 +352,31 @@
 					gameStateEntities[id] = playerGameObject;
 				}
 
-				gameStateEntities[id].setHealth(entity.health);
 				gameStateEntities[id].setPosition(entity.position[0], entity.position[1]);
-				// animations might be given as strings like 'animation_direction', so we have to split them
-				const animation = entity.animation.split('_');
-				gameStateEntities[id].setAnimation(
-					animation[0],
-					entity.direction ? entity.direction : animation[1]
-				);
+				if (gameStateEntities[id] instanceof Entity) {
+					gameStateEntities[id].setHealth(entity.health);
+					// animations might be given as strings like 'animation_direction', so we have to split them
+					const animation = entity.animation.split('_');
+					gameStateEntities[id].setAnimation(
+						animation[0],
+						entity.direction ? entity.direction : animation[1]
+					);
+				}
 			}
 
 			// Adjust all game state objects' locations to be fixed around the player
 			for (const [id, gameObject] of Object.entries(gameStateEntities)) {
+				// Check if the game state entity exists in the game state
+				if (!gameState.game_objects[id]) {
+					console.debug(
+						'Game state object for id: ',
+						id + ' does not exist in game state anymore - deleting it...'
+					);
+					delete gameStateEntities[id];
+					continue;
+				}
+
+				// Update the game state object's position
 				const obj_pos = gameObject.sprite.getXY();
 				if (obj_pos && player_pos) {
 					gameObject.sprite.setXY(obj_pos.x - player_pos[0], obj_pos.y - player_pos[1]);
@@ -268,7 +403,6 @@
 			currentKeysMap[e.key] = e.type === 'keydown';
 			// console.debug("Keys pressed: ", currentKeysMap, e.type);
 
-			// TODO: replace these with calls to backend of current player action
 			if (currentKeysMap['Escape']) {
 				isPlaying = false;
 				toMenu();
@@ -280,7 +414,6 @@
 			}
 			if (currentKeysMap[' ']) {
 				sendPlayerAction('attack');
-				player_sounds.attack.play();
 			}
 			// Movement
 			const player_move_distance = 5;
@@ -288,7 +421,7 @@
 				// If up and left
 				if (currentKeysMap['ArrowLeft'] || currentKeysMap['a'] || currentKeysMap['A']) {
 					sendPlayerAction('move_up_left');
-					player_sounds.walk.play();
+					player_walk.play();
 				}
 				// If up and right
 				else if (
@@ -297,10 +430,10 @@
 					currentKeysMap['D']
 				) {
 					sendPlayerAction('move_up_right');
-					player_sounds.walk.play();
+					player_walk.play();
 				} else {
 					sendPlayerAction('move_up');
-					player_sounds.walk.play();
+					player_walk.play();
 				}
 			} else if (currentKeysMap['ArrowDown'] || currentKeysMap['s'] || currentKeysMap['S']) {
 				if (currentKeysMap['ArrowLeft'] || currentKeysMap['a'] || currentKeysMap['A']) {
@@ -310,23 +443,23 @@
 					currentKeysMap['d'] ||
 					currentKeysMap['D']
 				) {
-					player_sounds.walk.play();
+					player_walk.play();
 					sendPlayerAction('move_down_right');
-					player_sounds.walk.play();
+					player_walk.play();
 				} else {
 					sendPlayerAction('move_down');
-					player_sounds.walk.play();
+					player_walk.play();
 				}
 			} else if (currentKeysMap['ArrowLeft'] || currentKeysMap['a'] || currentKeysMap['A']) {
 				sendPlayerAction('move_left');
-				player_sounds.walk.play();
+				player_walk.play();
 			} else if (currentKeysMap['ArrowRight'] || currentKeysMap['d'] || currentKeysMap['D']) {
 				sendPlayerAction('move_right');
-				player_sounds.walk.play();
+				player_walk.play();
 			}
 			if (e.type === 'keyup') {
 				// disable player walk noise when stop
-				player_sounds.walk.pause();
+				player_walk.pause();
 			}
 		}
 	};
@@ -475,8 +608,8 @@
 		<p class="status">{gameState.message}</p>
 		{#if showCheats}
 			<Cheats on:close={() => (showCheats = false)} />
-		{:else if gameState.status === 'game_over'}
-			<GameOver on:close={toMenu} on:playAgain={toMenu} />
+		{:else if gameState.status === 'ended' || playerIsDead}
+			<GameOver gameState={gameState} on:close={toMenu} on:playAgain={playAgain} />
 		{/if}
 		<!-- <button class='backbutton' on:click={toMenu}>Back to Menu</button> -->
 		<!--		<button class='gameOver' on:click={toGameOver}>Game Over</button>-->

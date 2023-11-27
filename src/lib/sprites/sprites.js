@@ -17,6 +17,7 @@
  * @property {function(): void} draw - Draws the sprite and its shadow.
  * @property {function(number): Sprite} update - Updates the sprite animation based on the timestamp.
  * @property {function(boolean): Sprite} setFlipped - Sets the sprite flipped state.
+ * @property {function(boolean): Sprite} setAlongX - Sets the sprite flipped state.
  * @returns {Sprite} Returns a Sprite object.
  */
 const Sprite = function (ctx, x, y) {
@@ -49,6 +50,12 @@ const Sprite = function (ctx, x, y) {
 	 * @type {boolean}
 	 */
 	let flipped = false;
+
+	/**
+	 * Whether the sprite is flipped horizontally (by default go through the x axis).
+	 * @type {boolean} Whether the sprite is flipped horizontally.
+	 */
+	let alongX = true;
 
 	/**
 	 * Scaling factor to determine the size of the shadow, relative to the scaled sprite image size.
@@ -108,6 +115,16 @@ const Sprite = function (ctx, x, y) {
 		flipped = value;
 		return this;
 	};
+
+	/**
+	 * Sets the flipped state of the sprite.
+	 * @param {boolean} value - The new flipped state.
+	 * @returns {setAlongX}
+	 */
+	const setAlongX = function (value) {
+		alongX = value;
+		return this;
+	}
 
 	/**
 	 * Sets the sprite sequence.
@@ -248,8 +265,8 @@ const Sprite = function (ctx, x, y) {
 		ctx.imageSmoothingEnabled = false;
 		ctx.drawImage(
 			sheet,
-			sequence.x + index * sequence.width,
-			sequence.y,
+			sequence.x + (alongX ? index * sequence.width : 0),
+			sequence.y + (alongX ? 0 : index * sequence.height),
 			sequence.width,
 			sequence.height,
 			pos.x - size.width / 2,
@@ -309,7 +326,8 @@ const Sprite = function (ctx, x, y) {
 		isReady: isReady,
 		draw: draw,
 		update: update,
-		setFlipped: setFlipped
+		setFlipped: setFlipped,
+		setAlongX: setAlongX
 	};
 };
 
@@ -594,4 +612,71 @@ class Enemy extends Entity {
 	}
 }
 
-export { Sprite, Entity, Player, Enemy };
+/**
+ * Creates a player character.
+ * @param {CanvasRenderingContext2D} ctx - A canvas rendering context for drawing.
+ * @param {number} x - The initial x position of the entity.
+ * @param {number} y - The initial y position of the entity.
+ * @param {string} spritesheet - The source of the entity sprite sheet (URL).
+ * @property {function(): Sprite} sprite - Gets the sprite of the entity.
+ * @property {function(): void} draw - Draws the entity on the canvas.
+ * @property {function(number): void} update - Updates the entity's position and animation.
+ * @returns {Collectible} A collectible object
+ */
+class Collectible {
+	constructor(ctx, x, y, spritesheet) {
+		this.ctx = ctx;
+		this.spritesheet = spritesheet;
+
+		/**
+		 * This is the sprite sequences of the player facing different directions.
+		 * It contains the idling sprite sequences `idleLeft`, `idleUp`, `idleRight` and `idleDown`,
+		 * and the moving sprite sequences `moveLeft`, `moveUp`, `moveRight` and `moveDown`.
+		 *
+		 * @typedef {Object} AnimationSequences
+		 * */
+		this.sequences = {
+			default: { x: 0, y: 128, width: 128, height: 128, count: 6, timing: 200, loop: true },
+		};
+
+		/**
+		 * This is the sprite object of the player created from the Sprite module.
+		 * @type {Sprite} The sprite object of the player.
+		 */
+		this.sprite = Sprite(this.ctx, x, y);
+
+		// The sprite object is configured for the player sprite here.
+		this.sprite
+			.setSequence(this.sequences.default)
+			.setScale(1)
+			.setShadowScale({ x: 0.25, y: 0.2 })
+			.useSheet(this.spritesheet);
+	}
+
+	/**
+	 * This function sets the position of the collectible.
+	 * @param {number} x
+	 * @param {number} y
+	 */
+	setPosition(x, y) {
+		this.sprite.setXY(x, y);
+	}
+
+	/**
+	 * This function updates the player depending on his movement.
+	 * @param {number} time The timestamp when this function is called
+	 */
+	update(time) {
+		/* Update the sprite object */
+		this.sprite.update(time);
+	}
+
+	/**
+	 * This function draws the player on the canvas.
+	 */
+	draw() {
+		this.sprite.draw();
+	}
+}
+
+export { Sprite, Entity, Player, Enemy, Collectible };
