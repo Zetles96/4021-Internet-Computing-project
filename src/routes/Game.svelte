@@ -3,14 +3,21 @@
 	import Cheats from './Cheats.svelte'; // TEMP
 	import { io } from 'socket.io-client';
 	import {
-		Entity,
 		Samurai,
 		SamuraiArcher,
 		SamuraiCommander,
+	} from '$lib/javascript/players.js';
+	import {
 		RedWerewolf,
 		BlackWerewolf,
-		WhiteWerewolf
-	} from '$lib/javascript/sprites.js';
+		WhiteWerewolf,
+		Yurei,
+		Gotoku,
+		Onre
+	} from '$lib/javascript/enemies.js';
+	// Ignore this error
+	import { Entity } from '$lib/javascript/sprites.js';
+
 	import GrassTile from '$lib/images/grasstile.png';
 	import GameOver from './GameOver.svelte';
 
@@ -205,6 +212,27 @@
 							break;
 						case 'whitewerewolf':
 							gameStateEntities[id] = new WhiteWerewolf(
+								ctx,
+								entity.position[0],
+								entity.position[1]
+							);
+							break;
+						case 'yurei':
+							gameStateEntities[id] = new Yurei(
+								ctx,
+								entity.position[0],
+								entity.position[1]
+							);
+							break;
+						case 'gotoku':
+							gameStateEntities[id] = new Gotoku(
+								ctx,
+								entity.position[0],
+								entity.position[1]
+							);
+							break;
+						case 'onre':
+							gameStateEntities[id] = new Onre(
 								ctx,
 								entity.position[0],
 								entity.position[1]
