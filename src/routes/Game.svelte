@@ -11,8 +11,9 @@
 		Gotoku,
 		Onre
 	} from '$lib/sprites/enemies.js';
+	import { Coin, Potion } from '$lib/sprites/collectibles.js';
 	// Ignore this error
-	import { Entity } from '$lib/sprites/sprites.js';
+	import { Entity, Collectible } from '$lib/sprites/sprites.js';
 
 	import GrassTile from '$lib/images/grasstile.png';
 	import GameOver from './GameOver.svelte';
@@ -70,7 +71,7 @@
 
 	/**
 	 * Dictionary of all game objects with key being ID and value being the object
-	 * @type {{[key: string]: Entity}}
+	 * @type {{[key: string]: Entity | Collectible}}
 	 */
 	let gameStateEntities = {};
 
@@ -235,6 +236,20 @@
 								entity.position[1]
 							);
 							break;
+						case 'coin':
+							gameStateEntities[id] = new Coin(
+								ctx,
+								entity.position[0],
+								entity.position[1]
+							);
+							break;
+						case 'potion':
+							gameStateEntities[id] = new Potion(
+								ctx,
+								entity.position[0],
+								entity.position[1]
+							);
+							break;
 						default:
 							console.error('Unknown sprite type: ', entity.sprite);
 					}
@@ -262,18 +277,31 @@
 					gameStateEntities[id] = playerGameObject;
 				}
 
-				gameStateEntities[id].setHealth(entity.health);
 				gameStateEntities[id].setPosition(entity.position[0], entity.position[1]);
-				// animations might be given as strings like 'animation_direction', so we have to split them
-				const animation = entity.animation.split('_');
-				gameStateEntities[id].setAnimation(
-					animation[0],
-					entity.direction ? entity.direction : animation[1]
-				);
+				if (gameStateEntities[id] instanceof Entity) {
+					gameStateEntities[id].setHealth(entity.health);
+					// animations might be given as strings like 'animation_direction', so we have to split them
+					const animation = entity.animation.split('_');
+					gameStateEntities[id].setAnimation(
+						animation[0],
+						entity.direction ? entity.direction : animation[1]
+					);
+				}
 			}
 
 			// Adjust all game state objects' locations to be fixed around the player
 			for (const [id, gameObject] of Object.entries(gameStateEntities)) {
+				// Check if the game state entity exists in the game state
+				if (!gameState.game_objects[id]) {
+					console.debug(
+						'Game state object for id: ',
+						id + ' does not exist in game state anymore - deleting it...'
+					);
+					delete gameStateEntities[id];
+					continue;
+				}
+
+				// Update the game state object's position
 				const obj_pos = gameObject.sprite.getXY();
 				if (obj_pos && player_pos) {
 					gameObject.sprite.setXY(obj_pos.x - player_pos[0], obj_pos.y - player_pos[1]);
@@ -300,7 +328,6 @@
 			currentKeysMap[e.key] = e.type === 'keydown';
 			// console.debug("Keys pressed: ", currentKeysMap, e.type);
 
-			// TODO: replace these with calls to backend of current player action
 			if (currentKeysMap['Escape']) {
 				isPlaying = false;
 				toMenu();
