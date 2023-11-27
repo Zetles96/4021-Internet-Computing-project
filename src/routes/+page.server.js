@@ -5,13 +5,15 @@ const secret = process.env.JWT_SECRET || 'secret';
 
 /** @type {import('./$types').PageServerLoad} */
 export async function load({ cookies }) {
-	if (!cookies.get('token')) {
-		return { user: null };
+	const token = cookies.get('token');
+
+	if (!token) {
+		return { user: null, token: null };
 	}
 
 	let user;
 	try {
-		user = jwt.verify(cookies.get('token'), secret);
+		user = jwt.verify(token, secret);
 	} catch (e) {
 		console.log(e);
 		return { user: null };
@@ -19,7 +21,7 @@ export async function load({ cookies }) {
 
 	// console.log(user);
 
-	return { user };
+	return { user, token };
 }
 
 /** @type {import('./$types').Actions} */

@@ -21,11 +21,19 @@
 	import GrassTile from '$lib/images/grasstile.png';
 	import GameOver from './GameOver.svelte';
 
-	const socket = io('http://localhost:8000');
+	// jwt token from cookies
+	/**
+	 * @type {string}
+	 */
+	export let token;
+
+	const socket = io('http://localhost:8000', {
+		query: {token}
+	});
 
 	socket.emit('joinRoom', 'room1');
 
-	socket.on('eventFromServer', (data) => {
+	socket.on('message', (data) => {
 		console.log(data);
 	});
 
