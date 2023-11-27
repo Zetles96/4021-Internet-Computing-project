@@ -76,8 +76,11 @@
 	 */
 	let gameStateEntities = {};
 
-	// TODO: fetch this from server
 	let playerID = 'player1';
+	socket.on('joined', (data) => {
+		console.log('Joined game: ', data);
+		playerID = data.player_id;
+	});
 
 	let isPlaying = false;
 	let showCheats = false; // TEMP
@@ -114,63 +117,10 @@
 	 * @param {string} action
 	 */
 	function sendPlayerAction(action) {
-		// TODO: replace these with calls to backend of current player action
-		// console.debug('Sending player action: ', action);
+		console.debug('Sending player action: ', action);
+		socket.emit('input', action);
 	}
 
-	// TODO: fetch this from server
-	/**
-	 * Get the game state from the server
-	 * @returns {GameState}
-	 */
-	function getServerGameState() {
-		return {
-			status: 'playing',
-			message: '2:00 left!',
-			game_objects: {
-				player1: {
-					name: 'player1',
-					position: player_pos,
-					sprite: 'samurai',
-					health: 100,
-					animation: 'walk',
-					direction: 'left'
-				},
-				player2: {
-					name: 'player2',
-					position: [100, 100],
-					sprite: 'samuraiarcher',
-					health: 100,
-					animation: 'idle',
-					direction: 'right'
-				},
-				player3: {
-					name: 'player3',
-					position: [200, 0],
-					sprite: 'samuraicommander',
-					health: 100,
-					animation: 'idle',
-					direction: 'left'
-				},
-				enemy1: {
-					name: 'enemy1',
-					position: [300, 150],
-					sprite: 'whitewerewolf',
-					health: 50,
-					animation: 'idle',
-					direction: 'right'
-				},
-				enemy2: {
-					name: 'enemy2',
-					position: [-200, -250],
-					sprite: 'redwerewolf',
-					health: 80,
-					animation: 'run',
-					direction: 'right'
-				}
-			}
-		};
-	}
 
 	/**
 	 * Update the game state from the server
@@ -178,8 +128,6 @@
 	 */
 	function updateGameState(ctx) {
 		if (ctx) {
-			// Update game state from server
-			gameState = getServerGameState();
 			for (const [id, entity] of Object.entries(gameState.game_objects)) {
 				if (!gameStateEntities[id]) {
 					console.debug(
@@ -321,36 +269,28 @@
 			// Movement
 			const player_move_distance = 5;
 			if (currentKeysMap['ArrowUp'] || currentKeysMap['w'] || currentKeysMap['W']) {
-				player_pos[1] -= player_move_distance;
 				// If up and left
 				if (currentKeysMap['ArrowLeft'] || currentKeysMap['a'] || currentKeysMap['A']) {
 					sendPlayerAction('move_up_left');
-					player_pos[0] -= player_move_distance;
 				}
 				// If up and right
 				else if (currentKeysMap['ArrowRight'] || currentKeysMap['d'] || currentKeysMap['D']) {
 					sendPlayerAction('move_up_right');
-					player_pos[0] += player_move_distance;
 				} else {
 					sendPlayerAction('move_up');
 				}
 			} else if (currentKeysMap['ArrowDown'] || currentKeysMap['s'] || currentKeysMap['S']) {
-				player_pos[1] += player_move_distance;
 				if (currentKeysMap['ArrowLeft'] || currentKeysMap['a'] || currentKeysMap['A']) {
 					sendPlayerAction('move_down_left');
-					player_pos[0] -= player_move_distance;
 				} else if (currentKeysMap['ArrowRight'] || currentKeysMap['d'] || currentKeysMap['D']) {
 					sendPlayerAction('move_down_right');
-					player_pos[0] += player_move_distance;
 				} else {
 					sendPlayerAction('move_down');
 				}
 			} else if (currentKeysMap['ArrowLeft'] || currentKeysMap['a'] || currentKeysMap['A']) {
 				sendPlayerAction('move_left');
-				player_pos[0] -= player_move_distance;
 			} else if (currentKeysMap['ArrowRight'] || currentKeysMap['d'] || currentKeysMap['D']) {
 				sendPlayerAction('move_down_right');
-				player_pos[0] += player_move_distance;
 			}
 		}
 	};

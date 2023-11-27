@@ -42,7 +42,7 @@ export const webSocketServer = {
 				}
 
 				if (!game) {
-					game = new Game();
+					game = new Game(io);
 					games[game.id] = game;
 				}
 
