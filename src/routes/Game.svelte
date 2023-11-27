@@ -268,7 +268,7 @@
 
 			// console.debug('Key pressed: ', e.key);
 			currentKeysMap[e.key] = e.type === 'keydown';
-			console.log("Keys pressed: ", currentKeysMap, e.type);
+			// console.debug("Keys pressed: ", currentKeysMap, e.type);
 
 			// TODO: replace these with calls to backend of current player action
 			if (currentKeysMap['Escape']) {
@@ -281,7 +281,7 @@
 			}
 			if (currentKeysMap[' ']) {
 				sendPlayerAction('attack');
-        player_sounds.attack.play();
+        		player_sounds.attack.play();
 			}
 			// Movement
 			const player_move_distance = 5;
@@ -289,11 +289,12 @@
 				// If up and left
 				if (currentKeysMap['ArrowLeft'] || currentKeysMap['a'] || currentKeysMap['A']) {
 					sendPlayerAction('move_up_left');
-          player_sounds.walk.play();
+          			player_sounds.walk.play();
 				}
 				// If up and right
 				else if (currentKeysMap['ArrowRight'] || currentKeysMap['d'] || currentKeysMap['D']) {
 					sendPlayerAction('move_up_right');
+					player_sounds.walk.play();
 				} else {
 					sendPlayerAction('move_up');
 					player_sounds.walk.play();
@@ -301,20 +302,24 @@
 			} else if (currentKeysMap['ArrowDown'] || currentKeysMap['s'] || currentKeysMap['S']) {
 				if (currentKeysMap['ArrowLeft'] || currentKeysMap['a'] || currentKeysMap['A']) {
 					sendPlayerAction('move_down_left');
-          player_sounds.walk.play();
-
+          			player_sounds.walk.play();
 				} else if (currentKeysMap['ArrowRight'] || currentKeysMap['d'] || currentKeysMap['D']) {
 					sendPlayerAction('move_down_right');
-				  player_sounds.walk.play();
+					player_sounds.walk.play();
 				} else {
 					sendPlayerAction('move_down');
+					player_sounds.walk.play();
 				}
 			} else if (currentKeysMap['ArrowLeft'] || currentKeysMap['a'] || currentKeysMap['A']) {
 				sendPlayerAction('move_left');
+				player_sounds.walk.play();
+			} else if (currentKeysMap['ArrowRight'] || currentKeysMap['d'] || currentKeysMap['D']) {
+				sendPlayerAction('move_right');
+				player_sounds.walk.play();
 			}
-      if (e.type === 'keyup') { // disable player walk noise when stop
+			if (e.type === 'keyup') { // disable player walk noise when stop
 				player_sounds.walk.pause();	
-      }
+			}
 		}
 	};
 
