@@ -61,10 +61,9 @@
 	let gameState = { status: 'loading', message: 'Loading game...', game_objects: {} };
 
 	socket.on('gameState', (data) => {
-		console.log('Received gamestate from ws: ', data);
+		// console.log('Received gamestate from ws: ', data);
 		gameState = data;
 	});
-
 
 	// On initial load, join the game
 	socket.emit('joinGame');
@@ -111,15 +110,98 @@
 
 	// Create background music
 	const background_music = new Audio('/src/lib/sounds/background_music.mp3');
-	// Create player sounds
-	const player_sounds = {
-		walk: new Audio('/src/lib/sounds/human/human-walking.mp3'),
-		hurt: new Audio('/src/lib/sounds/human/human-hurt.mp3'),
-		die: new Audio('/src/lib/sounds/human/human-scream1.mp3'),
-		attack: new Audio('/src/lib/sounds/effects/swoosh6.mp3')
-	};
-	player_sounds.walk.loop = true;
-	player_sounds.attack.volume = 0.5;
+	// Create player sound effects
+	const player_walk = new Audio('/src/lib/sounds/human/human-walking.mp3');
+    const player_hurt = new Audio('/src/lib/sounds/human/human-hurt.mp3');
+    const player_dead = new Audio('/src/lib/sounds/human/human-scream1.mp3');
+	player_walk.loop = true;
+    
+
+    // Create werewolf sounds
+    const werewolf_sounds = {
+		
+    }
+    // Create Yurei sounds
+    const yurei_sounds = {
+    }
+    // Create Gotoku sounds
+    const gotoku_sounds = {
+    }
+    // Create Onre sounds
+    const onre_sounds = {
+    }
+
+    // player is attacking
+    socket.on('player_attack', () => {
+        console.log("PLAYER ATTACKING");
+        const player_attack = new Audio('/src/lib/sounds/effects/swoosh6.mp3');
+        player_attack.volume = 0.5;
+        player_attack.play();
+    })
+    // player died
+    socket.on('player_dead', () => {
+        player_dead.play();
+    })
+    // monster is attacking + player is attacked
+    socket.on('monster_attack', (monster) => {
+        console.log("MONSTER ATTACK: , ", monster);
+        player_hurt.play();
+        switch (monster) {
+            case 'redwerewolf':
+            case 'whitewerewolf':
+            case 'blackwerewolf':
+                console.log('werewolf!');
+                const werewolf_attack = new Audio('/src/lib/sounds/effects/swoosh1.mp3');
+                werewolf_attack.playbackRate = 1.5;
+                werewolf_attack.play();
+                break;
+            case 'yurei':
+                console.log('yurei!');
+                const yurei_attack = new Audio('/src/lib/sounds/effects/woosh6.mp3');
+                yurei_attack.playbackRate = 1.5;
+                yurei_attack.play();
+                break;
+            case 'gotoku':
+                console.log('gotoku!');
+                const gotoku_attack = new Audio('/src/lib/sounds/effects/woosh5.mp3');
+                gotoku_attack.playbackRate = 2;
+                gotoku_attack.play();
+                break;
+            case 'onre':
+            console.log('onre!');
+
+                const onre_attack = new Audio('/src/lib/sounds/effects/woosh2.mp3');
+                onre_attack.playbackRate = 1.5;
+                onre_attack.play();
+                break;
+            default:
+                break;
+        }
+    })
+        // monster died
+        socket.on('enemy_died', (monster) => {
+        console.log('ENEMY DIED: ', monster);
+        switch (monster) {
+            case 'redwerewolf' || 'whitewerewolf' || 'blackwerewolf':
+                const werewolf_dead = new Audio('/src/lib/sounds/wolf/wolf-howl.mp3');
+                werewolf_dead.play();
+                break;
+            case 'yurei':
+                const yurei_dead = new Audio('/src/lib/sounds/monsters/monster-screech4.mp3');
+                yurei_dead.play();
+                break;
+            case 'gotoku':
+                const gotoku_dead = new Audio('/src/lib/sounds/monsters/monster_screech6.mp3');
+                gotoku_dead.play();
+                break;
+            case 'onre':
+                const onre_dead = new Audio('/src/lib/sounds/monsters/monster-screech1.mp3');
+                onre_dead.play();
+                break;
+            default:
+                break;
+        }
+    })
 
 	/**
 	 * For some reason JavaScript makes negative input negative output for modulo...
@@ -267,7 +349,7 @@
 
 					if (entity.health <= 0 && !playerIsDead) {
 						playerIsDead = true;
-						player_sounds.die.play();
+						player_dead.play();
 					}
 
 					// Ensure the player game object is at the last index of the game state array
@@ -339,7 +421,6 @@
 			}
 			if (currentKeysMap[' ']) {
 				sendPlayerAction('attack');
-				player_sounds.attack.play();
 			}
 			// Movement
 			const player_move_distance = 5;
@@ -347,7 +428,7 @@
 				// If up and left
 				if (currentKeysMap['ArrowLeft'] || currentKeysMap['a'] || currentKeysMap['A']) {
 					sendPlayerAction('move_up_left');
-					player_sounds.walk.play();
+					player_walk.play();
 				}
 				// If up and right
 				else if (
@@ -356,10 +437,10 @@
 					currentKeysMap['D']
 				) {
 					sendPlayerAction('move_up_right');
-					player_sounds.walk.play();
+					player_walk.play();
 				} else {
 					sendPlayerAction('move_up');
-					player_sounds.walk.play();
+					player_walk.play();
 				}
 			} else if (currentKeysMap['ArrowDown'] || currentKeysMap['s'] || currentKeysMap['S']) {
 				if (currentKeysMap['ArrowLeft'] || currentKeysMap['a'] || currentKeysMap['A']) {
@@ -369,23 +450,23 @@
 					currentKeysMap['d'] ||
 					currentKeysMap['D']
 				) {
-					player_sounds.walk.play();
+					player_walk.play();
 					sendPlayerAction('move_down_right');
-					player_sounds.walk.play();
+					player_walk.play();
 				} else {
 					sendPlayerAction('move_down');
-					player_sounds.walk.play();
+					player_walk.play();
 				}
 			} else if (currentKeysMap['ArrowLeft'] || currentKeysMap['a'] || currentKeysMap['A']) {
 				sendPlayerAction('move_left');
-				player_sounds.walk.play();
+				player_walk.play();
 			} else if (currentKeysMap['ArrowRight'] || currentKeysMap['d'] || currentKeysMap['D']) {
 				sendPlayerAction('move_right');
-				player_sounds.walk.play();
+				player_walk.play();
 			}
 			if (e.type === 'keyup') {
 				// disable player walk noise when stop
-				player_sounds.walk.pause();
+				player_walk.pause();
 			}
 		}
 	};

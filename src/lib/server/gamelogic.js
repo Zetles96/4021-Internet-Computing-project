@@ -74,10 +74,15 @@ class ServerPlayer extends ServerInteractable {
 			this.animation = 'attack';
 			this.lastAction = Date.now();
 
+			// send action to browser to play audio
+			this.socket.emit('player_attack');	
+
 			// Attack every enemy in range
 			enemies.forEach((e) => {
 				e.health -= this.damage;
 				if (e.health <= 0) {
+					// send action to browser to play audio
+					this.socket.emit('enemy_died', e.type);
 					e.health = 0;
 					e.animation = 'dead';
 					this.score += e.worth;
@@ -164,9 +169,16 @@ class ServerEnemy extends ServerInteractable {
 				return;
 			}
 
+			// send action to browser to play audio
+			player.socket.emit('monster_attack', this.type);
+			
 			this.lastAttack = now;
 			player.health -= this.damage;
 			if (player.health <= 0) {
+				// send action to browser to play audio
+				// console.log("died 2");
+				// player.socket.emit('player_dead');
+
 				player.health = 0;
 				player.animation = 'dead';
 			}
