@@ -16,6 +16,8 @@ class ServerEntity {
 		this.health = 100;
 		this.animation = "idle";
 		this.direction = { x: 0, y: 0 };
+		this.lastAttack = Date.now();
+		this.attackCooldown = 1000;
 	}
 }
 
@@ -34,7 +36,10 @@ class ServerPlayer extends ServerEntity {
 	}
 
 	update() {
-		if (this.doMove) {
+		if (this.health <= 0) {
+			this.animation = "dead";
+		}
+		else if (this.doMove) {
 			this.animation = "walk";
 			this.x += this.direction.x * 16;
 			this.y += this.direction.y * 16;
@@ -69,6 +74,14 @@ class ServerEnemy extends ServerEntity {
 	 * @param {ServerPlayer} player - The player to attack.
 	 */
 	update(player) {
+		// if own health is 0, we don't do anything
+		if (this.health <= 0) {
+			this.animation = "dead";
+			return;
+		}
+
+		if (!player) return;
+
 		const distance = Math.sqrt((this.x - player.x) ** 2 + (this.y - player.y) ** 2);
 
 		// If we are outside of simulation distance, we don't do anything
@@ -94,7 +107,19 @@ class ServerEnemy extends ServerEntity {
 		// if we are within range, we attack
 		if (distance < 16) {
 			this.animation = "attack";
+			const now = Date.now();
+
+			// If we are within attack cooldown, we don't attack
+			if ((now - this.lastAttack) < this.attackCooldown) {
+				return;
+			}
+
+			this.lastAttack = now;
 			player.health -= this.damage;
+			if (player.health <= 0) {
+				player.health = 0;
+				player.animation = "dead";
+			}
 			return;
 		}
 
@@ -191,7 +216,8 @@ export class Game {
 
 	handleInput(socket, action) {
 		const player = this.players[socket.id];
-		if (player) {
+		// Only allow if player is alive
+		if (player && player.health > 0) {
 			switch (action) {
 				case 'move_left':
 					player.direction = { x: -1, y: 0 };
@@ -278,6 +304,10 @@ export class Game {
 				let closestDistance = Infinity;
 				for (const id in this.players) {
 					const player = this.players[id];
+
+					// If player is dead, do not target
+					if (player.health <= 0) continue;
+
 					const distance = Math.sqrt((e.x - player.x) ** 2 + (e.y - player.y) ** 2);
 					if (distance < closestDistance) {
 						closestDistance = distance;
