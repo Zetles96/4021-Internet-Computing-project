@@ -1,17 +1,7 @@
 import jwt from 'jsonwebtoken';
 import * as database from '$lib/server/database.js';
-import { io } from 'socket.io-client';
-import { onMount } from 'svelte';
 
 const secret = process.env.JWT_SECRET || 'secret';
-
-const socket = io('http://localhost:8000');
-
-onMount(() => {
-	socket.onmessage = (event) => {
-		console.log('Message from server:', event.data);
-	};
-});
 
 /** @type {import('./$types').PageServerLoad} */
 export async function load({ cookies }) {
