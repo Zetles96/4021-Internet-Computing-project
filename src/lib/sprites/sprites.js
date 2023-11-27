@@ -124,7 +124,7 @@ const Sprite = function (ctx, x, y) {
 	const setAlongX = function (value) {
 		alongX = value;
 		return this;
-	}
+	};
 
 	/**
 	 * Sets the sprite sequence.
@@ -636,7 +636,7 @@ class Collectible {
 		 * @typedef {Object} AnimationSequences
 		 * */
 		this.sequences = {
-			default: { x: 0, y: 128, width: 128, height: 128, count: 6, timing: 200, loop: true },
+			default: { x: 0, y: 128, width: 128, height: 128, count: 6, timing: 200, loop: true }
 		};
 
 		/**

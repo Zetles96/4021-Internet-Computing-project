@@ -42,13 +42,17 @@
 			</div>
 			<div class="flex flex-col pb-3">
 				<h2 class="text-center">How to Play</h2>
-				<p>&#x2022; Join a new game and wait for the game to start.
-					Other players can join you in this waiting period too!</p>
+				<p>
+					&#x2022; Join a new game and wait for the game to start. Other players can join
+					you in this waiting period too!
+				</p>
 				<p>&#x2022; Use the arrow keys or WASD to move your player around.</p>
 				<p>&#x2022; When an entity is within striking range, press SPACE to slash it.</p>
 				<p>&#x2022; Be careful! Monsters will slash you too!</p>
 				<p>&#x2022; The player who has gained the most points win!</p>
-				<p>&#x2022; BONUS: Collect coins to get even more points, and potions to heal you!</p>
+				<p>
+					&#x2022; BONUS: Collect coins to get even more points, and potions to heal you!
+				</p>
 				<p>&#x2022; Press 'c' to use cheats :)</p>
 			</div>
 			<button on:click={closeModal}>Back</button>

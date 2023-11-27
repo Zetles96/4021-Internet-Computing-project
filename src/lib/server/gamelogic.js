@@ -1,5 +1,5 @@
 const TPS = 20;
-const GAME_TIME = 60*2; // 2 minutes
+const GAME_TIME = 60 * 2; // 2 minutes
 const WAIT_TIME = 30;
 
 const PLAYER_TYPES = ['samurai', 'samuraiarcher', 'samuraicommander'];
@@ -76,7 +76,7 @@ class ServerPlayer extends ServerInteractable {
 			this.lastAction = Date.now();
 
 			// send action to browser to play audio
-			this.socket.emit('player_attack');	
+			this.socket.emit('player_attack');
 
 			// Attack every enemy in range
 			enemies.forEach((e) => {
@@ -172,7 +172,7 @@ class ServerEnemy extends ServerInteractable {
 
 			// send action to browser to play audio
 			player.socket.emit('monster_attack', this.type);
-			
+
 			this.lastAttack = now;
 			player.health -= this.damage;
 			if (player.health <= 0) {
@@ -191,12 +191,7 @@ class ServerEnemy extends ServerInteractable {
 
 class ServerCollectible extends ServerEntity {
 	constructor(x, y, type) {
-		super(
-			Math.random().toString(36).substring(7),
-			x,
-			y,
-			type
-		);
+		super(Math.random().toString(36).substring(7), x, y, type);
 
 		this.animation = 'default';
 		this.pickupRange = 32;
@@ -277,18 +272,18 @@ export class Game {
 		this.startTime = Date.now();
 		this.lastUpdateTime = this.startTime;
 
-		this.spawn(3, 500, "enemy");
-		this.spawn(10, 1000, "enemy");
-		this.spawn(100, 5000, "enemy");
+		this.spawn(3, 500, 'enemy');
+		this.spawn(10, 1000, 'enemy');
+		this.spawn(100, 5000, 'enemy');
 		// this.spawnEnemies(100, 10000);
 
-		this.spawn(50, 2500, "coin");
-		this.spawn(50, 2500, "potion");
+		this.spawn(50, 2500, 'coin');
+		this.spawn(50, 2500, 'potion');
 
 		this.updateSchedule = setInterval(this.update.bind(this), 10);
 	}
 
-	spawn(amount, range, type="enemy") {
+	spawn(amount, range, type = 'enemy') {
 		for (let i = 0; i < amount; i++) {
 			let x = 0;
 			let y = 0;
@@ -300,17 +295,14 @@ export class Game {
 				y = Math.floor(Math.random() * (range - -range) + -range);
 			}
 
-			if (type === "enemy") {
+			if (type === 'enemy') {
 				this.enemies.push(new ServerEnemy(x, y));
-			}
-			else if (type === "coin") {
+			} else if (type === 'coin') {
 				this.collectibles.push(new ServerCoin(x, y));
-			}
-			else if (type === "potion") {
+			} else if (type === 'potion') {
 				this.collectibles.push(new ServerPotion(x, y));
-			}
-			else {
-				console.error("Invalid type");
+			} else {
+				console.error('Invalid type');
 			}
 		}
 	}
@@ -347,7 +339,7 @@ export class Game {
 			if (c.used) return;
 
 			gameObjects[c.id] = {
-				name: "",
+				name: '',
 				position: [c.x, c.y],
 				score: -1,
 				sprite: c.type,
@@ -369,7 +361,9 @@ export class Game {
 	}
 
 	addExistingPlayerToSocket(socket, player) {
-		delete Object.assign(this.players, {[socket.id]: this.players[player.socket.id] })[player.socket.id];
+		delete Object.assign(this.players, { [socket.id]: this.players[player.socket.id] })[
+			player.socket.id
+		];
 		player.socket = socket;
 		player.id = socket.id;
 
@@ -479,7 +473,9 @@ export class Game {
 		if (this.status === 'waiting') {
 			if (seconds > WAIT_TIME) {
 				this.status = 'playing';
-				this.message = `${Math.floor(GAME_TIME+WAIT_TIME-seconds)} seconds remaining...`;
+				this.message = `${Math.floor(
+					GAME_TIME + WAIT_TIME - seconds
+				)} seconds remaining...`;
 			} else {
 				this.message = `Waiting for players: ${Math.floor(
 					WAIT_TIME - seconds
@@ -500,7 +496,7 @@ export class Game {
 
 			return;
 		} else {
-			this.message = `${Math.floor(GAME_TIME+WAIT_TIME-seconds)} seconds remaining...`;
+			this.message = `${Math.floor(GAME_TIME + WAIT_TIME - seconds)} seconds remaining...`;
 			// Update players
 			for (const id in this.players) {
 				const player = this.players[id];

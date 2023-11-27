@@ -14,10 +14,10 @@ class Coin extends Collectible {
 		super(ctx, x, y, CoinSpreadsheet);
 
 		this.sequences = {
-			default: { x: 0, y: 0, width: 170, height: 170, count: 6, timing: 200, loop: true}
+			default: { x: 0, y: 0, width: 170, height: 170, count: 6, timing: 200, loop: true }
 		};
 
-		this.sprite.setSequence(this.sequences.default).setScale(0.20);
+		this.sprite.setSequence(this.sequences.default).setScale(0.2);
 	}
 }
 
@@ -40,7 +40,15 @@ class Potion extends Collectible {
 		const sprite_y = Math.floor(Math.random() * 15) * 16;
 
 		this.sequences = {
-			default: { x: 3*16, y: sprite_y, width: 16, height: 16, count: 1, timing: 1, loop: false}
+			default: {
+				x: 3 * 16,
+				y: sprite_y,
+				width: 16,
+				height: 16,
+				count: 1,
+				timing: 1,
+				loop: false
+			}
 		};
 
 		this.sprite.setSequence(this.sequences.default).setScale(1.5);

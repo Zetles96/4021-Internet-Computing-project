@@ -4,7 +4,8 @@ import { webSocketServer } from './src/lib/server/websocket.js';
 
 export default defineConfig({
 	server: {
-		port: 8000
+		port: 8000,
+		hmr: false
 	},
 	plugins: [sveltekit(), webSocketServer]
 });

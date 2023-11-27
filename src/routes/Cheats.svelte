@@ -15,7 +15,7 @@
 	function useCheat(cheat) {
 		dispatch('useCheat', {
 			cheat
-		})
+		});
 	}
 
 	// IDEA
@@ -36,22 +36,22 @@
 				closeModal();
 				break;
 			case '1':
-				useCheat('inc_spd')
+				useCheat('inc_spd');
 				break;
 			case '2':
-				useCheat('inc_hp')
+				useCheat('inc_hp');
 				break;
 			case '3':
-				useCheat('inc_dmg')
+				useCheat('inc_dmg');
 				break;
 			case '4':
-				useCheat('instakill')
+				useCheat('instakill');
 				break;
 			case '5':
-				useCheat('inc_range')
+				useCheat('inc_range');
 				break;
 			case '6':
-				useCheat('godmode')
+				useCheat('godmode');
 				break;
 			default:
 				break;

@@ -33,7 +33,7 @@
 	});
 
 	socket.on('message', (data) => {
-		console.log('message: ', data);
+		console.debug('message: ', data);
 	});
 
 	const dispatch = createEventDispatcher();
@@ -65,7 +65,7 @@
 	let gameState = { status: 'loading', message: 'Loading game...', game_objects: {} };
 
 	socket.on('gameState', (data) => {
-		// console.log('Received gamestate from ws: ', data);
+		// console.debug('Received gamestate from ws: ', data);
 		gameState = data;
 	});
 
@@ -81,11 +81,11 @@
 	let gameID = 'game1';
 	let playerID = 'player1';
 	socket.on('joined', (data) => {
-		console.log('Joined game: ', data);
+		console.debug('Joined game: ', data);
 		playerID = data.player_id;
 	});
 	socket.on('joinedGameId', (gameId) => {
-		console.log('Game id: ', gameId);
+		console.debug('Game id: ', gameId);
 		gameID = gameId;
 	});
 	let playerIsDead = false;
@@ -118,104 +118,91 @@
 	const background_music = new Audio('/src/lib/sounds/background_music.mp3');
 	// Create player sound effects
 	const player_walk = new Audio('/src/lib/sounds/human/human-walking.mp3');
-    const player_hurt = new Audio('/src/lib/sounds/human/human-hurt.mp3');
-    const player_dead = new Audio('/src/lib/sounds/human/human-scream1.mp3');
+	const player_hurt = new Audio('/src/lib/sounds/human/human-hurt.mp3');
+	const player_dead = new Audio('/src/lib/sounds/human/human-scream1.mp3');
+	const player_attack = new Audio('/src/lib/sounds/effects/swoosh6.mp3');
 	player_walk.loop = true;
-    
 
-    // Create werewolf sounds
-    const werewolf_sounds = {
-		
-    }
-    // Create Yurei sounds
-    const yurei_sounds = {
-    }
-    // Create Gotoku sounds
-    const gotoku_sounds = {
-    }
-    // Create Onre sounds
-    const onre_sounds = {
-    }
+	const werewolf_dead = new Audio('/src/lib/sounds/wolf/wolf-howl.mp3');
+	const yurei_dead = new Audio('/src/lib/sounds/monsters/monster-screech4.mp3');
+	const gotoku_dead = new Audio('/src/lib/sounds/monsters/monster_screech6.mp3');
+	const onre_dead = new Audio('/src/lib/sounds/monsters/monster-screech1.mp3');
 
-    // player is attacking
-    socket.on('player_attack', () => {
-        const player_attack = new Audio('/src/lib/sounds/effects/swoosh6.mp3');
-        player_attack.volume = 0.5;
-        player_attack.play();
-    })
-    // player died
-    socket.on('player_dead', () => {
-        player_dead.play();
-    })
-    // monster is attacking + player is attacked
-    socket.on('monster_attack', (monster) => {
-        player_hurt.play();
-        switch (monster) {
-            case 'redwerewolf':
-            case 'whitewerewolf':
-            case 'blackwerewolf':
-                const werewolf_attack = new Audio('/src/lib/sounds/effects/swoosh1.mp3');
-                werewolf_attack.playbackRate = 1.5;
-                werewolf_attack.play();
-                break;
-            case 'yurei':
-                const yurei_attack = new Audio('/src/lib/sounds/effects/woosh6.mp3');
-                yurei_attack.playbackRate = 1.5;
-                yurei_attack.play();
-                break;
-            case 'gotoku':
-                const gotoku_attack = new Audio('/src/lib/sounds/effects/woosh5.mp3');
-                gotoku_attack.playbackRate = 2;
-                gotoku_attack.play();
-                break;
-            case 'onre':
+	const werewolf_attack = new Audio('/src/lib/sounds/effects/swoosh1.mp3');
+	const yurei_attack = new Audio('/src/lib/sounds/effects/woosh6.mp3');
+	const gotoku_attack = new Audio('/src/lib/sounds/effects/woosh5.mp3');
+	const onre_attack = new Audio('/src/lib/sounds/effects/woosh2.mp3');
 
-                const onre_attack = new Audio('/src/lib/sounds/effects/woosh2.mp3');
-                onre_attack.playbackRate = 1.5;
-                onre_attack.play();
-                break;
-            default:
-                break;
-        }
-    })
-    // monster died
-    socket.on('enemy_died', (monster) => {
-    switch (monster) {
-        case 'redwerewolf' || 'whitewerewolf' || 'blackwerewolf':
-            const werewolf_dead = new Audio('/src/lib/sounds/wolf/wolf-howl.mp3');
-            werewolf_dead.play();
-            break;
-        case 'yurei':
-            const yurei_dead = new Audio('/src/lib/sounds/monsters/monster-screech4.mp3');
-            yurei_dead.play();
-            break;
-        case 'gotoku':
-            const gotoku_dead = new Audio('/src/lib/sounds/monsters/monster_screech6.mp3');
-            gotoku_dead.play();
-            break;
-        case 'onre':
-            const onre_dead = new Audio('/src/lib/sounds/monsters/monster-screech1.mp3');
-            onre_dead.play();
-            break;
-        default:
-            break;
-        }
-    })
-    // collected collectable (coin or potion)
-    socket.on('collected', (type) => {
-        switch (type) {
-            case 'coin':
-                const collect_coin = new Audio('/src/lib/sounds/items/coin.mp3');
-                collect_coin.play();
-                break;
-            case 'potion':
-                const collect_potion = new Audio('/src/lib/sounds/items/potion.mp3');
-                collect_potion.play();
-                break;
-            default:
-                break;
-        }
-    });
+	const collect_coin = new Audio('/src/lib/sounds/items/coin.mp3');
+	const collect_potion = new Audio('/src/lib/sounds/items/potion.mp3');
+
+	// player is attacking
+	socket.on('player_attack', () => {
+		player_attack.volume = 0.5;
+		player_attack.play();
+	});
+	// player died
+	socket.on('player_dead', () => {
+		player_dead.play();
+	});
+	// monster is attacking + player is attacked
+	socket.on('monster_attack', (monster) => {
+		player_hurt.play();
+		switch (monster) {
+			case 'redwerewolf':
+			case 'whitewerewolf':
+			case 'blackwerewolf':
+				werewolf_attack.playbackRate = 1.5;
+				werewolf_attack.play();
+				break;
+			case 'yurei':
+				yurei_attack.playbackRate = 1.5;
+				yurei_attack.play();
+				break;
+			case 'gotoku':
+				gotoku_attack.playbackRate = 2;
+				gotoku_attack.play();
+				break;
+			case 'onre':
+				onre_attack.playbackRate = 1.5;
+				onre_attack.play();
+				break;
+			default:
+				break;
+		}
+	});
+	// monster died
+	socket.on('enemy_died', (monster) => {
+		switch (monster) {
+			case 'redwerewolf' || 'whitewerewolf' || 'blackwerewolf':
+				werewolf_dead.play();
+				break;
+			case 'yurei':
+				yurei_dead.play();
+				break;
+			case 'gotoku':
+				gotoku_dead.play();
+				break;
+			case 'onre':
+				onre_dead.play();
+				break;
+			default:
+				break;
+		}
+	});
+	// collected collectable (coin or potion)
+	socket.on('collected', (type) => {
+		switch (type) {
+			case 'coin':
+				collect_coin.play();
+				break;
+			case 'potion':
+				collect_potion.play();
+				break;
+			default:
+				break;
+		}
+	});
 
 	/**
 	 * For some reason JavaScript makes negative input negative output for modulo...
@@ -560,11 +547,11 @@
 			while (true) {
 				y = y_mod + h;
 				while (true) {
-					// console.log("Drawing grass tile at: ", [x, y]);
+					// console.debug("Drawing grass tile at: ", [x, y]);
 					ctx.drawImage(grassTile, x, y, w, h);
 
 					if (y === y_mod) {
-						// console.log("y === player_pos[1] % canvas.height", y, y_mod);
+						// console.debug("y === player_pos[1] % canvas.height", y, y_mod);
 						break;
 					} else if (y + h > canvas.height) {
 						// We have to calculate the new y to draw from beginning of canvas (or before)
@@ -628,9 +615,12 @@
 	<div class="overlay w-screen h-screen flex flex-col items-center p-3">
 		<p class="status">{gameState.message}</p>
 		{#if showCheats}
-			<Cheats on:close={() => (showCheats = false)} on:useCheat={(e) => sendPlayerAction("cheat_"+e.detail.cheat)} />
+			<Cheats
+				on:close={() => (showCheats = false)}
+				on:useCheat={(e) => sendPlayerAction('cheat_' + e.detail.cheat)}
+			/>
 		{:else if gameState.status === 'ended' || playerIsDead || pressEscape}
-			<GameOver gameState={gameState} on:close={toMenu} on:playAgain={playAgain} />
+			<GameOver {gameState} on:close={toMenu} on:playAgain={playAgain} />
 		{/if}
 		<!-- <button class='backbutton' on:click={toMenu}>Back to Menu</button> -->
 		<!--		<button class='gameOver' on:click={toGameOver}>Game Over</button>-->

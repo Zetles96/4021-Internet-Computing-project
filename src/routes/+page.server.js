@@ -15,7 +15,7 @@ export async function load({ cookies }) {
 	try {
 		user = jwt.verify(token, secret);
 	} catch (e) {
-		console.log(e);
+		console.error(e);
 		return { user: null };
 	}
 
