@@ -32,7 +32,6 @@
 	socket.on('message', (data) => {
 		console.log('message: ', data);
 	});
-	
 
 	const dispatch = createEventDispatcher();
 
@@ -93,11 +92,10 @@
 		walk: new Audio('/src/lib/sounds/human/human-walking.mp3'),
 		hurt: new Audio('/src/lib/sounds/human/human-hurt.mp3'),
 		die: new Audio('/src/lib/sounds/human/human-scream1.mp3'),
-		attack: new Audio('/src/lib/sounds/effects/swoosh6.mp3'),
+		attack: new Audio('/src/lib/sounds/effects/swoosh6.mp3')
 	};
 	player_sounds.walk.loop = true;
-	player_sounds.attack.volume = 0.5; 
-
+	player_sounds.attack.volume = 0.5;
 
 	/**
 	 * For some reason JavaScript makes negative input negative output for modulo...
@@ -282,7 +280,7 @@
 			}
 			if (currentKeysMap[' ']) {
 				sendPlayerAction('attack');
-        		player_sounds.attack.play();
+				player_sounds.attack.play();
 			}
 			// Movement
 			const player_move_distance = 5;
@@ -290,7 +288,7 @@
 				// If up and left
 				if (currentKeysMap['ArrowLeft'] || currentKeysMap['a'] || currentKeysMap['A']) {
 					sendPlayerAction('move_up_left');
-          			player_sounds.walk.play();
+					player_sounds.walk.play();
 				}
 				// If up and right
 				else if (
@@ -312,7 +310,7 @@
 					currentKeysMap['d'] ||
 					currentKeysMap['D']
 				) {
-          			player_sounds.walk.play();
+					player_sounds.walk.play();
 					sendPlayerAction('move_down_right');
 					player_sounds.walk.play();
 				} else {
@@ -326,8 +324,9 @@
 				sendPlayerAction('move_right');
 				player_sounds.walk.play();
 			}
-			if (e.type === 'keyup') { // disable player walk noise when stop
-				player_sounds.walk.pause();	
+			if (e.type === 'keyup') {
+				// disable player walk noise when stop
+				player_sounds.walk.pause();
 			}
 		}
 	};
