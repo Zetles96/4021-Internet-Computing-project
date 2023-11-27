@@ -74,6 +74,8 @@ class ServerPlayer extends ServerEntity {
 			enemies.forEach((e) => {
 				e.health -= this.damage;
 				if (e.health <= 0) {
+					// send action to browser to play audio
+					this.socket.emit('enemy_died', e.type);
 					e.health = 0;
 					e.animation = 'dead';
 					this.score += e.worth;
@@ -121,8 +123,6 @@ class ServerEnemy extends ServerEntity {
 	update(player) {
 		// if own health is 0, we don't do anything
 		if (this.health <= 0) {
-			// send action to browser to play audio
-
 			this.animation = 'dead';
 			return;
 		}
@@ -154,9 +154,6 @@ class ServerEnemy extends ServerEntity {
 
 		// if we are within range, we attack
 		if (distance < this.range) {
-			// send action to browser to play audio
-			player.socket.emit('player_hurt');
-
 			this.animation = 'attack';
 			const now = Date.now();
 
@@ -165,12 +162,15 @@ class ServerEnemy extends ServerEntity {
 				return;
 			}
 
+			// send action to browser to play audio
+			player.socket.emit('monster_attack', this.type);
+			
 			this.lastAttack = now;
 			player.health -= this.damage;
 			if (player.health <= 0) {
 				// send action to browser to play audio
-				console.log("died 2");
-				player.socket.emit('player_dead');
+				// console.log("died 2");
+				// player.socket.emit('player_dead');
 
 				player.health = 0;
 				player.animation = 'dead';
