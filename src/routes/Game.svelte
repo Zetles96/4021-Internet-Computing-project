@@ -66,7 +66,7 @@
 	let gameState = { status: 'loading', message: 'Loading game...', game_objects: {} };
 
 	socket.on('gameState', (data) => {
-		console.log('Received gamestate from ws: ', data);
+		// console.log('Received gamestate from ws: ', data);
 		gameState = data;
 	});
 
@@ -290,7 +290,7 @@
 			} else if (currentKeysMap['ArrowLeft'] || currentKeysMap['a'] || currentKeysMap['A']) {
 				sendPlayerAction('move_left');
 			} else if (currentKeysMap['ArrowRight'] || currentKeysMap['d'] || currentKeysMap['D']) {
-				sendPlayerAction('move_down_right');
+				sendPlayerAction('move_right');
 			}
 		}
 	};

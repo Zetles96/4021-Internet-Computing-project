@@ -2,38 +2,53 @@ const TPS = 20;
 const GAME_TIME = 60*2; // 2 minutes
 const WAIT_TIME = 10;
 
+const PLAYER_TYPES = ["samurai", "samuraiarcher", "samuraicommander"]
+const ENEMY_TYPES = ["whitewerewolf", "redwerewolf", "blackwerewolf", "gotoku", "onre", "yurei"]
 
-class Entity {
-	constructor(x, y, radius) {
+
+class ServerEntity {
+	constructor(id, name, x, y, type) {
+		this.id = id;
+		this.name = name;
 		this.x = x;
 		this.y = y;
-		this.radius = radius;
+		this.type = type;
+		this.health = 100;
+		this.animation = "idle";
+		this.direction = { x: 0, y: 0 };
 	}
-
 }
 
-class Player extends Entity {
+class ServerPlayer extends ServerEntity {
 	constructor(socket) {
-		super(0, 0, 10);
+		super(socket.id, socket.username, 0, 0, PLAYER_TYPES[Math.floor(Math.random() * PLAYER_TYPES.length)]);
 		this.socket = socket;
+
 		this.doAttack = false;
-		this.direction = { x: 0, y: 0 };
+		this.doMove = false;
 
 		this.socket.emit('joined', {
 			id: this.socket.id,
-			player_id: this.socket.username
+			player_id: this.id
 		});
 	}
 
 	update() {
-		this.x += this.direction.x * 16;
-		this.y += this.direction.y * 16;
+		if (this.doMove) {
+			this.animation = "walk";
+			this.x += this.direction.x * 16;
+			this.y += this.direction.y * 16;
+			this.doMove = false;
+		}
+		else {
+			this.animation = "idle";
+		}
 	}
 }
 
-class Enemy extends Entity {
-	constructor(x, y, radius) {
-		super(x, y, radius);
+class ServerEnemy extends ServerEntity {
+	constructor(x, y) {
+		super(Math.random().toString(36).substring(7), "", x, y, ENEMY_TYPES[Math.floor(Math.random() * ENEMY_TYPES.length)]);
 	}
 
 	update() {
@@ -57,48 +72,32 @@ export class Game {
 	}
 
 	getGameObjects() {
-		return {
-			player1: {
-				name: 'player1',
-				position: [0, 0],
-				sprite: 'samurai',
-				health: 100,
-				animation: 'walk',
-				direction: 'left'
-			},
-			player2: {
-				name: 'player2',
-				position: [100, 100],
-				sprite: 'samuraiarcher',
-				health: 100,
-				animation: 'idle',
-				direction: 'right'
-			},
-			player3: {
-				name: 'player3',
-				position: [200, 0],
-				sprite: 'samuraicommander',
-				health: 100,
-				animation: 'idle',
-				direction: 'left'
-			},
-			enemy1: {
-				name: 'enemy1',
-				position: [300, 150],
-				sprite: 'whitewerewolf',
-				health: 50,
-				animation: 'idle',
-				direction: 'right'
-			},
-			enemy2: {
-				name: 'enemy2',
-				position: [-200, -250],
-				sprite: 'redwerewolf',
-				health: 80,
-				animation: 'run',
-				direction: 'right'
-			}
+		// Return a list of all game objects
+		const gameObjects = {};
+		for (const id in this.players) {
+			const player = this.players[id];
+			gameObjects[id] = {
+				name: player.name,
+				position: [player.x, player.y],
+				sprite: player.type,
+				health: player.health,
+				animation: player.animation,
+				direction: player.direction.x > 0 ? 'right' : 'left'
+			};
 		}
+
+		this.enemies.forEach((e) => {
+			gameObjects[e.id] = {
+				name: e.name,
+				position: [e.x, e.y],
+				sprite: e.type,
+				health: e.health,
+				animation: e.animation,
+				direction: e.direction.x > 0 ? 'right' : 'left'
+			};
+		});
+
+		return gameObjects;
 	}
 
 	getGameState() {
@@ -110,7 +109,7 @@ export class Game {
 	}
 
 	addPlayer(socket) {
-		this.players[socket.id] = new Player(socket);
+		this.players[socket.id] = new ServerPlayer(socket);
 
 		socket.on('input', (action) => {
 			this.handleInput(socket, action);
@@ -122,35 +121,44 @@ export class Game {
 	}
 
 	handleInput(socket, action) {
-		if (this.players[socket.id]) {
+		const player = this.players[socket.id];
+		if (player) {
 			console.log(`Player '${socket.username}' performed action '${action}'`)
 			switch (action) {
 				case 'move_left':
-					this.players[socket.id].direction = { x: -1, y: 0 };
+					player.direction = { x: -1, y: 0 };
+					player.doMove = true;
 					break;
 				case 'move_right':
-					this.players[socket.id].direction = { x: 1, y: 0 };
+					player.direction = { x: 1, y: 0 };
+					player.doMove = true;
 					break;
 				case 'move_up':
-					this.players[socket.id].direction = { x: 0, y: -1 };
+					player.direction = { x: 0, y: -1 };
+					player.doMove = true;
 					break;
 				case 'move_up_left':
-					this.players[socket.id].direction = { x: -1, y: -1 };
+					player.direction = { x: -1, y: -1 };
+					player.doMove = true;
 					break;
 				case 'move_up_right':
-					this.players[socket.id].direction = { x: 1, y: -1 };
+					player.direction = { x: 1, y: -1 };
+					player.doMove = true;
 					break;
 				case 'move_down':
-					this.players[socket.id].direction = { x: 0, y: 1 };
+					player.direction = { x: 0, y: 1 };
+					player.doMove = true;
 					break;
 				case 'move_down_left':
-					this.players[socket.id].direction = { x: -1, y: 1 };
+					player.direction = { x: -1, y: 1 };
+					player.doMove = true;
 					break;
 				case 'move_down_right':
-					this.players[socket.id].direction = { x: 1, y: 1 };
+					player.direction = { x: 1, y: 1 };
+					player.doMove = true;
 					break;
 				case 'attack':
-					this.players[socket.id].doAttack = true;
+					player.doAttack = true;
 					break;
 				default:
 					break;
