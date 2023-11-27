@@ -155,7 +155,7 @@ class ServerEnemy extends ServerEntity {
 		// if we are within range, we attack
 		if (distance < this.range) {
 			// send action to browser to play audio
-			// this.socket.
+			player.socket.emit('player_hurt');
 
 			this.animation = 'attack';
 			const now = Date.now();
