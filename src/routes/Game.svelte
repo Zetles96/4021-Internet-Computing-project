@@ -74,10 +74,18 @@
 	const grassTile = new Image();
 	grassTile.src = GrassTile;
 
-	// Create background music and other sounds
+	// Create background music
 	const background_music = new Audio('/src/lib/sounds/background_music.mp3');
-	const player_walk = new Audio('/src/lib/sounds/human/human-walking.mp3');
-	player_walk.loop = true;
+	// Create player sounds
+	const player_sounds = {
+		walk: new Audio('/src/lib/sounds/human/human-walking.mp3'),
+		hurt: new Audio('/src/lib/sounds/human/human-hurt.mp3'),
+		die: new Audio('/src/lib/sounds/human/human-scream1.mp3'),
+		attack: new Audio('/src/lib/sounds/effects/swoosh6.mp3'),
+	};
+	player_sounds.walk.loop = true;
+	player_sounds.attack.volume = 0.5; 
+
 
 	/**
 	 * For some reason JavaScript makes negative input negative output for modulo...
@@ -311,50 +319,56 @@
 				Object.keys(currentKeysMap).forEach(key => delete currentKeysMap[key]);
 			}
 
+			// Attack
+			if (currentKeysMap[' ']) {
+				player_sounds.attack.play();
+				// TODO: add attack animation
+			}
+
 			// Movement
 			const player_move_distance = 5;
 			if (currentKeysMap['ArrowUp'] || currentKeysMap['w'] || currentKeysMap['W']) {
 				player_pos[1] -= player_move_distance;
-				player_walk.play();
+				player_sounds.walk.play();
 				// If up and left
 				if (currentKeysMap['ArrowLeft'] || currentKeysMap['a'] || currentKeysMap['A']) {
 					sendPlayerAction('move_up_left');
 					player_pos[0] -= player_move_distance;
-					player_walk.play();
+					player_sounds.walk.play();
 				}
 				// If up and right
 				else if (currentKeysMap['ArrowRight'] || currentKeysMap['d'] || currentKeysMap['D']) {
 					sendPlayerAction('move_up_right');
 					player_pos[0] += player_move_distance;
-					player_walk.play();
+					player_sounds.walk.play();
 				} else {
 					sendPlayerAction('move_up');
 				}
 			} else if (currentKeysMap['ArrowDown'] || currentKeysMap['s'] || currentKeysMap['S']) {
 				player_pos[1] += player_move_distance;
-				player_walk.play();
+				player_sounds.walk.play();
 				if (currentKeysMap['ArrowLeft'] || currentKeysMap['a'] || currentKeysMap['A']) {
 					sendPlayerAction('move_down_left');
 					player_pos[0] -= player_move_distance;
-					player_walk.play();
+					player_sounds.walk.play();
 				} else if (currentKeysMap['ArrowRight'] || currentKeysMap['d'] || currentKeysMap['D']) {
 					sendPlayerAction('move_down_right');
 					player_pos[0] += player_move_distance;
-					player_walk.play();
+					player_sounds.walk.play();
 				} else {
 					sendPlayerAction('move_down');
 				}
 			} else if (currentKeysMap['ArrowLeft'] || currentKeysMap['a'] || currentKeysMap['A']) {
 				sendPlayerAction('move_left');
 				player_pos[0] -= player_move_distance;
-				player_walk.play();
+				player_sounds.walk.play();
 			} else if (currentKeysMap['ArrowRight'] || currentKeysMap['d'] || currentKeysMap['D']) {
 				sendPlayerAction('move_down_right');
 				player_pos[0] += player_move_distance;
-				player_walk.play();
+				player_sounds.walk.play();
 			}
 			if (e.type === 'keyup') { // disable player walk noise when stop
-				player_walk.pause();	
+				player_sounds.walk.pause();	
 			}
 		}
 	};
@@ -373,7 +387,7 @@
 
 		// play background music
 		background_music.currentTime = 2.5; // start at 2.5s
-		background_music.loop = true;
+		background_music.loop = true; // loop endlessly
 		background_music.volume = 0.5; // lower volume
 		background_music.play();
 
