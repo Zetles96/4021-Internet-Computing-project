@@ -2,6 +2,22 @@
 
 This is the final project for course COMP 4021 Internet Computing, at the Hong Kong University of Science and Technology.
 
+# Run the game
+
+To run the game you firstly have to install all the required dependencies.
+
+```bash
+npm i
+```
+
+When all the dependencies are installed you can run game.
+
+```bash
+npm run dev
+```
+
+Then the game should be running on <http://localhost:8000>.
+
 ## Project Details
 
 The title of the game is _Slasher_, which is a competitive Hack and Slash 2D game, about who can slash the most entities within the time limit.
@@ -52,12 +68,11 @@ The game over page is simply a modal which slides into the view on top of the ga
 
 The following cheats are supported in the game:
 
--   Speed modification (increase or decrease movement speed)
--   Health modification (increase or decrease max and current health)
--   Damage modification (increase or decrease damage)
--   KillCount modificaiton (set kill count)
--   Kill (kill other players instantly)
--   Time modification (set amount of time left)
--   Range (modify attack range)
+-   Increase speed
+-   Increase health
+-   Increase dammage
+-   Instant kill
+-   Increase range
+-   Godmode
 
-Cheats can be enabled in the Cheat Menu Modal which can be toggled using the 'å' key (yes you need a Danish keyboard layout to type that, it is part of the fun!).
+Cheats can be enabled in the Cheat Menu Modal which can be toggled using the 'c' key.
