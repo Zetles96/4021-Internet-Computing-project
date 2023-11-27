@@ -313,11 +313,4 @@ class Yurei extends Enemy {
 	}
 }
 
-export {
-	WhiteWerewolf,
-	BlackWerewolf,
-	RedWerewolf,
-	Gotoku,
-	Onre,
-	Yurei
-};
+export { WhiteWerewolf, BlackWerewolf, RedWerewolf, Gotoku, Onre, Yurei };

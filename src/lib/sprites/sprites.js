@@ -313,7 +313,6 @@ const Sprite = function (ctx, x, y) {
 	};
 };
 
-
 /**
  * Creates a player character.
  * @param {CanvasRenderingContext2D} ctx - A canvas rendering context for drawing.
@@ -538,7 +537,7 @@ class Entity {
 	}
 
 	getText() {
-		return this.name + (this.health > 0 ? " [" + Math.floor(this.health) + "]" : "");
+		return this.name + (this.health > 0 ? ' [' + Math.floor(this.health) + ']' : '');
 	}
 
 	/**
@@ -576,7 +575,6 @@ class Player extends Entity {
 	}
 }
 
-
 /**
  * Creates an enemy entity.
  * @param {CanvasRenderingContext2D} ctx - A canvas rendering context for drawing.
@@ -592,13 +590,8 @@ class Enemy extends Entity {
 	}
 
 	getText() {
-		return this.health > 0 ? "[" + Math.floor(this.health) + "]" : "";
+		return this.health > 0 ? '[' + Math.floor(this.health) + ']' : '';
 	}
 }
 
-export {
-	Sprite,
-	Entity,
-	Player,
-	Enemy,
-};
+export { Sprite, Entity, Player, Enemy };

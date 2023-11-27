@@ -23,7 +23,7 @@ class Samurai extends Player {
 				width: 128,
 				height: 128,
 				count: 4,
-				timing: Math.floor(250/4),
+				timing: Math.floor(250 / 4),
 				loop: false
 			},
 			attack_2: {
@@ -32,7 +32,7 @@ class Samurai extends Player {
 				width: 128,
 				height: 128,
 				count: 5,
-				timing: Math.floor(250/5),
+				timing: Math.floor(250 / 5),
 				loop: false
 			},
 			attack_3: {
@@ -41,7 +41,7 @@ class Samurai extends Player {
 				width: 128,
 				height: 128,
 				count: 4,
-				timing: Math.floor(250/4),
+				timing: Math.floor(250 / 4),
 				loop: false
 			},
 			dead: { x: 0, y: 128 * 4, width: 128, height: 128, count: 6, timing: 50, loop: false },
@@ -83,7 +83,7 @@ class SamuraiArcher extends Player {
 				width: 128,
 				height: 128,
 				count: 5,
-				timing: Math.floor(250/5),
+				timing: Math.floor(250 / 5),
 				loop: false
 			},
 			attack_2: {
@@ -92,7 +92,7 @@ class SamuraiArcher extends Player {
 				width: 128,
 				height: 128,
 				count: 5,
-				timing: Math.floor(250/5),
+				timing: Math.floor(250 / 5),
 				loop: false
 			},
 			attack_3: {
@@ -101,7 +101,7 @@ class SamuraiArcher extends Player {
 				width: 128,
 				height: 128,
 				count: 6,
-				timing: Math.floor(250/6),
+				timing: Math.floor(250 / 6),
 				loop: false
 			},
 			dead: { x: 0, y: 128 * 4, width: 128, height: 128, count: 5, timing: 50, loop: false },
@@ -134,7 +134,7 @@ class SamuraiCommander extends Player {
 				width: 128,
 				height: 128,
 				count: 4,
-				timing: Math.floor(250/4),
+				timing: Math.floor(250 / 4),
 				loop: false
 			},
 			attack_2: {
@@ -143,7 +143,7 @@ class SamuraiCommander extends Player {
 				width: 128,
 				height: 128,
 				count: 5,
-				timing: Math.floor(250/5),
+				timing: Math.floor(250 / 5),
 				loop: false
 			},
 			attack_3: {
@@ -152,7 +152,7 @@ class SamuraiCommander extends Player {
 				width: 128,
 				height: 128,
 				count: 4,
-				timing: Math.floor(250/4),
+				timing: Math.floor(250 / 4),
 				loop: false
 			},
 			dead: { x: 0, y: 128 * 4, width: 128, height: 128, count: 6, timing: 50, loop: false },

@@ -38,7 +38,7 @@ class ServerPlayer extends ServerEntity {
 		this.doAttack = false;
 		this.doMove = false;
 		this.lastAction = Date.now();
-		this.damage = 100/3;
+		this.damage = 100 / 3;
 		this.range = 32;
 		this.attackCooldown = 300;
 
@@ -50,13 +50,13 @@ class ServerPlayer extends ServerEntity {
 
 	update(enemies) {
 		if (this.health <= 0) {
-			this.animation = "dead";
-			return
+			this.animation = 'dead';
+			return;
 		}
 
 		if (this.doMove) {
 			this.doMove = false;
-			this.animation = "walk";
+			this.animation = 'walk';
 			this.x += this.direction.x * 16;
 			this.y += this.direction.y * 16;
 			this.lastAction = Date.now();
@@ -72,13 +72,13 @@ class ServerPlayer extends ServerEntity {
 				e.health -= this.damage;
 				if (e.health <= 0) {
 					e.health = 0;
-					e.animation = "dead";
+					e.animation = 'dead';
 					this.score += e.worth;
 				}
 			});
 		}
 
-		if ((Date.now() - this.lastAction) > this.attackCooldown) {
+		if (Date.now() - this.lastAction > this.attackCooldown) {
 			this.animation = 'idle';
 		}
 	}
@@ -118,7 +118,7 @@ class ServerEnemy extends ServerEntity {
 	update(player) {
 		// if own health is 0, we don't do anything
 		if (this.health <= 0) {
-			this.animation = "dead";
+			this.animation = 'dead';
 			return;
 		}
 
@@ -149,11 +149,11 @@ class ServerEnemy extends ServerEntity {
 
 		// if we are within range, we attack
 		if (distance < this.range) {
-			this.animation = "attack";
+			this.animation = 'attack';
 			const now = Date.now();
 
 			// If we are within attack cooldown, we don't attack
-			if ((now - this.lastAttack) < this.attackCooldown) {
+			if (now - this.lastAttack < this.attackCooldown) {
 				return;
 			}
 
@@ -161,7 +161,7 @@ class ServerEnemy extends ServerEntity {
 			player.health -= this.damage;
 			if (player.health <= 0) {
 				player.health = 0;
-				player.animation = "dead";
+				player.animation = 'dead';
 			}
 			return;
 		}

@@ -35,7 +35,10 @@ export const webSocketServer = {
 			socket.on('joinGame', () => {
 				let game = null;
 				for (const game_obj in games) {
-					if (games[game_obj].status === 'waiting' && games[game_obj].players.length < 4) {
+					if (
+						games[game_obj].status === 'waiting' &&
+						games[game_obj].players.length < 4
+					) {
 						game = games[game_obj];
 						break;
 					}

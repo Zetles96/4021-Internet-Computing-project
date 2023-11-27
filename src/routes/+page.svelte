@@ -32,19 +32,19 @@
 
 <svelte:head>
 	<title>Slasher</title>
-	<meta name='description' content='A Slashing game' />
+	<meta name="description" content="A Slashing game" />
 </svelte:head>
 
-<div class='flex flex-col'>
+<div class="flex flex-col">
 	{#if !playing}
-		<section class='flex flex-col h-screen'>
+		<section class="flex flex-col h-screen">
 			<!-- Header showing title of the game on main menu -->
-			<h1 class='title flex justify-center'>SLASHER</h1>
+			<h1 class="title flex justify-center">SLASHER</h1>
 
-			<div class='flex flex-col h-full pb-2'>
+			<div class="flex flex-col h-full pb-2">
 				<Modal>
 					{#if !logged_in}
-						<Login form={form} />
+						<Login {form} />
 					{:else}
 						<Menu
 							user={data.user}
@@ -60,11 +60,11 @@
 	{/if}
 </div>
 
-<style lang='postcss'>
-    .title {
-        font-size: 5rem;
-        text-align: center;
-        padding-top: 1rem;
-        padding-bottom: 1rem;
-    }
+<style lang="postcss">
+	.title {
+		font-size: 5rem;
+		text-align: center;
+		padding-top: 1rem;
+		padding-bottom: 1rem;
+	}
 </style>

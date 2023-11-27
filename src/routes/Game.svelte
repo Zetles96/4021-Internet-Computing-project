@@ -2,11 +2,7 @@
 	import { createEventDispatcher, onMount } from 'svelte';
 	import Cheats from './Cheats.svelte'; // TEMP
 	import { io } from 'socket.io-client';
-	import {
-		Samurai,
-		SamuraiArcher,
-		SamuraiCommander,
-	} from '$lib/sprites/players.js';
+	import { Samurai, SamuraiArcher, SamuraiCommander } from '$lib/sprites/players.js';
 	import {
 		RedWerewolf,
 		BlackWerewolf,
@@ -28,7 +24,7 @@
 	export let token;
 
 	const socket = io('http://localhost:8000', {
-		query: {token}
+		query: { token }
 	});
 
 	socket.emit('joinGame');
@@ -120,7 +116,6 @@
 		console.debug('Sending player action: ', action);
 		socket.emit('input', action);
 	}
-
 
 	/**
 	 * Update the game state from the server
@@ -227,7 +222,10 @@
 				gameStateEntities[id].setPosition(entity.position[0], entity.position[1]);
 				// animations might be given as strings like 'animation_direction', so we have to split them
 				const animation = entity.animation.split('_');
-				gameStateEntities[id].setAnimation(animation[0], entity.direction ? entity.direction : animation[1]);
+				gameStateEntities[id].setAnimation(
+					animation[0],
+					entity.direction ? entity.direction : animation[1]
+				);
 			}
 
 			// Adjust all game state objects' locations to be fixed around the player
@@ -250,7 +248,8 @@
 	 * @param {KeyboardEvent} e
 	 */
 	const handleKeys = (e) => {
-		if (!showCheats) { // if cheats page is not open
+		if (!showCheats) {
+			// if cheats page is not open
 			e.stopPropagation();
 
 			// console.debug('Key pressed: ', e.key);
@@ -261,10 +260,11 @@
 			if (currentKeysMap['Escape']) {
 				isPlaying = false;
 				toMenu();
-			} else if (currentKeysMap['c']) { // open cheats page
+			} else if (currentKeysMap['c']) {
+				// open cheats page
 				showCheats = true;
 				// clear the key presses (keyup doesn't trigger when cheat page opens?)
-				Object.keys(currentKeysMap).forEach(key => delete currentKeysMap[key]);
+				Object.keys(currentKeysMap).forEach((key) => delete currentKeysMap[key]);
 			}
 			if (currentKeysMap[' ']) {
 				sendPlayerAction('attack');
@@ -277,7 +277,11 @@
 					sendPlayerAction('move_up_left');
 				}
 				// If up and right
-				else if (currentKeysMap['ArrowRight'] || currentKeysMap['d'] || currentKeysMap['D']) {
+				else if (
+					currentKeysMap['ArrowRight'] ||
+					currentKeysMap['d'] ||
+					currentKeysMap['D']
+				) {
 					sendPlayerAction('move_up_right');
 				} else {
 					sendPlayerAction('move_up');
@@ -285,7 +289,11 @@
 			} else if (currentKeysMap['ArrowDown'] || currentKeysMap['s'] || currentKeysMap['S']) {
 				if (currentKeysMap['ArrowLeft'] || currentKeysMap['a'] || currentKeysMap['A']) {
 					sendPlayerAction('move_down_left');
-				} else if (currentKeysMap['ArrowRight'] || currentKeysMap['d'] || currentKeysMap['D']) {
+				} else if (
+					currentKeysMap['ArrowRight'] ||
+					currentKeysMap['d'] ||
+					currentKeysMap['D']
+				) {
 					sendPlayerAction('move_down_right');
 				} else {
 					sendPlayerAction('move_down');
@@ -428,18 +436,15 @@
 </script>
 
 <div>
-	<div class='gamecontainer w-screen h-screen'>
+	<div class="gamecontainer w-screen h-screen">
 		<canvas bind:this={canvas} />
 	</div>
-	<div class='overlay w-screen h-screen flex flex-col items-center p-3'>
-		<p class='status'>{gameState.message}</p>
+	<div class="overlay w-screen h-screen flex flex-col items-center p-3">
+		<p class="status">{gameState.message}</p>
 		{#if showCheats}
-			<Cheats on:close={() => showCheats = false} />
+			<Cheats on:close={() => (showCheats = false)} />
 		{:else if gameState.status === 'game_over'}
-			<GameOver
-				on:close={toMenu}
-				on:playAgain={toMenu}
-			/>
+			<GameOver on:close={toMenu} on:playAgain={toMenu} />
 		{/if}
 		<!-- <button class='backbutton' on:click={toMenu}>Back to Menu</button> -->
 		<!--		<button class='gameOver' on:click={toGameOver}>Game Over</button>-->
@@ -447,10 +452,10 @@
 	</div>
 </div>
 
-<style lang='postcss'>
-    .overlay {
-        position: absolute;
-        right: 0;
-        top: 0;
-    }
+<style lang="postcss">
+	.overlay {
+		position: absolute;
+		right: 0;
+		top: 0;
+	}
 </style>
