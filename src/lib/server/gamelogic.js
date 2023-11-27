@@ -1,10 +1,9 @@
 const TPS = 20;
-const GAME_TIME = 60*2; // 2 minutes
+const GAME_TIME = 60 * 2; // 2 minutes
 const WAIT_TIME = 10;
 
-const PLAYER_TYPES = ["samurai", "samuraiarcher", "samuraicommander"]
-const ENEMY_TYPES = ["whitewerewolf", "redwerewolf", "blackwerewolf", "gotoku", "onre", "yurei"]
-
+const PLAYER_TYPES = ['samurai', 'samuraiarcher', 'samuraicommander'];
+const ENEMY_TYPES = ['whitewerewolf', 'redwerewolf', 'blackwerewolf', 'gotoku', 'onre', 'yurei'];
 
 class ServerEntity {
 	constructor(id, name, x, y, type) {
@@ -14,14 +13,20 @@ class ServerEntity {
 		this.y = y;
 		this.type = type;
 		this.health = 100;
-		this.animation = "idle";
+		this.animation = 'idle';
 		this.direction = { x: 0, y: 0 };
 	}
 }
 
 class ServerPlayer extends ServerEntity {
 	constructor(socket) {
-		super(socket.id, socket.username, 0, 0, PLAYER_TYPES[Math.floor(Math.random() * PLAYER_TYPES.length)]);
+		super(
+			socket.id,
+			socket.username,
+			0,
+			0,
+			PLAYER_TYPES[Math.floor(Math.random() * PLAYER_TYPES.length)]
+		);
 		this.socket = socket;
 
 		this.doAttack = false;
@@ -35,20 +40,29 @@ class ServerPlayer extends ServerEntity {
 
 	update() {
 		if (this.doMove) {
-			this.animation = "walk";
+			this.animation = 'walk';
 			this.x += this.direction.x * 16;
 			this.y += this.direction.y * 16;
 			this.doMove = false;
 		}
-		else {
-			this.animation = "idle";
+		if (this.doAttack) {
+			this.animation = 'attack';
+			this.doAttack = false;
+		} else {
+			this.animation = 'idle';
 		}
 	}
 }
 
 class ServerEnemy extends ServerEntity {
 	constructor(x, y) {
-		super(Math.random().toString(36).substring(7), "", x, y, ENEMY_TYPES[Math.floor(Math.random() * ENEMY_TYPES.length)]);
+		super(
+			Math.random().toString(36).substring(7),
+			'',
+			x,
+			y,
+			ENEMY_TYPES[Math.floor(Math.random() * ENEMY_TYPES.length)]
+		);
 	}
 
 	update() {
@@ -56,7 +70,6 @@ class ServerEnemy extends ServerEntity {
 		this.y += Math.random() * 16;
 	}
 }
-
 
 export class Game {
 	constructor(io) {
@@ -104,7 +117,7 @@ export class Game {
 		return {
 			status: this.status,
 			message: this.message,
-			game_objects: this.getGameObjects(),
+			game_objects: this.getGameObjects()
 		};
 	}
 
@@ -123,7 +136,7 @@ export class Game {
 	handleInput(socket, action) {
 		const player = this.players[socket.id];
 		if (player) {
-			console.log(`Player '${socket.username}' performed action '${action}'`)
+			console.log(`Player '${socket.username}' performed action '${action}'`);
 			switch (action) {
 				case 'move_left':
 					player.direction = { x: -1, y: 0 };
@@ -175,9 +188,10 @@ export class Game {
 
 	update() {
 		const now = Date.now();
+		const playerRange = 16;
 
 		// Don't update game state if we are within the same tick
-		if ((now - this.lastUpdateTime) < 1000 / TPS) {
+		if (now - this.lastUpdateTime < 1000 / TPS) {
 			return;
 		}
 		this.lastUpdateTime = now;
@@ -188,20 +202,47 @@ export class Game {
 			if (seconds > WAIT_TIME) {
 				this.status = 'playing';
 				this.message = 'Game started';
+			} else {
+				this.message = `Waiting for players: ${Math.floor(
+					WAIT_TIME - seconds
+				)} seconds remaining`;
 			}
-			else {
-				this.message = `Waiting for players: ${Math.floor(WAIT_TIME - seconds)} seconds remaining`;
-			}
-		}
-		else if (seconds > GAME_TIME + WAIT_TIME) {
+		} else if (seconds > GAME_TIME + WAIT_TIME) {
 			this.status = 'ended';
 			this.message = 'Game ended';
 			this.sendUpdate();
 			return;
-		}
-		else {
+		} else {
 			for (const id in this.players) {
 				const player = this.players[id];
+				if (player.doAttack) {
+					this.enemies.forEach((e) => {
+						switch (player.direction) {
+							case player.x < 0:
+								if (e.x < player.x && e.x > player.x - playerRange) {
+									e.health -= 10;
+								}
+								break;
+							case player.x > 0:
+								if (e.x > player.x && e.x < player.x + playerRange) {
+									e.health -= 10;
+								}
+								break;
+							case player.direction.y < 0:
+								if (e.y < player.y && e.y > player.y - playerRange) {
+									e.health -= 10;
+								}
+								break;
+							case player.direction.y > 0:
+								if (e.y > player.y && e.y < player.y + playerRange) {
+									e.health -= 10;
+								}
+								break;
+							default:
+								break;
+						}
+					});
+				}
 				player.update();
 			}
 			this.enemies.forEach((e) => e.update());

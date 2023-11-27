@@ -6,7 +6,7 @@
 		Samurai,
 		SamuraiArcher,
 		SamuraiCommander,
-	} from '$lib/javascript/players.js';
+	} from '$lib/sprites/players.js';
 	import {
 		RedWerewolf,
 		BlackWerewolf,
@@ -14,9 +14,9 @@
 		Yurei,
 		Gotoku,
 		Onre
-	} from '$lib/javascript/enemies.js';
+	} from '$lib/sprites/enemies.js';
 	// Ignore this error
-	import { Entity } from '$lib/javascript/sprites.js';
+	import { Entity } from '$lib/sprites/sprites.js';
 
 	import GrassTile from '$lib/images/grasstile.png';
 	import GameOver from './GameOver.svelte';
@@ -265,7 +265,9 @@
 				// clear the key presses (keyup doesn't trigger when cheat page opens?)
 				Object.keys(currentKeysMap).forEach(key => delete currentKeysMap[key]);
 			}
-
+			if (currentKeysMap[' ']) {
+				sendPlayerAction('attack');
+			}
 			// Movement
 			const player_move_distance = 5;
 			if (currentKeysMap['ArrowUp'] || currentKeysMap['w'] || currentKeysMap['W']) {
