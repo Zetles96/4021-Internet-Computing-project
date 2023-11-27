@@ -49,12 +49,59 @@ class ServerPlayer extends ServerEntity {
 class ServerEnemy extends ServerEntity {
 	constructor(x, y) {
 		super(Math.random().toString(36).substring(7), "", x, y, ENEMY_TYPES[Math.floor(Math.random() * ENEMY_TYPES.length)]);
+		switch (this.type) {
+			case "yurei":
+			case "onre":
+			case "gotoku":
+				this.damage = 20;
+				break;
+			default:
+				this.damage = 10;
+				break;
+		}
+		this.simulation_distance = 300;
+		// generate random speed between 2 and 8
+		this.speed = Math.random() * (8 - 2) + 2;
 	}
 
-	update() {
-		// TODO: put enemie movement back
-		// this.x += Math.random() * 16;
-		// this.y += Math.random() * 16;
+	/**
+	 * Updates enemy, making it move and attack the player given.
+	 * @param {ServerPlayer} player - The player to attack.
+	 */
+	update(player) {
+		const distance = Math.sqrt((this.x - player.x) ** 2 + (this.y - player.y) ** 2);
+
+		// If we are outside of simulation distance, we don't do anything
+		if (distance > this.simulation_distance) {
+			this.animation = "idle";
+			return;
+		}
+
+		this.direction = { x: 0, y: 0 };
+		if (this.x < player.x) {
+			this.direction.x = 1;
+		}
+		else if (this.x > player.x) {
+			this.direction.x = -1;
+		}
+		if (this.y < player.y) {
+			this.direction.y = 1;
+		}
+		else if (this.y > player.y) {
+			this.direction.y = -1;
+		}
+
+		// if we are within range, we attack
+		if (distance < 16) {
+			this.animation = "attack";
+			player.health -= this.damage;
+			return;
+		}
+
+		// We move towards the player
+		this.animation = "walk";
+		this.x += this.direction.x * this.speed;
+		this.y += this.direction.y * this.speed;
 	}
 }
 
@@ -145,7 +192,6 @@ export class Game {
 	handleInput(socket, action) {
 		const player = this.players[socket.id];
 		if (player) {
-			console.log(`Player '${socket.username}' performed action '${action}'`)
 			switch (action) {
 				case 'move_left':
 					player.direction = { x: -1, y: 0 };
@@ -226,7 +272,20 @@ export class Game {
 				const player = this.players[id];
 				player.update();
 			}
-			this.enemies.forEach((e) => e.update());
+			this.enemies.forEach((e) => {
+				// Find the closest player
+				let closestPlayer = null;
+				let closestDistance = Infinity;
+				for (const id in this.players) {
+					const player = this.players[id];
+					const distance = Math.sqrt((e.x - player.x) ** 2 + (e.y - player.y) ** 2);
+					if (distance < closestDistance) {
+						closestDistance = distance;
+						closestPlayer = player;
+					}
+				}
+				e.update(closestPlayer);
+			});
 		}
 
 		this.sendUpdate();
