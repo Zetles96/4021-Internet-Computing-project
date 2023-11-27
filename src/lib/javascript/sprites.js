@@ -544,7 +544,7 @@ class Entity {
 		this.ctx.fillStyle = 'black';
 		this.ctx.textAlign = 'center';
 		this.ctx.fillText(
-			name,
+			this.name,
 			this.sprite.getXYCanvas().x,
 			this.sprite.getXYCanvas().y + this.sprite.getDisplaySize().height / 2 + 16
 		);
