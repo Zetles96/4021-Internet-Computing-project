@@ -1,7 +1,7 @@
 import SamuraiSpritesheet from '$lib/images/Samurai/Spritesheet.png';
 import SamuraiArcherSpritesheet from '$lib/images/Samurai_Archer/Spritesheet.png';
 import SamuraiCommanderSpritesheet from '$lib/images/Samurai_Commander/Spritesheet.png';
-import { Player } from '$lib/javascript/sprites.js';
+import { Player } from '$lib/sprites/sprites.js';
 
 /**
  * Creates a Samurai player character.
@@ -24,7 +24,7 @@ class Samurai extends Player {
 				height: 128,
 				count: 4,
 				timing: 50,
-				loop: true
+				loop: false
 			},
 			attack_2: {
 				x: 0,
@@ -33,7 +33,7 @@ class Samurai extends Player {
 				height: 128,
 				count: 5,
 				timing: 50,
-				loop: true
+				loop: false
 			},
 			attack_3: {
 				x: 0,
@@ -42,7 +42,7 @@ class Samurai extends Player {
 				height: 128,
 				count: 4,
 				timing: 50,
-				loop: true
+				loop: false
 			},
 			dead: { x: 0, y: 128 * 4, width: 128, height: 128, count: 6, timing: 50, loop: false },
 			hurt: { x: 0, y: 128 * 5, width: 128, height: 128, count: 3, timing: 50, loop: true },
@@ -173,8 +173,4 @@ class SamuraiCommander extends Player {
 	}
 }
 
-export {
-	Samurai,
-	SamuraiArcher,
-	SamuraiCommander
-};
+export { Samurai, SamuraiArcher, SamuraiCommander };

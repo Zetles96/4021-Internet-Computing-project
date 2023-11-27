@@ -5,7 +5,7 @@ import GotokuSpritesheet from '$lib/images/Gotoku/Spritesheet.png';
 import OnreSpritesheet from '$lib/images/Onre/Spritesheet.png';
 import YureiSpritesheet from '$lib/images/Yurei/Spritesheet.png';
 
-import { Enemy } from '$lib/javascript/sprites.js';
+import { Enemy } from '$lib/sprites/sprites.js';
 
 /**
  * Creates a White Werewolf enemy.

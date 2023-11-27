@@ -1,10 +1,9 @@
 const TPS = 20;
-const GAME_TIME = 60*2; // 2 minutes
+const GAME_TIME = 60 * 2; // 2 minutes
 const WAIT_TIME = 10;
 
-const PLAYER_TYPES = ["samurai", "samuraiarcher", "samuraicommander"]
-const ENEMY_TYPES = ["whitewerewolf", "redwerewolf", "blackwerewolf", "gotoku", "onre", "yurei"]
-
+const PLAYER_TYPES = ['samurai', 'samuraiarcher', 'samuraicommander'];
+const ENEMY_TYPES = ['whitewerewolf', 'redwerewolf', 'blackwerewolf', 'gotoku', 'onre', 'yurei'];
 
 class ServerEntity {
 	constructor(id, name, x, y, type) {
@@ -14,7 +13,7 @@ class ServerEntity {
 		this.y = y;
 		this.type = type;
 		this.health = 100;
-		this.animation = "idle";
+		this.animation = 'idle';
 		this.direction = { x: 0, y: 0 };
 		this.lastAttack = Date.now();
 		this.attackCooldown = 1000;
@@ -23,7 +22,13 @@ class ServerEntity {
 
 class ServerPlayer extends ServerEntity {
 	constructor(socket) {
-		super(socket.id, socket.username, 0, 0, PLAYER_TYPES[Math.floor(Math.random() * PLAYER_TYPES.length)]);
+		super(
+			socket.id,
+			socket.username,
+			0,
+			0,
+			PLAYER_TYPES[Math.floor(Math.random() * PLAYER_TYPES.length)]
+		);
 		this.socket = socket;
 
 		this.doAttack = false;
@@ -45,19 +50,28 @@ class ServerPlayer extends ServerEntity {
 			this.y += this.direction.y * 16;
 			this.doMove = false;
 		}
-		else {
-			this.animation = "idle";
+		if (this.doAttack) {
+			this.animation = 'attack';
+			this.doAttack = false;
+		} else {
+			this.animation = 'idle';
 		}
 	}
 }
 
 class ServerEnemy extends ServerEntity {
 	constructor(x, y) {
-		super(Math.random().toString(36).substring(7), "", x, y, ENEMY_TYPES[Math.floor(Math.random() * ENEMY_TYPES.length)]);
+		super(
+			Math.random().toString(36).substring(7),
+			'',
+			x,
+			y,
+			ENEMY_TYPES[Math.floor(Math.random() * ENEMY_TYPES.length)]
+		);
 		switch (this.type) {
-			case "yurei":
-			case "onre":
-			case "gotoku":
+			case 'yurei':
+			case 'onre':
+			case 'gotoku':
 				this.damage = 20;
 				break;
 			default:
@@ -86,21 +100,19 @@ class ServerEnemy extends ServerEntity {
 
 		// If we are outside of simulation distance, we don't do anything
 		if (distance > this.simulation_distance) {
-			this.animation = "idle";
+			this.animation = 'idle';
 			return;
 		}
 
 		this.direction = { x: 0, y: 0 };
 		if (this.x < player.x) {
 			this.direction.x = 1;
-		}
-		else if (this.x > player.x) {
+		} else if (this.x > player.x) {
 			this.direction.x = -1;
 		}
 		if (this.y < player.y) {
 			this.direction.y = 1;
-		}
-		else if (this.y > player.y) {
+		} else if (this.y > player.y) {
 			this.direction.y = -1;
 		}
 
@@ -124,12 +136,11 @@ class ServerEnemy extends ServerEntity {
 		}
 
 		// We move towards the player
-		this.animation = "walk";
+		this.animation = 'walk';
 		this.x += this.direction.x * this.speed;
 		this.y += this.direction.y * this.speed;
 	}
 }
-
 
 export class Game {
 	constructor(io) {
@@ -198,7 +209,7 @@ export class Game {
 		return {
 			status: this.status,
 			message: this.message,
-			game_objects: this.getGameObjects(),
+			game_objects: this.getGameObjects()
 		};
 	}
 
@@ -269,9 +280,10 @@ export class Game {
 
 	update() {
 		const now = Date.now();
+		const playerRange = 16;
 
 		// Don't update game state if we are within the same tick
-		if ((now - this.lastUpdateTime) < 1000 / TPS) {
+		if (now - this.lastUpdateTime < 1000 / TPS) {
 			return;
 		}
 		this.lastUpdateTime = now;
@@ -282,20 +294,47 @@ export class Game {
 			if (seconds > WAIT_TIME) {
 				this.status = 'playing';
 				this.message = 'Game started';
+			} else {
+				this.message = `Waiting for players: ${Math.floor(
+					WAIT_TIME - seconds
+				)} seconds remaining`;
 			}
-			else {
-				this.message = `Waiting for players: ${Math.floor(WAIT_TIME - seconds)} seconds remaining`;
-			}
-		}
-		else if (seconds > GAME_TIME + WAIT_TIME) {
+		} else if (seconds > GAME_TIME + WAIT_TIME) {
 			this.status = 'ended';
 			this.message = 'Game ended';
 			this.sendUpdate();
 			return;
-		}
-		else {
+		} else {
 			for (const id in this.players) {
 				const player = this.players[id];
+				if (player.doAttack) {
+					this.enemies.forEach((e) => {
+						switch (player.direction) {
+							case player.x < 0:
+								if (e.x < player.x && e.x > player.x - playerRange) {
+									e.health -= 10;
+								}
+								break;
+							case player.x > 0:
+								if (e.x > player.x && e.x < player.x + playerRange) {
+									e.health -= 10;
+								}
+								break;
+							case player.direction.y < 0:
+								if (e.y < player.y && e.y > player.y - playerRange) {
+									e.health -= 10;
+								}
+								break;
+							case player.direction.y > 0:
+								if (e.y > player.y && e.y < player.y + playerRange) {
+									e.health -= 10;
+								}
+								break;
+							default:
+								break;
+						}
+					});
+				}
 				player.update();
 			}
 			this.enemies.forEach((e) => {
