@@ -133,7 +133,6 @@
 
     // player is attacking
     socket.on('player_attack', () => {
-        console.log("PLAYER ATTACKING");
         const player_attack = new Audio('/src/lib/sounds/effects/swoosh6.mp3');
         player_attack.volume = 0.5;
         player_attack.play();
@@ -144,31 +143,26 @@
     })
     // monster is attacking + player is attacked
     socket.on('monster_attack', (monster) => {
-        console.log("MONSTER ATTACK: , ", monster);
         player_hurt.play();
         switch (monster) {
             case 'redwerewolf':
             case 'whitewerewolf':
             case 'blackwerewolf':
-                console.log('werewolf!');
                 const werewolf_attack = new Audio('/src/lib/sounds/effects/swoosh1.mp3');
                 werewolf_attack.playbackRate = 1.5;
                 werewolf_attack.play();
                 break;
             case 'yurei':
-                console.log('yurei!');
                 const yurei_attack = new Audio('/src/lib/sounds/effects/woosh6.mp3');
                 yurei_attack.playbackRate = 1.5;
                 yurei_attack.play();
                 break;
             case 'gotoku':
-                console.log('gotoku!');
                 const gotoku_attack = new Audio('/src/lib/sounds/effects/woosh5.mp3');
                 gotoku_attack.playbackRate = 2;
                 gotoku_attack.play();
                 break;
             case 'onre':
-            console.log('onre!');
 
                 const onre_attack = new Audio('/src/lib/sounds/effects/woosh2.mp3');
                 onre_attack.playbackRate = 1.5;
@@ -180,7 +174,6 @@
     })
         // monster died
         socket.on('enemy_died', (monster) => {
-        console.log('ENEMY DIED: ', monster);
         switch (monster) {
             case 'redwerewolf' || 'whitewerewolf' || 'blackwerewolf':
                 const werewolf_dead = new Audio('/src/lib/sounds/wolf/wolf-howl.mp3');

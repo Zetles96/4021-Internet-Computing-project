@@ -175,10 +175,6 @@ class ServerEnemy extends ServerInteractable {
 			this.lastAttack = now;
 			player.health -= this.damage;
 			if (player.health <= 0) {
-				// send action to browser to play audio
-				// console.log("died 2");
-				// player.socket.emit('player_dead');
-
 				player.health = 0;
 				player.animation = 'dead';
 			}
