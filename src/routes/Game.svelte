@@ -1,6 +1,7 @@
 <script>
 	import { createEventDispatcher, onMount } from 'svelte';
 	import Cheats from './Cheats.svelte'; // TEMP
+	import { io } from 'socket.io-client';
 	import {
 		Samurai,
 		SamuraiArcher,
@@ -19,6 +20,12 @@
 
 	import GrassTile from '$lib/images/grasstile.png';
 	import GameOver from './GameOver.svelte';
+
+	const socket = io('http://localhost:8000');
+
+	socket.on('eventFromServer', (data) => {
+		console.log(data);
+	});
 
 	const dispatch = createEventDispatcher();
 
@@ -46,7 +53,7 @@
 	 * The raw gamestate from the server
 	 * @type {GameState}
 	 */
-	let gameState = {status: 'loading', message: 'Loading game...', game_objects: {}};
+	let gameState = { status: 'loading', message: 'Loading game...', game_objects: {} };
 
 	/**
 	 * Dictionary of all game objects with key being ID and value being the object
@@ -477,7 +484,7 @@
 			/>
 		{/if}
 		<!-- <button class='backbutton' on:click={toMenu}>Back to Menu</button> -->
-<!--		<button class='gameOver' on:click={toGameOver}>Game Over</button>-->
+		<!--		<button class='gameOver' on:click={toGameOver}>Game Over</button>-->
 		<!-- <button class='cheats' on:click={() => showCheats = true}>Cheats</button> -->
 	</div>
 </div>
