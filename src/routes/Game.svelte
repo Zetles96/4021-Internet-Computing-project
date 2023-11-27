@@ -1,6 +1,6 @@
 <script>
 	import { createEventDispatcher, onMount } from 'svelte';
-	import Cheats from './Cheats.svelte'; // TEMP
+	import Cheats from './Cheats.svelte';
 	import { io } from 'socket.io-client';
 	import {
 		Samurai,
@@ -28,6 +28,7 @@
 	socket.on('eventFromServer', (data) => {
 		console.log(data);
 	});
+	
 
 	const dispatch = createEventDispatcher();
 
@@ -67,11 +68,14 @@
 	let playerID = 'player1';
 
 	let isPlaying = false;
-	let showCheats = false; // TEMP
+	let showCheats = false;
 
 	// Make canvasimagesource from grass tile image string
 	const grassTile = new Image();
 	grassTile.src = GrassTile;
+
+	// Create background music
+	const background = new Audio('/src/lib/sounds/background_music.mp3');
 
 	/**
 	 * For some reason JavaScript makes negative input negative output for modulo...
@@ -354,7 +358,13 @@
 
 		// Keydown event listener is initialized in $: if(ctx) {}
 
+		// play background music
+		background.currentTime = 2.5; // start at 2.5s
+		background.volume = 0.5; // lower volume
+		background.play();
+
 		return () => {
+			background.pause();
 			window.removeEventListener('resize', resizeCanvas);
 			// Remove event listener for keydown
 			window.removeEventListener('keydown', handleKeys);
