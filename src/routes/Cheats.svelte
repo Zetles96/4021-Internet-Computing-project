@@ -1,11 +1,21 @@
 <script>
 	import Modal from '$lib/components/Modal.svelte';
-	import { createEventDispatcher, onMount } from 'svelte';
+	import { createEventDispatcher } from 'svelte';
 
 	const dispatch = createEventDispatcher();
 
 	function closeModal() {
 		dispatch('close');
+	}
+
+	/**
+	 *
+	 * @param {string} cheat
+	 */
+	function useCheat(cheat) {
+		dispatch('useCheat', {
+			cheat
+		})
 	}
 
 	// IDEA
@@ -26,18 +36,22 @@
 				closeModal();
 				break;
 			case '1':
+				useCheat('inc_spd')
 				break;
 			case '2':
+				useCheat('inc_hp')
 				break;
 			case '3':
+				useCheat('inc_dmg')
 				break;
 			case '4':
+				useCheat('instakill')
 				break;
 			case '5':
+				useCheat('inc_range')
 				break;
 			case '6':
-				break;
-			case '7':
+				useCheat('godmode')
 				break;
 			default:
 				break;
@@ -78,19 +92,15 @@
 						</tr>
 						<tr>
 							<td class="border border-slate-700 ...">4</td>
-							<td class="border border-slate-700 ...">Set kill count</td>
-						</tr>
-						<tr>
-							<td class="border border-slate-700 ...">5</td>
 							<td class="border border-slate-700 ...">Instant kill</td>
 						</tr>
 						<tr>
-							<td class="border border-slate-700 ...">6</td>
-							<td class="border border-slate-700 ...">Set remaining time</td>
+							<td class="border border-slate-700 ...">5</td>
+							<td class="border border-slate-700 ...">Increase range</td>
 						</tr>
 						<tr>
-							<td class="border border-slate-700 ...">7</td>
-							<td class="border border-slate-700 ...">Increase range</td>
+							<td class="border border-slate-700 ...">6</td>
+							<td class="border border-slate-700 ...">(Almost-)Godmode</td>
 						</tr>
 					</tbody>
 				</table>
