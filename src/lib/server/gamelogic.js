@@ -52,8 +52,9 @@ class ServerEnemy extends ServerEntity {
 	}
 
 	update() {
-		this.x += Math.random() * 16;
-		this.y += Math.random() * 16;
+		// TODO: put enemie movement back
+		// this.x += Math.random() * 16;
+		// this.y += Math.random() * 16;
 	}
 }
 
@@ -68,7 +69,28 @@ export class Game {
 		this.enemies = [];
 		this.startTime = Date.now();
 		this.lastUpdateTime = this.startTime;
+
+		this.spawnEnemies(3, 500);
+		this.spawnEnemies(10, 1000);
+		this.spawnEnemies(100, 5000);
+		// this.spawnEnemies(100, 10000);
 		setInterval(this.update.bind(this), 1000 / 60);
+	}
+
+	spawnEnemies(amount, range) {
+		for (let i = 0; i < amount; i++) {
+			let x = 0;
+			let y = 0;
+
+			while (x < 50 && x > -50) {
+				x = Math.random() * (range - -range) + -range;
+			}
+			while (y < 50 && y > -50) {
+				y = Math.random() * (range - -range) + -range;
+			}
+
+			this.enemies.push(new ServerEnemy(x, y));
+		}
 	}
 
 	getGameObjects() {
