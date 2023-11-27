@@ -19,15 +19,13 @@
 
 	// jwt token from cookies
 	/**
-	 * @type {string}
+	 * @type {string | null | undefined}
 	 */
 	export let token;
 
 	const socket = io('http://localhost:8000', {
 		query: { token }
 	});
-
-	socket.emit('joinGame');
 
 	socket.on('message', (data) => {
 		console.log('message: ', data);
@@ -52,7 +50,7 @@
 
 	/**
 	 * The game state
-	 * @typedef {{status: string, message: string, game_objects: {[key: string]: {name: string, position: number[], sprite: string, health: number, animation: string, direction: string}}}} GameState
+	 * @typedef {{status: string, message: string, game_objects: {[key: string]: {name: string, position: number[], score: number, sprite: string, health: number, animation: string, direction: string}}}} GameState
 	 */
 
 	/**
@@ -66,17 +64,42 @@
 		gameState = data;
 	});
 
+
+	// On initial load, join the game
+	socket.emit('joinGame');
+
 	/**
 	 * Dictionary of all game objects with key being ID and value being the object
 	 * @type {{[key: string]: Entity}}
 	 */
 	let gameStateEntities = {};
 
+	let gameID = 'game1';
 	let playerID = 'player1';
 	socket.on('joined', (data) => {
 		console.log('Joined game: ', data);
 		playerID = data.player_id;
 	});
+	socket.on('joinedGameId', (gameId) => {
+		console.log('Game id: ', gameId);
+		gameID = gameId;
+	});
+	let playerIsDead = false;
+	function playAgain() {
+		if (socket.disconnected) {
+			socket.connect();
+		}
+
+		if (gameID !== 'game1') {
+			socket.emit('leave', gameID);
+		}
+
+		gameState = { status: 'loading', message: 'Loading game...', game_objects: {} };
+		gameStateEntities = {};
+		playerIsDead = false;
+
+		socket.emit('joinGame');
+	}
 
 	let isPlaying = false;
 	let showCheats = false;
@@ -109,6 +132,10 @@
 	}
 
 	function toMenu() {
+		if (gameID !== 'game1') {
+			socket.emit('leave', gameID);
+		}
+
 		dispatch('back');
 	}
 
@@ -222,6 +249,11 @@
 				if (id === playerID) {
 					player_pos[0] = entity.position[0];
 					player_pos[1] = entity.position[1];
+
+					if (entity.health <= 0 && !playerIsDead) {
+						playerIsDead = true;
+						player_sounds.die.play();
+					}
 
 					// Ensure the player game object is at the last index of the game state array
 					// such that it is drawn on top of all other game objects
@@ -475,8 +507,8 @@
 		<p class="status">{gameState.message}</p>
 		{#if showCheats}
 			<Cheats on:close={() => (showCheats = false)} />
-		{:else if gameState.status === 'game_over'}
-			<GameOver on:close={toMenu} on:playAgain={toMenu} />
+		{:else if gameState.status === 'ended' || playerIsDead}
+			<GameOver gameState={gameState} on:close={toMenu} on:playAgain={playAgain} />
 		{/if}
 		<!-- <button class='backbutton' on:click={toMenu}>Back to Menu</button> -->
 		<!--		<button class='gameOver' on:click={toGameOver}>Game Over</button>-->

@@ -1,5 +1,5 @@
 const TPS = 20;
-const GAME_TIME = 60 * 2; // 2 minutes
+const GAME_TIME = 30; // 2 minutes
 const WAIT_TIME = 10;
 
 const PLAYER_TYPES = ['samurai', 'samuraiarcher', 'samuraicommander'];
@@ -27,8 +27,8 @@ class ServerPlayer extends ServerEntity {
 		super(
 			socket.id,
 			socket.username,
-			0,
-			0,
+			Math.floor(Math.random() * (50 - -50) + -50),
+			Math.floor(Math.random() * (50 - -50) + -50),
 			PLAYER_TYPES[Math.floor(Math.random() * PLAYER_TYPES.length)]
 		);
 		this.socket = socket;
@@ -188,7 +188,7 @@ export class Game {
 		this.spawnEnemies(10, 1000);
 		this.spawnEnemies(100, 5000);
 		// this.spawnEnemies(100, 10000);
-		setInterval(this.update.bind(this), 10);
+		this.updateSchedule = setInterval(this.update.bind(this), 10);
 	}
 
 	spawnEnemies(amount, range) {
@@ -197,10 +197,10 @@ export class Game {
 			let y = 0;
 
 			while (x < 50 && x > -50) {
-				x = Math.random() * (range - -range) + -range;
+				x = Math.floor(Math.random() * (range - -range) + -range);
 			}
 			while (y < 50 && y > -50) {
-				y = Math.random() * (range - -range) + -range;
+				y = Math.floor(Math.random() * (range - -range) + -range);
 			}
 
 			this.enemies.push(new ServerEnemy(x, y));
@@ -215,6 +215,7 @@ export class Game {
 			gameObjects[id] = {
 				name: player.name,
 				position: [player.x, player.y],
+				score: player.score,
 				sprite: player.type,
 				health: player.health,
 				animation: player.animation,
@@ -226,6 +227,7 @@ export class Game {
 			gameObjects[e.id] = {
 				name: e.name,
 				position: [e.x, e.y],
+				score: -1,
 				sprite: e.type,
 				health: e.health,
 				animation: e.animation,
@@ -324,7 +326,7 @@ export class Game {
 		if (this.status === 'waiting') {
 			if (seconds > WAIT_TIME) {
 				this.status = 'playing';
-				this.message = 'Game started';
+				this.message = `${Math.floor(GAME_TIME+WAIT_TIME-seconds)} seconds remaining...`;
 			} else {
 				this.message = `Waiting for players: ${Math.floor(
 					WAIT_TIME - seconds
@@ -333,7 +335,19 @@ export class Game {
 		} else if (seconds > GAME_TIME + WAIT_TIME) {
 			this.status = 'ended';
 			this.message = 'Game ended';
+			this.sendUpdate();
+
+			// Close game and websocket connection
+			for (const id in this.players) {
+				const player = this.players[id];
+				player.socket.leave(this.id);
+			}
+			// stop update schedule
+			clearInterval(this.updateSchedule);
+
+			return;
 		} else {
+			this.message = `${Math.floor(GAME_TIME+WAIT_TIME-seconds)} seconds remaining...`;
 			// Update players
 			for (const id in this.players) {
 				const player = this.players[id];
